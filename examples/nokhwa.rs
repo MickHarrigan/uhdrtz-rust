@@ -1,7 +1,6 @@
 use nokhwa::pixel_format::RgbFormat;
 use nokhwa::utils::{
-    CameraFormat, CameraIndex, FrameFormat, KnownCameraControl, RequestedFormat,
-    RequestedFormatType, Resolution,
+    CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
 };
 use nokhwa::{Buffer, Camera};
 
@@ -27,15 +26,8 @@ fn main() {
         &frame.buffer(),
         FrameFormat::MJPEG,
     );
-    let val = buffer
-        .decode_image::<RgbFormat>()
-        .unwrap()
-        .save("image.png");
-
-    if let Ok(_) = val {
-        println!("Image was created, I think");
-        // at this point in the testing this did take an image of me lol
-    } else {
-        println!("Image was not able to be created");
-    }
+    let buf = buffer.decode_image::<RgbFormat>().unwrap();
+    let (wt, ht) = (buf.width(), buf.height());
+    println!("Buffer size of {} x {}", wt, ht);
+    buf.save("image.png").expect("Image was unable to be saved");
 }
