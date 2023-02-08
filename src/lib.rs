@@ -1,10 +1,10 @@
-pub use opencv;
 pub mod components;
 pub mod plugin;
+pub use nokhwa;
 mod systems;
 
 pub mod prelude {
-    pub use crate::{components::CaptureDevice, plugin::ZoetropePlugin};
+    pub use crate::{components::CaptureDevice, plugin::ZoetropePlugin}; // temporary names for right now, these may change based on the current needs of the project
 }
 
 #[cfg(test)]
