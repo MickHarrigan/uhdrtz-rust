@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.9.1"
-nokhwa = "0.10.3"
+nokhwa = { version = "0.10.3", features = ["input-native", "output-wgpu"] }
