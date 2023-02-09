@@ -164,7 +164,7 @@ fn main() {
         .add_startup_system(setup_physical_camera)
         // .add_system(simple_checks)
         .add_system(handle_video_frame)
-        // .add_system(camera_rotation) // function that rotates the camera automatically, will update to be based on input next
+        .add_system(camera_rotation) // function that rotates the camera automatically, will update to be based on input next
         .run()
 }
 
@@ -193,7 +193,7 @@ fn setup_physical_camera(
 
     commands
         .spawn(Camera2dBundle {
-            transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 0., 10.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(cam);
@@ -223,7 +223,7 @@ fn setup_physical_camera(
         // the clone() could be redundant, so will have to check that in the coming time
         texture: video_images.0.clone_weak(),
         // texture: handle,
-        transform: Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
+        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
         ..default()
     });
     // commands.spawn(PbrBundle {
@@ -238,6 +238,7 @@ fn setup_physical_camera(
 
 fn camera_rotation(time: Res<Time>, mut query: Query<&mut Transform, With<Camera>>) {
     for mut transform in query.iter_mut() {
+        // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
         transform.rotate_z(time.delta_seconds());
     }
 }
