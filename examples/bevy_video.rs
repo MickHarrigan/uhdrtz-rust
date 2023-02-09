@@ -1,6 +1,9 @@
 use bevy::prelude::*;
+use std::sync::{mpsc::Sender, Arc, Mutex};
 
-use nokhwa::pixel_format::RgbFormat;
+use flume::unbounded;
+use image::RgbaImage;
+use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{
     CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
 };
@@ -8,11 +11,31 @@ use nokhwa::Buffer;
 use nokhwa::Camera as PhysicalCamera;
 
 #[derive(Component)]
-struct VideoStream;
+struct VideoStream {
+    sender: Mutex<Sender<Option<VideoFrame>>>,
+    next_frame: Arc<Mutex<Option<VideoFrame>>>,
+    render_target: Handle<Image>,
+}
+
+#[derive(Resource)]
+struct VideoFrame(pub RgbaImage);
 
 impl VideoStream {
-    pub fn new(index: u32, format: RequestedFormat) -> Image {
+    pub fn new(index: u32, format: RequestedFormat) -> (Handle<Image>, VideoStream) {
         // create a new camera connection a la the nokhwa example
+        let (sender, receiver) = unbounded::<Option<VideoFrame>>();
+        let next_frame = Arc::new(Mutex::new(None));
+        std::thread::spawn({
+            let next_frame = next_frame.clone();
+            move || {
+                // maybe spawn a camera here?
+                for video_packet in receiver {
+                    if let Some(packet) = video_packet {
+                        // not sure what to do here
+                    }
+                }
+            }
+        });
         let mut camera = PhysicalCamera::new(CameraIndex::Index(index), format)
             .expect("Could not create a physical camera connection");
 
@@ -64,9 +87,7 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, assets: Res<
 }
 
 fn camera_rotation(time: Res<Time>, mut query: Query<&mut Transform, With<Camera>>) {
-    // let sec = time.elapsed_seconds() * 0.2;
     for mut transform in query.iter_mut() {
-        // *transform = Transform::from_xyz(sec.sin() * 5.0, 2.5, sec.cos() * 5.0)
         transform.rotate_z(time.delta_seconds());
     }
 }
