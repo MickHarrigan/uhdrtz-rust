@@ -18,7 +18,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use uhdrtz::prelude::ZoetropePlugin;
+    use super::*;
 
     #[test]
     fn diagnostics() {
