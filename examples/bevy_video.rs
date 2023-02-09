@@ -1,7 +1,5 @@
 use anyhow::Result;
-use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
-use bevy::render::extract_resource::{ExtractResource, ExtractResourcePlugin};
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::render::texture::{CompressedImageFormats, ImageType};
 use flume::unbounded;
@@ -18,8 +16,8 @@ struct VideoStream {
     pub image_rx: flume::Receiver<RgbaImage>,
 }
 
-#[derive(Resource, ExtractResource, Clone)]
-struct VideoFrame(pub RgbaImage);
+#[derive(Resource, Clone)]
+struct VideoFrame(pub Handle<Image>);
 
 impl VideoStream {
     pub fn new(index: u32, format: RequestedFormat) -> Result<Self> {
@@ -53,10 +51,27 @@ impl VideoStream {
     }
 }
 
-fn handle_video_frame(cam_query: Query<&mut VideoStream>, mut image: ResMut<VideoFrame>) {
+fn handle_video_frame(
+    cam_query: Query<&mut VideoStream>,
+    mut image: ResMut<VideoFrame>,
+    mut images: ResMut<Assets<Image>>,
+) {
     for camera in cam_query.iter() {
         while let Some(img) = camera.image_rx.drain().last() {
-            image.0 = img;
+            // image.0 = img;
+            // instead of setting a resource, try querying for the image handle itself to change
+            let texture = images.add(Image::new_fill(
+                Extent3d {
+                    width: 3840,
+                    height: 2160,
+                    depth_or_array_layers: 1,
+                },
+                TextureDimension::D2,
+                &img,
+                TextureFormat::Rgba8UnormSrgb,
+            ));
+            println!("{:?}", texture);
+            image.0 = texture;
         }
     }
 }
@@ -72,8 +87,8 @@ fn main() {
             },
             ..default()
         }))
-        .insert_resource(VideoFrame(RgbaImage::new(3840, 2160)))
-        .add_plugin(ExtractResourcePlugin::<VideoFrame>::default())
+        // .insert_resource(VideoFrame(RgbaImage::new(3840, 2160)))
+        .insert_resource(VideoFrame(Handle::default()))
         .add_system(handle_video_frame)
         // .add_startup_system(setup_logical_camera)
         .add_startup_system(setup_physical_camera)
@@ -86,7 +101,7 @@ fn setup_logical_camera(mut commands: Commands) {}
 fn setup_physical_camera(
     mut commands: Commands,
     mut images: ResMut<Assets<Image>>,
-    video_images: ResMut<VideoFrame>,
+    video_images: Res<VideoFrame>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     // assets: ResMut<AssetServer>,
@@ -107,7 +122,7 @@ fn setup_physical_camera(
     .unwrap();
 
     commands
-        .spawn(Camera3dBundle {
+        .spawn(Camera2dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
@@ -123,32 +138,32 @@ fn setup_physical_camera(
     // NOTE: video_images.0 is all 0s for some reason
     // println!("{:?}", video_images.0);
 
-    let video_output = images.add(bevy::render::texture::Image::new_fill(
-        Extent3d {
-            width: 3840,
-            height: 2160,
-            depth_or_array_layers: 1,
-        },
-        TextureDimension::D2,
-        &video_images.0,
-        TextureFormat::Rgba8UnormSrgb,
-    ));
+    // let video_output = images.add(bevy::render::texture::Image::new_fill(
+    //     Extent3d {
+    //         width: 3840,
+    //         height: 2160,
+    //         depth_or_array_layers: 1,
+    //     },
+    //     TextureDimension::D2,
+    //     &video_images.0,
+    //     TextureFormat::Rgba8UnormSrgb,
+    // ));
 
-    // commands.spawn(SpriteBundle {
-    //     // the clone() could be redundant, so will have to check that in the coming time
-    //     texture: video_output,
-    //     // texture: handle,
-    //     transform: Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
-    //     ..default()
-    // });
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
-        material: materials.add(StandardMaterial {
-            base_color_texture: Some(video_output.clone()),
-            ..default()
-        }),
+    commands.spawn(SpriteBundle {
+        // the clone() could be redundant, so will have to check that in the coming time
+        texture: video_images.0.clone(),
+        // texture: handle,
+        transform: Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
         ..default()
     });
+    // commands.spawn(PbrBundle {
+    //     mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
+    //     material: materials.add(StandardMaterial {
+    //         base_color_texture: Some(video_output.clone()),
+    //         ..default()
+    //     }),
+    //     ..default()
+    // });
 }
 
 fn camera_rotation(time: Res<Time>, mut query: Query<&mut Transform, With<Camera>>) {
