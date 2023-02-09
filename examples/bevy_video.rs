@@ -1,10 +1,12 @@
 use anyhow::Result;
 use bevy::prelude::*;
+
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::render::texture::{CompressedImageFormats, ImageType};
 use flume::unbounded;
 
 use image::{DynamicImage, RgbaImage};
+
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{
     CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
@@ -28,6 +30,7 @@ impl VideoStream {
             let image = buffer.decode_image::<RgbAFormat>().unwrap();
             let _ = sender.send(image);
         };
+
 
         let mut threaded_camera =
             CallbackCamera::new(CameraIndex::Index(index), format, callback_fn)
