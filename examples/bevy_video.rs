@@ -53,27 +53,98 @@ impl VideoStream {
 
 fn handle_video_frame(
     cam_query: Query<&mut VideoStream>,
-    mut image: ResMut<VideoFrame>,
+    // texture_query: Query<&mut Handle<Image>>,
+    image: Res<VideoFrame>,
     mut images: ResMut<Assets<Image>>,
+    mut tex_query: Query<&mut Handle<Image>>,
 ) {
     for camera in cam_query.iter() {
         while let Some(img) = camera.image_rx.drain().last() {
+            for mut tex in &mut tex_query.iter_mut() {
+                *tex = images.set(
+                    &image.0,
+                    Image::new_fill(
+                        Extent3d {
+                            width: 3840,
+                            height: 2160,
+                            depth_or_array_layers: 1,
+                        },
+                        TextureDimension::D2,
+                        &img,
+                        TextureFormat::Rgba8UnormSrgb,
+                    ),
+                );
+                // this shows that there are images within tex
+                // println!("{:?}", images.get(&tex));
+            }
             // image.0 = img;
             // instead of setting a resource, try querying for the image handle itself to change
-            let texture = images.add(Image::new_fill(
-                Extent3d {
-                    width: 3840,
-                    height: 2160,
-                    depth_or_array_layers: 1,
-                },
-                TextureDimension::D2,
-                &img,
-                TextureFormat::Rgba8UnormSrgb,
-            ));
-            println!("{:?}", texture);
-            image.0 = texture;
+            // let texture = images.add(Image::new_fill(
+            //     Extent3d {
+            //         width: 3840,
+            //         height: 2160,
+            //         depth_or_array_layers: 1,
+            //     },
+            //     TextureDimension::D2,
+            //     &img,
+            //     TextureFormat::Rgba8UnormSrgb,
+            // ));
+            // println!("{:?}", texture);
+            // image.0 = images.set(
+            //     &image.0,
+            //     Image::new_fill(
+            //         Extent3d {
+            //             width: 3840,
+            //             height: 2160,
+            //             depth_or_array_layers: 1,
+            //         },
+            //         TextureDimension::D2,
+            //         &img,
+            //         TextureFormat::Rgba8UnormSrgb,
+            //     ),
+            // );
         }
     }
+}
+
+fn simple_checks_startup(
+    cam_query: Query<&mut VideoStream>,
+    // texture_query: Query<&mut Handle<Image>>,
+    mut image: ResMut<VideoFrame>,
+    mut images: ResMut<Assets<Image>>,
+) {
+    println!("{:?}", image.0);
+    // this below returns None
+    println!("{:?}", images.get(&image.0));
+    // this changes the handle to a strong, but is conveniently weak as soon as this ends
+    println!("{:?}", images.set(&image.0, Image::default()));
+    // that is why adding this should then update the handle across the board
+    // SUCCESS: this did work
+    image.0 = images.set(&image.0, Image::default());
+    println!("{:?}", images.get(&image.0));
+
+    // for camera in cam_query.iter() {
+    //     while let Some(img) = camera.image_rx.drain().last() {
+    //     }
+    // }
+}
+
+fn simple_checks(
+    cam_query: Query<&mut VideoStream>,
+    // texture_query: Query<&mut Handle<Image>>,
+    image: ResMut<VideoFrame>,
+    mut images: ResMut<Assets<Image>>,
+    mut tex_query: Query<&mut Handle<Image>>,
+) {
+    // this should check the VideoFrame and VideoStream to make sure that they are functioning correctly
+    for (cam, count) in cam_query.iter().zip(0..) {
+        // this proves that there is only the single VideoStream
+        // println!("Camera Found! {}", count);
+    }
+    // for mut tex in &mut tex_query.iter_mut() {
+    //     *tex = image.0.clone();
+    // }
+    println!("{:?}", image.0);
 }
 
 fn main() {
@@ -89,14 +160,13 @@ fn main() {
         }))
         // .insert_resource(VideoFrame(RgbaImage::new(3840, 2160)))
         .insert_resource(VideoFrame(Handle::default()))
-        .add_system(handle_video_frame)
-        // .add_startup_system(setup_logical_camera)
+        .add_startup_system(simple_checks_startup)
         .add_startup_system(setup_physical_camera)
+        // .add_system(simple_checks)
+        .add_system(handle_video_frame)
         // .add_system(camera_rotation) // function that rotates the camera automatically, will update to be based on input next
         .run()
 }
-
-fn setup_logical_camera(mut commands: Commands) {}
 
 fn setup_physical_camera(
     mut commands: Commands,
@@ -151,7 +221,7 @@ fn setup_physical_camera(
 
     commands.spawn(SpriteBundle {
         // the clone() could be redundant, so will have to check that in the coming time
-        texture: video_images.0.clone(),
+        texture: video_images.0.clone_weak(),
         // texture: handle,
         transform: Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
         ..default()
