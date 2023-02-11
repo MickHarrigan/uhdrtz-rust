@@ -46,3 +46,9 @@ impl VideoStream {
         Ok(Self { image_rx: receiver })
     }
 }
+
+impl Drop for VideoStream {
+    fn drop(&mut self) {
+        println!("VideoStream Dropped!");
+    }
+}
