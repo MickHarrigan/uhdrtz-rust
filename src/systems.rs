@@ -82,6 +82,16 @@ pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>)
         .show(egui_ctx.ctx_mut(), |ui| {
             ui.label("What the fuck is up kyle!");
         });
+
+        //Should implement a slider. Got not clue for what tho
+        // if ui.add(egui::DragValue::new(camera.get_mut_i64_control(known_control).unwrap(),)).changed() { //I belive this checks to see if a part of known_controls has changed
+        //     let _ = camera.operating_tx.try_send(CameraOperation::Control { //Attempts to send the new change to the camera
+        //         id: known_control.clone(),
+        //         control: camera.controls.get(known_control).unwrap().clone(),
+        //     });
+        // };
+
+        ui.add(egui::Slider::new(&mut my_f32, 0.0..=100.0).text("Test Value").show_value(true));
 }
 
 pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
