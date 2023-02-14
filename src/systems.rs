@@ -1,11 +1,11 @@
 use crate::components::{VideoFrame, VideoStream};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
+use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
-use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
 
-#[derive(Resource,Default)]
+#[derive(Resource, Default)]
 pub struct UiState {
     pub is_window_open: bool,
 }
@@ -74,7 +74,8 @@ pub fn setup_physical_camera(mut commands: Commands, video_images: Res<VideoFram
     });
 }
 
-pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>)  { //Unsure if UiState needs to be initialized somewhere)
+pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
+    //Unsure if UiState needs to be initialized somewhere)
     egui::Window::new("Window")
         .vscroll(true)
         .open(&mut ui_state.is_window_open) //unsure if I can remove this part or not (might depend on button press)
@@ -83,8 +84,8 @@ pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>)
         });
 }
 
-pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut is_window_open: Local<Option<bool>>){
-    if keyboard_input.just_pressed(KeyCode::Slash) || is_window_open.is_none() {
-        *is_window_open = Some(!is_window_open.unwrap_or(true));
+pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        ui_state.is_window_open = !ui_state.is_window_open;
     }
 }
