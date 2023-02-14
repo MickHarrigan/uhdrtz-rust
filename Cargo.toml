@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.69"
 bevy = "0.9.1"
+bevy_egui = "0.19.0"
+egui = "0.21.0"
 flume = "0.10.14"
 image = "0.24.5"
 nokhwa = { version = "0.10.3", features = ["input-native", "output-threaded"] }
