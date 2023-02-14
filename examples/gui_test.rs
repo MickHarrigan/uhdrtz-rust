@@ -1,8 +1,8 @@
+use bevy::ecs::system::ResMut;
 use bevy::prelude::App;
+use bevy::DefaultPlugins;
 use bevy_egui::EguiPlugin;
 use uhdrtz::prelude::*;
-use bevy::DefaultPlugins;
-use bevy::ecs::system::ResMut;
 
 fn main() {
     App::new()
@@ -11,6 +11,7 @@ fn main() {
         .add_plugin(EguiPlugin)
         .add_startup_system(configure_ui_state)
         .add_system(ui_test)
+        .add_system(open_window)
         .run();
 }
 
