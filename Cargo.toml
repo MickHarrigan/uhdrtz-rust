@@ -7,7 +7,9 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.69"
+async-std = { version = "1.12.0", features = ["attributes"] }
 bevy = "0.9.1"
+bevy-tokio-tasks = "0.9.4"
 btleplug = "0.10.4"
 flume = "0.10.14"
 futures = "0.3.26"
