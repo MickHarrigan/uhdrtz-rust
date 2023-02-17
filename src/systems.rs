@@ -75,12 +75,14 @@ pub fn setup_physical_camera(mut commands: Commands, video_images: Res<VideoFram
 }
 
 pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
+    let mut my_f32 = 0.0;
     //Unsure if UiState needs to be initialized somewhere)
     egui::Window::new("Window")
         .vscroll(true)
         .open(&mut ui_state.is_window_open) //unsure if I can remove this part or not (might depend on button press)
         .show(egui_ctx.ctx_mut(), |ui| {
             ui.label("What the fuck is up kyle!");
+            ui.add(egui::Slider::new(&mut my_f32, 0.0..=100.0).text("Test Value").show_value(true));
         });
 
         //Should implement a slider. Got not clue for what tho
@@ -90,8 +92,6 @@ pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>)
         //         control: camera.controls.get(known_control).unwrap().clone(),
         //     });
         // };
-
-        ui.add(egui::Slider::new(&mut my_f32, 0.0..=100.0).text("Test Value").show_value(true));
 }
 
 pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
