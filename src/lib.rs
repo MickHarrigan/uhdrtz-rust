@@ -1,3 +1,4 @@
+pub mod bluetooth;
 pub mod components;
 pub mod plugin;
 pub use nokhwa;

@@ -8,8 +8,13 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.69"
 bevy = "0.9.1"
+bevy-tokio-tasks = "0.9.4"
+btleplug = "0.10.4"
 bevy_egui = "0.19.0"
 egui = "0.21.0"
 flume = "0.10.14"
+futures = "0.3.26"
 image = "0.24.5"
 nokhwa = { version = "0.10.3", features = ["input-native", "output-threaded"] }
+tokio = { version = "1.25.0", features = ["full"] }
+uuid = "1.3.0"
