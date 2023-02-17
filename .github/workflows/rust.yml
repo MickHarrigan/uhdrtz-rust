@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Install Packages
-      run: sudo apt install -y libasound2-dev
+      run: sudo apt install -y libasound2-dev pkg-config clang libudev-dev
     - uses: actions/checkout@v3
     - name: Build
       run: cargo build --verbose
