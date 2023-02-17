@@ -106,7 +106,7 @@ async fn main() -> Result<()> {
                                     //     local_name, data.uuid, data.value
                                     // );
                                     let crank_value = data.value;
-                                    println!("{:?}", crank_value.iter().next().unwrap());
+                                    println!("{:?}", crank_value.iter().next().unwrap_or(&0));
                                 }
                             }
                         }
