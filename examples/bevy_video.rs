@@ -1,50 +1,5 @@
 use bevy::prelude::*;
-use std::sync::{mpsc::Sender, Arc, Mutex};
-
-use flume::unbounded;
-use image::RgbaImage;
-use nokhwa::pixel_format::RgbAFormat;
-use nokhwa::utils::{
-    CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
-};
-use nokhwa::Buffer;
-use nokhwa::Camera as PhysicalCamera;
-
-#[derive(Component)]
-struct VideoStream {
-    sender: Mutex<Sender<Option<VideoFrame>>>,
-    next_frame: Arc<Mutex<Option<VideoFrame>>>,
-    render_target: Handle<Image>,
-}
-
-#[derive(Resource)]
-struct VideoFrame(pub RgbaImage);
-
-impl VideoStream {
-    pub fn new(index: u32, format: RequestedFormat) -> (Handle<Image>, VideoStream) {
-        // create a new camera connection a la the nokhwa example
-        let (sender, receiver) = unbounded::<Option<VideoFrame>>();
-        let next_frame = Arc::new(Mutex::new(None));
-        std::thread::spawn({
-            let next_frame = next_frame.clone();
-            move || {
-                // maybe spawn a camera here?
-                for video_packet in receiver {
-                    if let Some(packet) = video_packet {
-                        // not sure what to do here
-                    }
-                }
-            }
-        });
-        let mut camera = PhysicalCamera::new(CameraIndex::Index(index), format)
-            .expect("Could not create a physical camera connection");
-
-        camera
-            .open_stream()
-            .expect("Could not open the camera stream");
-        todo!();
-    }
-}
+use uhdrtz::prelude::*;
 
 fn main() {
     App::new()
@@ -57,37 +12,32 @@ fn main() {
             },
             ..default()
         }))
-        .add_startup_system(setup)
-        .add_system(camera_rotation) // function that rotates the camera automatically, will update to be based on input next
+        .add_plugin(ZoetropePlugin)
         .run()
 }
 
-fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, assets: Res<AssetServer>) {
-    // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
-    // then open a stream from the camera with the right settings
-    // then constantly (read: every frame of the "game") get and image from the camera
-    // and to display that image to a plane that a 2d camera is looking at
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    // TODO: this should be filled in from the nokhwa stuff
-    // let video_output: Handle<Image> = images.add(Image::default());
-    let video_output = assets.load("image.png");
+    #[test]
+    fn diagnostics() {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugin(ZoetropePlugin)
+            .add_startup_system(simple_checks_startup)
+            .run();
+    }
 
-    // TODO: this camera could be tweaked to change where and what it is looking at
-    commands.spawn(Camera2dBundle {
-        transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
-
-    commands.spawn(SpriteBundle {
-        // the clone() could be redundant, so will have to check that in the coming time
-        texture: video_output.clone(),
-        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
-        ..default()
-    });
-}
-
-fn camera_rotation(time: Res<Time>, mut query: Query<&mut Transform, With<Camera>>) {
-    for mut transform in query.iter_mut() {
-        transform.rotate_z(time.delta_seconds());
+    fn simple_checks_startup(mut image: ResMut<VideoFrame>, mut images: ResMut<Assets<Image>>) {
+        println!("{:?}", image.0);
+        // this below returns None
+        println!("{:?}", images.get(&image.0));
+        // this changes the handle to a strong, but is conveniently weak as soon as this ends
+        println!("{:?}", images.set(&image.0, Image::default()));
+        // that is why adding this should then update the handle across the board
+        // SUCCESS: this did work
+        image.0 = images.set(&image.0, Image::default());
+        println!("{:?}", images.get(&image.0));
     }
 }
