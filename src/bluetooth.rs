@@ -3,24 +3,28 @@ use bevy_tokio_tasks::*;
 use futures::stream::StreamExt;
 use std::time::Duration;
 
+#[allow(unused_imports)]
 use btleplug::api::{Central, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
+#[allow(unused_imports)]
 use btleplug::platform::{Adapter, Manager, Peripheral};
 use uuid::Uuid;
 
+// constants
 const PERIPHERAL_NAME_MATCH_FILTER: &str = "Arduino";
 
 const NOTIFY_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x13012F00_F8C3_4F4A_A8F4_15CD926DA146);
 
+// resource
 #[derive(Resource)]
-struct ZoetropeRotation(i8);
+pub struct ZoetropeRotation(pub i8);
 
-fn demo(rt: ResMut<TokioTasksRuntime>, mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+// system
+pub fn async_spawner(rt: ResMut<TokioTasksRuntime>) {
     rt.spawn_background_task(update_rotation);
 }
 
-async fn update_rotation(mut ctx: TaskContext) {
-    // first part should be run only once, while the sending part should be done constantly
+// async function
+pub async fn update_rotation(mut ctx: TaskContext) {
     let manager = Manager::new().await.unwrap();
     let adapter_list = manager.adapters().await.unwrap();
     if adapter_list.is_empty() {
@@ -47,10 +51,6 @@ async fn update_rotation(mut ctx: TaskContext) {
                     .unwrap()
                     .local_name
                     .unwrap_or(String::from("(peripheral name unknown)"));
-                // println!(
-                //     "Peripheral {:?} is connected: {:?}",
-                //     &local_name, is_connected
-                // );
                 // Check if it's the peripheral we want.
                 if local_name.contains(PERIPHERAL_NAME_MATCH_FILTER) {
                     println!("Found matching peripheral {:?}...", &local_name);
@@ -84,7 +84,7 @@ async fn update_rotation(mut ctx: TaskContext) {
                                             if let Some(mut rotation) =
                                                 ctx.world.get_resource_mut::<ZoetropeRotation>()
                                             {
-                                                let val = *data.value.iter().next().unwrap_or(&0); // change this to fit the correct rotation values
+                                                let val = *data.value.iter().next().unwrap_or(&0);
                                                 #[allow(unused_assignments)]
                                                 let mut out: i8 = 0;
                                                 if val > 128 {
@@ -93,6 +93,7 @@ async fn update_rotation(mut ctx: TaskContext) {
                                                     out = val as i8;
                                                 }
 
+                                                // NOTE: this should be implemented to stop from rotating too quickly
                                                 // if val > MAX {
                                                 //     val = MAX;
                                                 // } else if val < -1 * MAX {
@@ -100,10 +101,11 @@ async fn update_rotation(mut ctx: TaskContext) {
                                                 // }
 
                                                 rotation.0 = out;
-                                                println!(
-                                                    "Changed the rotation to {:?}",
-                                                    rotation.0
-                                                );
+                                                // NOTE: this can be commented out for now and/or made into a cli argument if need be later
+                                                // println!(
+                                                //     "Changed the rotation to {:?}",
+                                                //     rotation.0
+                                                // );
                                             }
                                         })
                                         .await;
