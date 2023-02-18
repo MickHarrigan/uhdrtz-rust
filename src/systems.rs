@@ -5,11 +5,14 @@ use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
 
+#[derive(Component)]
+pub struct ZoetropeImage;
+
 pub fn update_zoetrope_image(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,
     mut images: ResMut<Assets<Image>>,
-    mut tex_query: Query<&mut Handle<Image>>,
+    mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
 ) {
     for camera in cam_query.iter() {
         while let Some(img) = camera.image_rx.drain().last() {
@@ -43,7 +46,11 @@ pub fn logical_camera_rotation(
     }
 }
 
-pub fn physical_camera_setup(mut commands: Commands, video_images: Res<VideoFrame>) {
+pub fn physical_camera_setup(
+    mut commands: Commands,
+    video_images: Res<VideoFrame>,
+    server: Res<AssetServer>,
+) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
     // then constantly (read: every frame of the "game") get and image from the camera
@@ -61,13 +68,21 @@ pub fn physical_camera_setup(mut commands: Commands, video_images: Res<VideoFram
 
     commands
         .spawn(Camera2dBundle {
-            transform: Transform::from_xyz(0., 0., 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(cam);
 
+    commands
+        .spawn(SpriteBundle {
+            texture: video_images.0.clone_weak(),
+            transform: Transform::from_xyz(0.0, 0.0, -1.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        })
+        .insert(ZoetropeImage);
+
     commands.spawn(SpriteBundle {
-        texture: video_images.0.clone_weak(),
+        texture: server.load("mask.png"),
         transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
