@@ -1,3 +1,4 @@
+// This is for the handling of the physical camera and its implementation of the overall controlling within the other modules.
 use anyhow::Result;
 use bevy::asset::Handle;
 use bevy::ecs::{component::Component, system::Resource};
