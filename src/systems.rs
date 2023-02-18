@@ -1,4 +1,5 @@
-use crate::components::{VideoFrame, VideoStream};
+use crate::bluetooth::ZoetropeRotation;
+use crate::camera::{VideoFrame, VideoStream};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
@@ -10,7 +11,7 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
-pub fn handle_video_frame(
+pub fn update_zoetrope_image(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,
     mut images: ResMut<Assets<Image>>,
@@ -37,14 +38,18 @@ pub fn handle_video_frame(
     }
 }
 
-pub fn camera_rotation(time: Res<Time>, mut query: Query<&mut Transform, With<Camera>>) {
+pub fn logical_camera_rotation(
+    time: Res<Time>,
+    mut query: Query<&mut Transform, With<Camera>>,
+    rotation: Res<ZoetropeRotation>,
+) {
     for mut transform in query.iter_mut() {
         // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
-        transform.rotate_z(time.delta_seconds());
+        transform.rotate_z(time.delta_seconds() * rotation.0 as f32);
     }
 }
 
-pub fn setup_physical_camera(mut commands: Commands, video_images: Res<VideoFrame>) {
+pub fn physical_camera_setup(mut commands: Commands, video_images: Res<VideoFrame>) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
     // then constantly (read: every frame of the "game") get and image from the camera
@@ -69,7 +74,7 @@ pub fn setup_physical_camera(mut commands: Commands, video_images: Res<VideoFram
 
     commands.spawn(SpriteBundle {
         texture: video_images.0.clone_weak(),
-        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y), // TODO: update the transform
+        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
 }
