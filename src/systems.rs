@@ -2,11 +2,17 @@ use crate::bluetooth::ZoetropeRotation;
 use crate::camera::{VideoFrame, VideoStream};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
+use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
 
 #[derive(Component)]
 pub struct ZoetropeImage;
+
+#[derive(Resource, Default)]
+pub struct UiState {
+    pub is_window_open: bool,
+}
 
 pub fn update_zoetrope_image(
     cam_query: Query<&mut VideoStream>,
@@ -86,4 +92,50 @@ pub fn physical_camera_setup(
         transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
+}
+
+pub fn ui_test(mut egui_ctx: ResMut<EguiContext>, mut ui_state: ResMut<UiState>) {
+    // Remove this section when fully implementing
+    let mut my_f32 = 0.0;
+    let mut crosshair = true;
+    #[derive(PartialEq)]
+    enum Enum {
+        First,
+        Second,
+        Third,
+    }
+    let mut my_enum = Enum::First;
+    // End of remove section
+    //Unsure if UiState needs to be initialized somewhere)
+    egui::Window::new("Settings")
+        .vscroll(true)
+        .open(&mut ui_state.is_window_open) //unsure if I can remove this part or not (might depend on button press)
+        .show(egui_ctx.ctx_mut(), |ui| {
+            ui.label("Color Section");
+            ui.add(
+                egui::Slider::new(&mut my_f32, 0.0..=100.0)
+                    .text("Hue")
+                    .show_value(true),
+            );
+            ui.checkbox(&mut crosshair, "Crosshair");
+            ui.separator();
+            ui.label("Select Desired Mask");
+            ui.radio_value(&mut my_enum, Enum::First, "No Mask");
+            ui.radio_value(&mut my_enum, Enum::Second, "Mask 1");
+            ui.radio_value(&mut my_enum, Enum::Third, "Mask 2");
+        });
+
+    //Should implement a slider. Got not clue for what tho
+    // if ui.add(egui::DragValue::new(camera.get_mut_i64_control(known_control).unwrap(),)).changed() { //I belive this checks to see if a part of known_controls has changed
+    //     let _ = camera.operating_tx.try_send(CameraOperation::Control { //Attempts to send the new change to the camera
+    //         id: known_control.clone(),
+    //         control: camera.controls.get(known_control).unwrap().clone(),
+    //     });
+    // };
+}
+
+pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        ui_state.is_window_open = !ui_state.is_window_open;
+    }
 }
