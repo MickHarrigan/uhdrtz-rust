@@ -1,3 +1,4 @@
+// This is for the handling of the physical camera and its implementation of the overall controlling within the other modules.
 use anyhow::Result;
 use bevy::asset::Handle;
 use bevy::ecs::{component::Component, system::Resource};
@@ -49,6 +50,8 @@ impl VideoStream {
 
 impl Drop for VideoStream {
     fn drop(&mut self) {
+        // this should soon be updated to hopefully try and remove the lock poisoning
+        // as I believe that the incorrect dropping of the VideoStream "object" is at play here.
         println!("VideoStream Dropped!");
     }
 }

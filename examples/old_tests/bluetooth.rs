@@ -19,26 +19,6 @@ async fn get_central(manager: &Manager) -> Adapter {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // let manager = Manager::new().await?;
-    // let adapter = get_central(&manager).await;
-    // time::sleep(Duration::from_secs(2)).await;
-
-    // adapter.start_scan(ScanFilter::default()).await?;
-    // let arduino = find_arduino(&adapter, "RotaryArduino".to_string())
-    //     .await
-    //     .unwrap();
-
-    // arduino.connect().await?;
-    // println!("Here!");
-
-    // arduino.discover_services().await?;
-    // let mut notifications = arduino.notifications().await?;
-    // println!("Nots");
-    // while let Some(data) = notifications.next().await {
-    //     println!("Uh");
-    //     println!("{:?}", data.value);
-    // }
-
     let manager = Manager::new().await?;
     let adapter_list = manager.adapters().await?;
     if adapter_list.is_empty() {
@@ -119,38 +99,6 @@ async fn main() -> Result<()> {
             }
         }
     }
-    // let mut events = adapter.events().await?;
-
-    // adapter.start_scan(ScanFilter::default()).await?;
-
-    // while let Some(event) = events.next().await {
-    //     match event {
-    //         CentralEvent::DeviceDiscovered(id) => {
-    //             println!("Device Discovered: {:?}", id);
-    //         }
-    //         CentralEvent::DeviceConnected(id) => {
-    //             println!("Device Connected: {:?}", id);
-    //         }
-    //         CentralEvent::DeviceDisconnected(id) => {
-    //             println!("Device Disconnected: {:?}", id);
-    //         }
-    //         CentralEvent::ManufacturerDataAdvertisement {
-    //             id,
-    //             manufacturer_data,
-    //         } => {
-    //             println!("Man Data: {:?}, {:?}", id, manufacturer_data);
-    //         }
-    //         CentralEvent::ServiceDataAdvertisement { id, service_data } => {
-    //             println!("Service Data: {:?}, {:?}", id, service_data);
-    //         }
-    //         CentralEvent::ServicesAdvertisement { id, services } => {
-    //             let services: Vec<String> =
-    //                 services.into_iter().map(|s| s.to_short_string()).collect();
-    //             println!("Man Data: {:?}, {:?}", id, services);
-    //         }
-    //         _ => {}
-    //     }
-    // }
 
     Ok(())
 }

@@ -1,3 +1,5 @@
+// this is the actual testing ground that is the primary test.
+// This will also be what the final binary should be made of and deployed from.
 use bevy::prelude::*;
 use uhdrtz::prelude::*;
 
