@@ -10,6 +10,7 @@ pub struct ZoetropePlugin;
 impl Plugin for ZoetropePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(VideoFrame(Handle::default()))
+            .insert_resource(ClearColor(Color::BLACK))
             .add_plugin(TokioTasksPlugin::default())
             .insert_resource(ZoetropeRotation(0))
             .add_startup_system(zoetrope_setup)
