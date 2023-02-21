@@ -9,7 +9,7 @@ mod zoetrope;
 pub mod prelude {
     pub use crate::{
         camera::{VideoFrame, VideoStream},
-        gui::{open_window, ui_test, UiState},
+        gui::{change_mask, open_window, ui_test, Crosshair, MaskImage, MaskSetting, UiState},
         plugin::ZoetropePlugin,
     }; // temporary names for right now, these may change based on the current needs of the project
 }
