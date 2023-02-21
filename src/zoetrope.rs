@@ -44,6 +44,7 @@ pub fn zoetrope_setup(
         })
         .insert(ZoetropeImage);
 
+<<<<<<< HEAD
     commands
         .spawn(SpriteBundle {
             texture: server.load("mask_full.png"),
@@ -60,6 +61,13 @@ pub fn zoetrope_setup(
             ..default()
         })
         .insert(MaskImage(HALF));
+=======
+    commands.spawn(SpriteBundle {
+        texture: server.load("mask_full.png"),
+        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+>>>>>>> a2a72bbb5a6beb21f9a7b35704f639234374dfe5
 }
 
 pub fn logical_camera_rotation(
