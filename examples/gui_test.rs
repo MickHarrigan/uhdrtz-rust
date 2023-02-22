@@ -52,4 +52,12 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
             ..default()
         })
         .insert(MaskImage(1));
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("xhair.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::INVISIBLE,
+            ..default()
+        })
+        .insert(CrossImage);
 }
