@@ -28,6 +28,9 @@ pub struct MaskSetting(MaskType);
 #[derive(Resource, Default)]
 pub struct Crosshair(bool);
 
+#[derive(Component)]
+pub struct CrossImage;
+
 #[derive(Resource, Default)]
 pub struct UiState {
     pub is_window_open: bool,
@@ -73,11 +76,7 @@ pub fn ui_test(
     // };
 }
 
-pub fn change_mask(
-    mask: Res<MaskSetting>,
-    mut crosshair: ResMut<Crosshair>,
-    mut mask_query: Query<(&mut Visibility, &MaskImage)>,
-) {
+pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibility, &MaskImage)>) {
     // MaskType = None -> mask_full && mask_half = INVISIBLE
     // MaskType = Full -> mask_full = VISIBLE && mask_half = INVISIBLE
     // MaskType = Half -> mask_full = INVISIBLE && mask_half = VISIBLE
@@ -99,6 +98,18 @@ pub fn change_mask(
                 HALF => *vis = Visibility::VISIBLE,
                 _ => *vis = Visibility::INVISIBLE,
             },
+        }
+    }
+}
+
+pub fn set_crosshair(
+    crosshair: Res<Crosshair>,
+    mut cross_query: Query<&mut Visibility, With<CrossImage>>,
+) {
+    for mut vis in &mut cross_query.iter_mut() {
+        match crosshair.0 {
+            true => *vis = Visibility::VISIBLE,
+            false => *vis = Visibility::INVISIBLE,
         }
     }
 }

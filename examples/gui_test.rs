@@ -8,13 +8,21 @@ fn main() {
         .init_resource::<UiState>()
         .init_resource::<Crosshair>()
         .init_resource::<MaskSetting>()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            window: WindowDescriptor {
+                mode: WindowMode::BorderlessFullscreen,
+                ..default()
+            },
+            ..default()
+        }))
         .add_plugin(EguiPlugin)
         .add_startup_system(set_background_color)
         .add_startup_system(configure_ui_state)
         .add_system(ui_test)
         .add_system(open_window)
+        .add_system(set_crosshair)
         .add_system(change_mask)
+        .add_system(bevy::window::close_on_esc)
         .run();
 }
 
