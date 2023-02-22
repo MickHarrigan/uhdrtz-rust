@@ -9,6 +9,8 @@ In addition to this the use of the [nokhwa](https://github.com/l1npengtul/nokhwa
 ## Things to do
 - Setup a GUI for the user to tweak and adjust the values of the camera inputs (bevy egui and other controls)
 - Use bevy_audio to play music at the same time
+- Add max interval and number of slices to gui
+- Break up the Zoetrope plugin into smaller subplugins
 
 
 ## Things Completed
