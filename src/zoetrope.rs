@@ -81,6 +81,10 @@ pub fn logical_camera_rotation(
     }
 }
 
+pub fn logical_camera_movement(mut query: Query<&mut Transform, With<Camera>>, x_pos, y_pos, zoom) {
+    
+}
+
 pub fn update_zoetrope_image(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,

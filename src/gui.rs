@@ -4,9 +4,16 @@
 // This will be camera controls as well as image controls to change the look
 // and maybe feel of the project as a whole.
 
-use crate::zoetrope::ZoetropeImage;
+//use crate::zoetrope::ZoetropeImage;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext, EguiPlugin, EguiSettings};
+use bevy_egui::{egui, EguiContext};
+
+#[derive(Component)]
+pub struct MoveX(pub f64);
+#[derive(Component)]
+pub struct MoveY(pub f64);
+#[derive(Component)]
+pub struct MoveZoom(pub f64);
 
 pub const FULL: u8 = 0;
 pub const HALF: u8 = 1;
@@ -41,6 +48,7 @@ pub fn ui_test(
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<MaskSetting>,
     mut crosshair: ResMut<Crosshair>,
+    mut x_pos: Mut<MoveX>,
 ) {
     // Remove this section when fully implementing
     let mut my_f32 = 0.0;
@@ -65,6 +73,11 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
+            ui.add(
+                egui::Slider::new(&mut x_pos, 0.0..=100.0)
+                    .text("X Movement")
+                    .show_value(true),
+            )
         });
 
     //Should implement a slider. Got not clue for what tho
@@ -101,6 +114,8 @@ pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibilit
         }
     }
 }
+
+pub fn move_camera(x_pos: MoveX, y_pos: MoveY, zoom_val: MoveZoom) {}
 
 pub fn set_crosshair(
     crosshair: Res<Crosshair>,
