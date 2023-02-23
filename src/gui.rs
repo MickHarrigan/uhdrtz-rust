@@ -4,9 +4,15 @@
 // This will be camera controls as well as image controls to change the look
 // and maybe feel of the project as a whole.
 
-//use crate::zoetrope::ZoetropeImage;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
+
+#[derive(Resource)]
+pub struct MoveX(pub f32);
+#[derive(Resource)]
+pub struct MoveY(pub f32);
+#[derive(Resource)]
+pub struct MoveZ(pub f32);
 
 pub const FULL: u8 = 0;
 pub const HALF: u8 = 1;
@@ -41,6 +47,9 @@ pub fn ui_test(
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<MaskSetting>,
     mut crosshair: ResMut<Crosshair>,
+    mut x_pos: ResMut<MoveX>,
+    mut y_pos: ResMut<MoveY>,
+    mut z_pos: ResMut<MoveZ>,
 ) {
     // Remove this section when fully implementing
     let mut my_f32 = 0.0;
@@ -65,15 +74,23 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
+            ui.add(
+                egui::Slider::new(&mut x_pos.0, 0.0..=100.0)
+                    .text("Horizontal Movement")
+                    .show_value(true),
+            );
+            ui.add(
+                egui::Slider::new(&mut y_pos.0, 0.0..=100.0)
+                    .text("Vertical Movement")
+                    .show_value(true)
+                    .vertical(),
+            );
+            ui.add(
+                egui::Slider::new(&mut z_pos.0, 0.0..=100.0)
+                    .text("Zoom")
+                    .show_value(true),
+            );
         });
-
-    //Should implement a slider. Got not clue for what tho
-    // if ui.add(egui::DragValue::new(camera.get_mut_i64_control(known_control).unwrap(),)).changed() { //I belive this checks to see if a part of known_controls has changed
-    //     let _ = camera.operating_tx.try_send(CameraOperation::Control { //Attempts to send the new change to the camera
-    //         id: known_control.clone(),
-    //         control: camera.controls.get(known_control).unwrap().clone(),
-    //     });
-    // };
 }
 
 pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibility, &MaskImage)>) {
