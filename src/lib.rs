@@ -11,7 +11,7 @@ pub mod prelude {
         camera::{VideoFrame, VideoStream},
         gui::{
             change_mask, open_window, set_crosshair, ui_test, CrossImage, Crosshair, MaskImage,
-            MaskSetting, UiState,
+            MaskSetting, MoveX, MoveY, MoveZ, UiState,
         },
         plugin::ZoetropePlugin,
     }; // temporary names for right now, these may change based on the current needs of the project

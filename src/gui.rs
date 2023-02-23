@@ -7,11 +7,11 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct MoveX(pub f32);
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct MoveY(pub f32);
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct MoveZ(pub f32);
 
 pub const FULL: u8 = 0;
@@ -75,6 +75,11 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
             ui.add(
+                egui::Slider::new(&mut z_pos.0, 0.0..=100.0)
+                    .text("Zoom")
+                    .show_value(true),
+            );
+            ui.add(
                 egui::Slider::new(&mut x_pos.0, 0.0..=100.0)
                     .text("Horizontal Movement")
                     .show_value(true),
@@ -84,11 +89,6 @@ pub fn ui_test(
                     .text("Vertical Movement")
                     .show_value(true)
                     .vertical(),
-            );
-            ui.add(
-                egui::Slider::new(&mut z_pos.0, 0.0..=100.0)
-                    .text("Zoom")
-                    .show_value(true),
             );
         });
 }
