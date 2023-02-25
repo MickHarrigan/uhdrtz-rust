@@ -1,6 +1,7 @@
 // this is the actual testing ground that is the primary test.
 // This will also be what the final binary should be made of and deployed from.
 use bevy::prelude::*;
+use bevy::window::PresentMode;
 use uhdrtz::prelude::*;
 
 fn main() {
@@ -10,6 +11,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 mode: WindowMode::BorderlessFullscreen,
+                present_mode: PresentMode::Fifo,
                 ..default()
             },
             ..default()
