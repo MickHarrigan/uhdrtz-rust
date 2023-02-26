@@ -10,8 +10,8 @@ pub mod prelude {
     pub use crate::{
         camera::{VideoFrame, VideoStream},
         gui::{
-            change_mask, open_window, set_crosshair, ui_test, CrossImage, Crosshair, MaskImage,
-            MaskSetting, MoveX, MoveY, MoveZ, UiState,
+            camera_control, change_mask, logical_camera_movement, open_window, set_crosshair,
+            ui_test, CrossImage, Crosshair, MaskImage, MaskSetting, MoveX, MoveY, MoveZ, UiState,
         },
         plugin::ZoetropePlugin,
     }; // temporary names for right now, these may change based on the current needs of the project

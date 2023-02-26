@@ -1,6 +1,6 @@
 use crate::bluetooth::ZoetropeRotation;
 use crate::camera::{VideoFrame, VideoStream};
-use crate::gui::{CrossImage, MaskImage, FULL, HALF, MoveX, MoveY, MoveZ};
+use crate::gui::{CrossImage, MaskImage, FULL, HALF};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
@@ -80,18 +80,6 @@ pub fn logical_camera_rotation(
         transform.rotate_z(time.delta_seconds() * rotation.0 as f32);
     }
 }
-
-// pub fn logical_camera_movement(
-//     mut query: Query<&mut Transform, With<Camera>>,
-//     mut x_pos: Res<MoveX>,
-//     mut y_pos: Res<MoveY>,
-//     mut z_pos: Res<MoveZ>,
-// ){
-//     let vec1 = vec![x_pos, y_pos, z_pos];
-//     for mut transform in query.iter_mut() {
-//         transform.translation.xy(x_pos, y_pos);
-//     }
-// }
 
 pub fn update_zoetrope_image(
     cam_query: Query<&mut VideoStream>,

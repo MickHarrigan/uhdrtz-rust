@@ -25,6 +25,8 @@ fn main() {
         .add_system(open_window)
         .add_system(set_crosshair)
         .add_system(change_mask)
+        .add_system(camera_control)
+        .add_system(logical_camera_movement)
         .add_system(bevy::window::close_on_esc)
         .run();
 }
