@@ -47,9 +47,8 @@ pub fn ui_test(
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<MaskSetting>,
     mut crosshair: ResMut<Crosshair>,
-    mut x_pos: ResMut<MoveX>,
-    mut y_pos: ResMut<MoveY>,
-    mut z_pos: ResMut<MoveZ>,
+    y_pos: ResMut<MoveY>,
+    x_pos: ResMut<MoveX>,
 ) {
     // Remove this section when fully implementing
     let mut my_f32 = 0.0;
@@ -74,22 +73,10 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
-            ui.add(
-                egui::Slider::new(&mut z_pos.0, 0.0..=100.0)
-                    .text("Zoom")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut x_pos.0, 0.0..=100.0)
-                    .text("Horizontal Movement")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut y_pos.0, 0.0..=100.0)
-                    .text("Vertical Movement")
-                    .show_value(true)
-                    .vertical(),
-            );
+            // ui.label("Y Position");
+            // ui.label(y_pos.0.to_string());
+            // ui.label("X Position");
+            // ui.label(x_pos.0.to_string());
         });
 }
 
@@ -119,6 +106,19 @@ pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibilit
     }
 }
 
+pub fn logical_camera_movement(
+    mut query: Query<&mut Transform, With<Camera>>,
+    x_pos: Res<MoveX>,
+    y_pos: Res<MoveY>,
+    z_pos: Res<MoveZ>,
+) {
+    for mut transform in query.iter_mut() {
+        transform.translation.x += x_pos.0;
+        transform.translation.y += y_pos.0;
+        transform.translation.z += z_pos.0;
+    }
+}
+
 pub fn set_crosshair(
     crosshair: Res<Crosshair>,
     mut cross_query: Query<&mut Visibility, With<CrossImage>>,
@@ -134,5 +134,37 @@ pub fn set_crosshair(
 pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         ui_state.is_window_open = !ui_state.is_window_open;
+    }
+}
+
+pub fn camera_control(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut x_pos: ResMut<MoveX>,
+    mut y_pos: ResMut<MoveY>,
+    mut z_pos: ResMut<MoveZ>,
+) {
+    let movement_speed: f32 = 0.25;
+    if keyboard_input.pressed(KeyCode::Left) {
+        x_pos.0 -= movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Right) {
+        x_pos.0 += movement_speed;
+    } else {
+        x_pos.0 = 0.0;
+    }
+
+    if keyboard_input.pressed(KeyCode::Up) {
+        y_pos.0 += movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Down) {
+        y_pos.0 -= movement_speed;
+    } else {
+        y_pos.0 = 0.0;
+    }
+
+    if keyboard_input.pressed(KeyCode::PageUp) {
+        z_pos.0 -= movement_speed;
+    } else if keyboard_input.pressed(KeyCode::PageDown) {
+        z_pos.0 += movement_speed;
+    } else {
+        z_pos.0 = 0.0;
     }
 }
