@@ -47,8 +47,6 @@ pub fn ui_test(
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<MaskSetting>,
     mut crosshair: ResMut<Crosshair>,
-    y_pos: ResMut<MoveY>,
-    x_pos: ResMut<MoveX>,
 ) {
     // Remove this section when fully implementing
     let mut my_f32 = 0.0;
@@ -73,10 +71,6 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
-            // ui.label("Y Position");
-            // ui.label(y_pos.0.to_string());
-            // ui.label("X Position");
-            // ui.label(x_pos.0.to_string());
         });
 }
 
@@ -115,7 +109,7 @@ pub fn logical_camera_movement(
     for mut transform in query.iter_mut() {
         transform.translation.x += x_pos.0;
         transform.translation.y += y_pos.0;
-        transform.translation.z += z_pos.0;
+        transform.scale += z_pos.0;
     }
 }
 
@@ -161,9 +155,9 @@ pub fn camera_control(
     }
 
     if keyboard_input.pressed(KeyCode::PageUp) {
-        z_pos.0 -= movement_speed;
+        z_pos.0 -= movement_speed / 1000.0;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
-        z_pos.0 += movement_speed;
+        z_pos.0 += movement_speed / 1000.0;
     } else {
         z_pos.0 = 0.0;
     }
