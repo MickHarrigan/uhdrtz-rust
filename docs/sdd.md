@@ -35,5 +35,6 @@ Test
 ## Interface Architecture
 ## Interface Detailed Design
 # System Integrity Controls
+The system does not use any information that could affect the conduct of state programs or the privacy to which individuals are entitled. Thus, this section is not applicable.
 
 Appendices
