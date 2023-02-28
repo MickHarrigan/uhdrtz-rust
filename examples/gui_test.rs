@@ -8,9 +8,7 @@ fn main() {
         .init_resource::<UiState>()
         .init_resource::<Crosshair>()
         .init_resource::<MaskSetting>()
-        .init_resource::<MoveX>()
-        .init_resource::<MoveY>()
-        .init_resource::<MoveZ>()
+        .init_resource::<Movement>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 mode: WindowMode::BorderlessFullscreen,
