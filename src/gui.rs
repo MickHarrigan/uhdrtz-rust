@@ -7,15 +7,11 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
-#[derive(Resource, Default)]
-pub struct MoveX(pub f32);
-#[derive(Resource, Default)]
-pub struct MoveY(pub f32);
-#[derive(Resource, Default)]
-pub struct MoveZ(pub f32);
-
 pub const FULL: u8 = 0;
 pub const HALF: u8 = 1;
+
+#[derive(Resource, Default)]
+pub struct Movement(pub f32, pub f32, pub f32);
 
 #[derive(Component)]
 pub struct MaskImage(pub u8);
@@ -47,14 +43,14 @@ pub fn ui_test(
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<MaskSetting>,
     mut crosshair: ResMut<Crosshair>,
+    mut query: Query<&mut Transform, With<Camera>>,
 ) {
     // Remove this section when fully implementing
     let mut my_f32 = 0.0;
     // End of remove section
-    //Unsure if UiState needs to be initialized somewhere)
     egui::Window::new("Effects")
         .vscroll(true)
-        .open(&mut ui_state.is_window_open) //unsure if I can remove this part or not (might depend on button press)
+        .open(&mut ui_state.is_window_open)
         .show(egui_ctx.ctx_mut(), |ui| {
             ui.label("Color Section");
             ui.add(
@@ -71,6 +67,14 @@ pub fn ui_test(
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
             ui.checkbox(&mut crosshair.0, "Crosshair");
+            if ui.add(egui::Button::new("Re-Center")).clicked() {
+                for mut transform in query.iter_mut() {
+                    transform.translation.x = 0.0;
+                    transform.translation.y = 0.0;
+                    transform.scale.x = 1.0;
+                    transform.scale.y = 1.0;
+                }
+            }
         });
 }
 
@@ -78,7 +82,6 @@ pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibilit
     // MaskType = None -> mask_full && mask_half = INVISIBLE
     // MaskType = Full -> mask_full = VISIBLE && mask_half = INVISIBLE
     // MaskType = Half -> mask_full = INVISIBLE && mask_half = VISIBLE
-
     for (mut vis, mask_num) in &mut mask_query.iter_mut() {
         match mask.0 {
             MaskType::None => match mask_num.0 {
@@ -102,14 +105,12 @@ pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibilit
 
 pub fn logical_camera_movement(
     mut query: Query<&mut Transform, With<Camera>>,
-    x_pos: Res<MoveX>,
-    y_pos: Res<MoveY>,
-    z_pos: Res<MoveZ>,
+    movement: Res<Movement>,
 ) {
     for mut transform in query.iter_mut() {
-        transform.translation.x += x_pos.0;
-        transform.translation.y += y_pos.0;
-        transform.scale += z_pos.0;
+        transform.translation.x += movement.0;
+        transform.translation.y += movement.1;
+        transform.scale += movement.2;
     }
 }
 
@@ -131,34 +132,29 @@ pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiS
     }
 }
 
-pub fn camera_control(
-    keyboard_input: Res<Input<KeyCode>>,
-    mut x_pos: ResMut<MoveX>,
-    mut y_pos: ResMut<MoveY>,
-    mut z_pos: ResMut<MoveZ>,
-) {
+pub fn camera_control(keyboard_input: Res<Input<KeyCode>>, mut movement: ResMut<Movement>) {
     let movement_speed: f32 = 0.25;
     if keyboard_input.pressed(KeyCode::Left) {
-        x_pos.0 -= movement_speed;
+        movement.0 -= movement_speed;
     } else if keyboard_input.pressed(KeyCode::Right) {
-        x_pos.0 += movement_speed;
+        movement.0 += movement_speed;
     } else {
-        x_pos.0 = 0.0;
+        movement.0 = 0.0;
     }
 
     if keyboard_input.pressed(KeyCode::Up) {
-        y_pos.0 += movement_speed;
+        movement.1 += movement_speed;
     } else if keyboard_input.pressed(KeyCode::Down) {
-        y_pos.0 -= movement_speed;
+        movement.1 -= movement_speed;
     } else {
-        y_pos.0 = 0.0;
+        movement.1 = 0.0;
     }
 
     if keyboard_input.pressed(KeyCode::PageUp) {
-        z_pos.0 -= movement_speed / 1000.0;
+        movement.2 -= movement_speed / 1000.0;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
-        z_pos.0 += movement_speed / 1000.0;
+        movement.2 += movement_speed / 1000.0;
     } else {
-        z_pos.0 = 0.0;
+        movement.2 = 0.0;
     }
 }
