@@ -8,6 +8,9 @@ use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatT
 #[derive(Component)]
 pub struct ZoetropeImage;
 
+#[derive(Resource)]
+pub struct MaxInterval(pub i8);
+
 pub fn zoetrope_setup(
     mut commands: Commands,
     video_images: Res<VideoFrame>,
@@ -54,10 +57,21 @@ pub fn logical_camera_rotation(
     time: Res<Time>,
     mut query: Query<&mut Transform, With<Camera>>,
     rotation: Res<ZoetropeRotation>,
+    max: Res<MaxInterval>,
 ) {
     for mut transform in query.iter_mut() {
         // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
-        transform.rotate_z(time.delta_seconds() * rotation.0 as f32);
+        let val: f32;
+        // rotation is an i8
+        // need to get it to an f32
+        if rotation.0 > max.0 {
+            val = (max.0).into();
+        } else if rotation.0 < -max.0 {
+            val = (-max.0).into();
+        } else {
+            val = (rotation.0).into();
+        }
+        transform.rotate_z(time.delta_seconds() * val /*rotation.0 as f32*/);
     }
 }
 
