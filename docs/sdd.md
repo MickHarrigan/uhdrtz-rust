@@ -1,4 +1,6 @@
-System Design Document
+---
+title: "System Design Document"
+---
 
 # Introduction
 Test
