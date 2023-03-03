@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-pandoc sdd.md -t html --number-sections -V margin-top:"1in" -V margin-bottom:"1in" -V margin-left:"0.5in" -V margin-right:"1in" -o sdd.pdf
+#pandoc sdd.md -t html -M document-css=true -V papersize="Letter" --number-sections -o sdd.pdf
+pandoc sdd.md -o sdd.pdf --number-sections -V geometry:margin=1in -V fontsize:12pt -V fontfamily:noto
 
-# Gnome document viewer (Debian)
-evince sdd.pdf
+firefox --new-window sdd.pdf
