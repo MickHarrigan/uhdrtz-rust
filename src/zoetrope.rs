@@ -1,5 +1,6 @@
 use crate::bluetooth::ZoetropeRotation;
 use crate::camera::{VideoFrame, VideoStream};
+use crate::gui::{CrossImage, MaskImage, FULL, HALF};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
@@ -46,11 +47,30 @@ pub fn zoetrope_setup(
         })
         .insert(ZoetropeImage);
 
-    commands.spawn(SpriteBundle {
-        texture: server.load("mask.png"),
-        transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("mask_full.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::INVISIBLE,
+            ..default()
+        })
+        .insert(MaskImage(FULL));
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("mask_half.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::INVISIBLE,
+            ..default()
+        })
+        .insert(MaskImage(HALF));
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("xhair.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::INVISIBLE,
+            ..default()
+        })
+        .insert(CrossImage);
 }
 
 pub fn logical_camera_rotation(

@@ -9,7 +9,10 @@ mod zoetrope;
 pub mod prelude {
     pub use crate::{
         camera::{VideoFrame, VideoStream},
-        gui::{open_window, ui_test, UiState},
+        gui::{
+            camera_control, change_mask, logical_camera_movement, open_window, set_crosshair,
+            ui_test, CrossImage, Crosshair, MaskImage, MaskSetting, Movement, UiState,
+        },
         plugin::ZoetropePlugin,
     }; // temporary names for right now, these may change based on the current needs of the project
 }
