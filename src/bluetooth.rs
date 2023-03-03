@@ -86,26 +86,14 @@ pub async fn update_rotation(mut ctx: TaskContext) {
                                             {
                                                 let val = *data.value.iter().next().unwrap_or(&0);
                                                 #[allow(unused_assignments)]
-                                                let mut out: i8 = 0;
+                                                let out: i8;
                                                 if val > 128 {
                                                     out = -1 * (255 - val) as i8;
                                                 } else {
                                                     out = val as i8;
                                                 }
 
-                                                // NOTE: this should be implemented to stop from rotating too quickly
-                                                // if val > MAX {
-                                                //     val = MAX;
-                                                // } else if val < -1 * MAX {
-                                                //     val = -1 * MAX;
-                                                // }
-
                                                 rotation.0 = out;
-                                                // NOTE: this can be commented out for now and/or made into a cli argument if need be later
-                                                // println!(
-                                                //     "Changed the rotation to {:?}",
-                                                //     rotation.0
-                                                // );
                                             }
                                         })
                                         .await;

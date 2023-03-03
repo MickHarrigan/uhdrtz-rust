@@ -3,13 +3,16 @@ use bevy_tokio_tasks::TokioTasksPlugin;
 
 use crate::bluetooth::{async_spawner, ZoetropeRotation};
 use crate::camera::VideoFrame;
-use crate::zoetrope::{logical_camera_rotation, update_zoetrope_image, zoetrope_setup};
+use crate::zoetrope::{
+    logical_camera_rotation, update_zoetrope_image, zoetrope_setup, MaxInterval,
+};
 
 pub struct ZoetropePlugin;
 
 impl Plugin for ZoetropePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(VideoFrame(Handle::default()))
+            .insert_resource(MaxInterval(10))
             .insert_resource(ClearColor(Color::BLACK))
             .add_plugin(TokioTasksPlugin::default())
             .insert_resource(ZoetropeRotation(0))
