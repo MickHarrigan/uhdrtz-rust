@@ -16,7 +16,7 @@ $if(linestretch)$
   line-height: $linestretch$;
 $endif$
   color: $if(fontcolor)$$fontcolor$$else$#1a1a1a$endif$;
-  background-color: $if(backgroundcolor)$$backgroundcolor$$else$white$endif$;
+  background-color: $if(backgroundcolor)$$backgroundcolor$$else$#fdfdfd$endif$;
 }
 body {
   margin: 0;
@@ -41,7 +41,7 @@ body {
 }
 @media print {
   html {
-    background-color: $if(backgroundcolor)$$backgroundcolor$$else$#white$endif$;
+    background-color: $if(backgroundcolor)$$backgroundcolor$$else$white$endif$;
   }
   body {
     background-color: transparent;
@@ -161,8 +161,8 @@ td {
   padding: 0.125em 0.5em 0.25em 0.5em;
 }
 header {
-  margin-bottom: 4em;
-  text-align: center;
+  margin-bottom: 0em;
+  text-align: left;
 }
 #TOC li {
   list-style: none;
