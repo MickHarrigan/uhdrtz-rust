@@ -6,21 +6,8 @@ This section provides a brief description of the Systems Design Document’s pur
 ## Project Executive Summary
 This section provides a description of the project from a management perspective and an overview of the framework within which the conceptual system design was prepared.  If appropriate, include the information discussed in the subsequent sections in the summary.
 
-Test with vanilla md image:
-
-![something](./assets/proj4_02.png)
-
 ### System Overview
 This section describes the system in narrative form using non-technical terms.  It should provide a high-level system architecture diagram showing a subsystem breakout of the system, if applicable.  The high-level system architecture or subsystem diagrams should, if applicable, show interfaces to external systems.  Supply a high-level context diagram for the system and subsystems, if applicable.
-
-Test of raw html figure:
-
-```{=html5}
-<figure>
-    <img src=./assets/2021-08-23-laberge-xmas-original.png alt="laberge xmas" width=300, height=auto />
-    <figcaption><b>Figure 1:</b> A cool guy</figcaption>
-</figure>
-```
 
 ### Design Constraints
 This section describes any constraints in the system design (reference any trade-off analyses conducted such, as resource use versus productivity, or conflicts with other systems) and includes any assumptions made by the project team in developing the system design.
@@ -97,4 +84,17 @@ Test
 # System Integrity Controls
 The system does not use any information that could affect the conduct of state programs or the privacy to which individuals are entitled. Thus, this section is not applicable.
 
-Appendices
+# Appendices
+
+# Test
+
+## Test with vanilla md image
+![something](./assets/proj4_02.png)
+
+## Test of raw html figure
+```{=html5}
+<figure>
+    <img src=./assets/2021-08-23-laberge-xmas-original.png alt="laberge xmas" width=300, height=auto />
+    <figcaption><b>Figure 1:</b> A festive guy</figcaption>
+</figure>
+```
