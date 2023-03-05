@@ -19,7 +19,7 @@ $endif$
   background-color: $if(backgroundcolor)$$backgroundcolor$$else$#fdfdfd$endif$;
 }
 body {
-  margin: 0;
+  margin: 0 auto;
   max-width: $if(maxwidth)$$maxwidth$$else$36em$endif$;
   padding-left: $if(margin-left)$$margin-left$$else$50px$endif$;
   padding-right: $if(margin-right)$$margin-right$$else$50px$endif$;
@@ -176,7 +176,16 @@ header {
 #TOC a:not(:hover) {
   text-decoration: none;
 }
+
+figure {
+  text-align: center;
+}
+
+
+
+
 $endif$
+
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
