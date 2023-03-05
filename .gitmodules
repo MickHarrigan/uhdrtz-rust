@@ -1,0 +1,3 @@
+[submodule "uhdrtz-crank"]
+	path = uhdrtz-crank
+	url = https://github.com/dancleaver/uhdrtz-crank.git
