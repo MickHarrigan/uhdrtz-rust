@@ -11,7 +11,10 @@ In addition to this the use of the [nokhwa](https://github.com/l1npengtul/nokhwa
 - Update the max interval resource to be setup in the gui
 - Use bevy_audio to play music at the same time
 - Break up the Zoetrope plugin into smaller subplugins
-
+- QOL updates (select camera/Arduino?/ Other hardware) on startup
+- Fix camera dropping issues
+- slow down camera capture rate
+- stability and speed updates
 
 ## Things Completed
 - Get video from the nokhwa package
