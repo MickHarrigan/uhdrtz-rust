@@ -4,11 +4,11 @@ use uhdrtz::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::RED))
+        .insert_resource(ClearColor(Color::WHITE))
         .init_resource::<UiState>()
         .init_resource::<CameraCrosshair>()
         .init_resource::<CameraMaskSetting>()
-        .init_resource::<CameraMovement>()
+        .init_resource::<ColorSettings>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 mode: WindowMode::BorderlessFullscreen,

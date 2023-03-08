@@ -11,7 +11,7 @@ pub mod prelude {
         camera::{VideoFrame, VideoStream},
         gui::{
             gui_camera_control, gui_change_mask, gui_full, gui_open, gui_set_crosshair,
-            CameraCrosshair, CameraCrosshairTag, CameraMaskSetting, CameraMaskTag, CameraMovement,
+            CameraCrosshair, CameraCrosshairTag, CameraMaskSetting, CameraMaskTag, ColorSettings,
             UiState,
         },
         plugin::ZoetropePlugins,
