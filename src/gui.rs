@@ -47,9 +47,6 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
 ) {
-    // Remove this section when fully implementing
-    let mut my_f32 = 0.0;
-    // End of remove section
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
