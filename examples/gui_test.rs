@@ -6,9 +6,9 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::RED))
         .init_resource::<UiState>()
-        .init_resource::<Crosshair>()
-        .init_resource::<MaskSetting>()
-        .init_resource::<Movement>()
+        .init_resource::<CameraCrosshair>()
+        .init_resource::<CameraMaskSetting>()
+        .init_resource::<CameraMovement>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 mode: WindowMode::BorderlessFullscreen,
@@ -19,12 +19,11 @@ fn main() {
         .add_plugin(EguiPlugin)
         .add_startup_system(set_background_color)
         .add_startup_system(configure_ui_state)
-        .add_system(ui_test)
-        .add_system(open_window)
-        .add_system(set_crosshair)
-        .add_system(change_mask)
-        .add_system(camera_control)
-        .add_system(logical_camera_movement)
+        .add_system(gui_full)
+        .add_system(gui_open)
+        .add_system(gui_set_crosshair)
+        .add_system(gui_change_mask)
+        .add_system(gui_camera_control)
         .add_system(bevy::window::close_on_esc)
         .run();
 }
@@ -46,7 +45,7 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(MaskImage(0));
+        .insert(CameraMaskTag(0));
     commands
         .spawn(SpriteBundle {
             texture: server.load("mask_half.png"),
@@ -54,7 +53,7 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(MaskImage(1));
+        .insert(CameraMaskTag(1));
     commands
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
@@ -62,5 +61,5 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(CrossImage);
+        .insert(CameraCrosshairTag);
 }

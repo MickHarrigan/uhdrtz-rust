@@ -10,8 +10,9 @@ pub mod prelude {
     pub use crate::{
         camera::{VideoFrame, VideoStream},
         gui::{
-            camera_control, change_mask, logical_camera_movement, open_window, set_crosshair,
-            ui_test, CrossImage, Crosshair, MaskImage, MaskSetting, Movement, UiState,
+            gui_camera_control, gui_change_mask, gui_full, gui_open, gui_set_crosshair,
+            CameraCrosshair, CameraCrosshairTag, CameraMaskSetting, CameraMaskTag, CameraMovement,
+            UiState,
         },
         plugin::{AnimationPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins},
     };

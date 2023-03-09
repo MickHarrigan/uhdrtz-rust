@@ -14,9 +14,8 @@ const PERIPHERAL_NAME_MATCH_FILTER: &str = "Arduino";
 
 const NOTIFY_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x13012F00_F8C3_4F4A_A8F4_15CD926DA146);
 
-// resource
 #[derive(Resource)]
-pub struct ZoetropeRotation(pub i8);
+pub struct RotationInterval(pub i8); // Converted rotation value for use in external modules
 
 // system
 pub fn async_spawner(rt: ResMut<TokioTasksRuntime>) {
@@ -82,7 +81,7 @@ pub async fn update_rotation(mut ctx: TaskContext) {
                                     if let Some(data) = notification_stream.next().await {
                                         ctx.run_on_main_thread(move |ctx| {
                                             if let Some(mut rotation) =
-                                                ctx.world.get_resource_mut::<ZoetropeRotation>()
+                                                ctx.world.get_resource_mut::<RotationInterval>()
                                             {
                                                 let val = *data.value.iter().next().unwrap_or(&0);
                                                 #[allow(unused_assignments)]

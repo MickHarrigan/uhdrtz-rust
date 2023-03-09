@@ -1,6 +1,6 @@
-use crate::bluetooth::ZoetropeRotation;
+use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
-use crate::gui::{CrossImage, MaskImage, FULL, HALF};
+use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, HALF};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
@@ -10,7 +10,7 @@ use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatT
 pub struct ZoetropeImage;
 
 #[derive(Resource)]
-pub struct MaxInterval(pub i8);
+pub struct ZoetropeMaxInterval(pub i8);
 
 pub fn zoetrope_setup(
     mut commands: Commands,
@@ -54,7 +54,7 @@ pub fn zoetrope_setup(
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(MaskImage(FULL));
+        .insert(CameraMaskTag(FULL));
     commands
         .spawn(SpriteBundle {
             texture: server.load("mask_half.png"),
@@ -62,7 +62,7 @@ pub fn zoetrope_setup(
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(MaskImage(HALF));
+        .insert(CameraMaskTag(HALF));
     commands
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
@@ -70,14 +70,14 @@ pub fn zoetrope_setup(
             visibility: Visibility::INVISIBLE,
             ..default()
         })
-        .insert(CrossImage);
+        .insert(CameraCrosshairTag);
 }
 
-pub fn logical_camera_rotation(
+pub fn zoetrope_animation(
     time: Res<Time>,
     mut query: Query<&mut Transform, With<Camera>>,
-    rotation: Res<ZoetropeRotation>,
-    max: Res<MaxInterval>,
+    rotation: Res<RotationInterval>,
+    max: Res<ZoetropeMaxInterval>,
 ) {
     for mut transform in query.iter_mut() {
         // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
@@ -95,7 +95,7 @@ pub fn logical_camera_rotation(
     }
 }
 
-pub fn update_zoetrope_image(
+pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,
     mut images: ResMut<Assets<Image>>,
