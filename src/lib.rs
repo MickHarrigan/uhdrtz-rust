@@ -14,6 +14,6 @@ pub mod prelude {
             CameraCrosshair, CameraCrosshairTag, CameraMaskSetting, CameraMaskTag, CameraMovement,
             UiState,
         },
-        plugin::ZoetropePlugins,
-    }; // temporary names for right now, these may change based on the current needs of the project
+        plugin::{AnimationPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins},
+    };
 }

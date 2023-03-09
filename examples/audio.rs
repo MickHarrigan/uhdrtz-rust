@@ -18,13 +18,15 @@ fn background_audio(server: Res<AssetServer>, audio: Res<Audio>) {
 }
 
 fn get_input(input: Res<Input<KeyCode>>, audio: Res<Audio>) {
-    // push the song forwards or backwards based on the direction pressed with the arrow keys
-
+    let mut rate: f64 = 1.0;
+    if input.pressed(KeyCode::LShift) || input.pressed(KeyCode::RShift) {
+        rate = 2.5;
+    }
     if input.pressed(KeyCode::Left) {
-        audio.set_playback_rate(-1.0);
+        audio.set_playback_rate(-rate);
     } else if input.pressed(KeyCode::Right) {
-        audio.set_playback_rate(2.0);
+        audio.set_playback_rate(rate);
     } else {
-        audio.set_playback_rate(1.0);
+        audio.set_playback_rate(0.);
     }
 }
