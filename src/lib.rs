@@ -13,6 +13,6 @@ pub mod prelude {
             camera_control, change_mask, logical_camera_movement, open_window, set_crosshair,
             ui_test, CrossImage, Crosshair, MaskImage, MaskSetting, Movement, UiState,
         },
-        plugin::ZoetropePlugin,
-    }; // temporary names for right now, these may change based on the current needs of the project
+        plugin::{AnimationPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins},
+    };
 }
