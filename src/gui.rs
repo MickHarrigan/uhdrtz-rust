@@ -1,20 +1,15 @@
-// future location for the implementation of the bevy_egui systems for allowing
-// access to users to modify the parameters of the overall physical system.
-
-// This will be camera controls as well as image controls to change the look
-// and maybe feel of the project as a whole.
-
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
+// constants for the different masks
 pub const FULL: u8 = 0;
 pub const HALF: u8 = 1;
 
 #[derive(Resource, Default)]
-pub struct Movement(pub f32, pub f32, pub f32);
+pub struct CameraMovement(pub f32, pub f32, pub f32);
 
 #[derive(Component)]
-pub struct MaskImage(pub u8);
+pub struct CameraMaskTag(pub u8);
 
 #[derive(PartialEq, Default)]
 enum MaskType {
@@ -25,24 +20,24 @@ enum MaskType {
 }
 
 #[derive(Resource, Default)]
-pub struct MaskSetting(MaskType);
+pub struct CameraMaskSetting(MaskType);
 
 #[derive(Resource, Default)]
-pub struct Crosshair(bool);
+pub struct CameraCrosshair(pub bool);
 
 #[derive(Component)]
-pub struct CrossImage;
+pub struct CameraCrosshairTag;
 
 #[derive(Resource, Default)]
 pub struct UiState {
     pub is_window_open: bool,
 }
 
-pub fn ui_test(
+pub fn gui_full(
     mut egui_ctx: ResMut<EguiContext>,
     mut ui_state: ResMut<UiState>,
-    mut mask: ResMut<MaskSetting>,
-    mut crosshair: ResMut<Crosshair>,
+    mut mask: ResMut<CameraMaskSetting>,
+    mut crosshair: ResMut<CameraCrosshair>,
     mut query: Query<&mut Transform, With<Camera>>,
 ) {
     // Remove this section when fully implementing
@@ -78,7 +73,10 @@ pub fn ui_test(
         });
 }
 
-pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibility, &MaskImage)>) {
+pub fn gui_change_mask(
+    mask: Res<CameraMaskSetting>,
+    mut mask_query: Query<(&mut Visibility, &CameraMaskTag)>,
+) {
     // MaskType = None -> mask_full && mask_half = INVISIBLE
     // MaskType = Full -> mask_full = VISIBLE && mask_half = INVISIBLE
     // MaskType = Half -> mask_full = INVISIBLE && mask_half = VISIBLE
@@ -103,20 +101,9 @@ pub fn change_mask(mask: Res<MaskSetting>, mut mask_query: Query<(&mut Visibilit
     }
 }
 
-pub fn logical_camera_movement(
-    mut query: Query<&mut Transform, With<Camera>>,
-    movement: Res<Movement>,
-) {
-    for mut transform in query.iter_mut() {
-        transform.translation.x += movement.0;
-        transform.translation.y += movement.1;
-        transform.scale += movement.2;
-    }
-}
-
-pub fn set_crosshair(
-    crosshair: Res<Crosshair>,
-    mut cross_query: Query<&mut Visibility, With<CrossImage>>,
+pub fn gui_set_crosshair(
+    crosshair: Res<CameraCrosshair>,
+    mut cross_query: Query<&mut Visibility, With<CameraCrosshairTag>>,
 ) {
     for mut vis in &mut cross_query.iter_mut() {
         match crosshair.0 {
@@ -126,35 +113,35 @@ pub fn set_crosshair(
     }
 }
 
-pub fn open_window(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
+pub fn gui_open(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiState>) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         ui_state.is_window_open = !ui_state.is_window_open;
     }
 }
 
-pub fn camera_control(keyboard_input: Res<Input<KeyCode>>, mut movement: ResMut<Movement>) {
-    let movement_speed: f32 = 0.25;
+pub fn gui_camera_control(
+    keyboard_input: Res<Input<KeyCode>>,
+    // mut movement: ResMut<CameraMovement>,
+    mut query: Query<&mut Transform, With<Camera>>,
+) {
+    let mut transform = query.single_mut();
+    let mut movement_speed: f32 = 1.;
+    if keyboard_input.pressed(KeyCode::LShift) || keyboard_input.pressed(KeyCode::RShift) {
+        movement_speed = 3.;
+    }
     if keyboard_input.pressed(KeyCode::Left) {
-        movement.0 -= movement_speed;
+        transform.translation.x -= movement_speed;
     } else if keyboard_input.pressed(KeyCode::Right) {
-        movement.0 += movement_speed;
-    } else {
-        movement.0 = 0.0;
+        transform.translation.x += movement_speed;
     }
-
     if keyboard_input.pressed(KeyCode::Up) {
-        movement.1 += movement_speed;
+        transform.translation.y += movement_speed;
     } else if keyboard_input.pressed(KeyCode::Down) {
-        movement.1 -= movement_speed;
-    } else {
-        movement.1 = 0.0;
+        transform.translation.y -= movement_speed;
     }
-
     if keyboard_input.pressed(KeyCode::PageUp) {
-        movement.2 -= movement_speed / 1000.0;
+        transform.scale -= movement_speed / 500.0;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
-        movement.2 += movement_speed / 1000.0;
-    } else {
-        movement.2 = 0.0;
+        transform.scale += movement_speed / 500.0;
     }
 }
