@@ -1,8 +1,10 @@
 use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
+use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
+use crate::audio::{audio_modulation_rotation, audio_setup};
 use crate::bluetooth::{async_spawner, RotationInterval};
 use crate::camera::VideoFrame;
 use crate::gui::{
@@ -18,6 +20,7 @@ pub struct BluetoothPlugin; // Bluetooth only section
 pub struct CameraPlugin; // Physical Camera setup plugin
 pub struct GuiPlugin; // Gui controls and setup
 pub struct AnimationPlugin; // Plugin for the animation and its controls
+pub struct AudioPlugin; // Plugin for playing the music
 struct BasePlugin; // Miscellaneous and background things that need to be set for the typical ZoetropePlugins
 
 impl Plugin for BasePlugin {
@@ -65,10 +68,19 @@ impl Plugin for GuiPlugin {
     }
 }
 
+impl Plugin for AudioPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(KiraAudioPlugin)
+            .add_startup_system(audio_setup)
+            .add_system(audio_modulation_rotation);
+    }
+}
+
 impl PluginGroup for ZoetropePlugins {
     fn build(self) -> PluginGroupBuilder {
         PluginGroupBuilder::start::<Self>()
             .add(BasePlugin)
+            .add(AudioPlugin)
             .add(AnimationPlugin)
             .add(CameraPlugin)
             .add(GuiPlugin)
