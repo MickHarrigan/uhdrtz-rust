@@ -6,7 +6,13 @@ pub const FULL: u8 = 0;
 pub const HALF: u8 = 1;
 
 #[derive(Resource, Default)]
-pub struct CameraMovement(pub f32, pub f32, pub f32);
+pub struct ColorSettings {
+    pub brightness: f32,
+    pub contrast: f32,
+    pub saturation: f32,
+    pub gamma: f32,
+    pub white_balance: f32,
+}
 
 #[derive(Component)]
 pub struct CameraMaskTag(pub u8);
@@ -39,18 +45,35 @@ pub fn gui_full(
     mut mask: ResMut<CameraMaskSetting>,
     mut crosshair: ResMut<CameraCrosshair>,
     mut query: Query<&mut Transform, With<Camera>>,
+    mut color_settings: ResMut<ColorSettings>,
 ) {
-    // Remove this section when fully implementing
-    let mut my_f32 = 0.0;
-    // End of remove section
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(egui_ctx.ctx_mut(), |ui| {
-            ui.label("Color Section");
             ui.add(
-                egui::Slider::new(&mut my_f32, 0.0..=100.0)
-                    .text("Hue")
+                egui::Slider::new(&mut color_settings.brightness, 0.0..=100.0)
+                    .text("Brightness")
+                    .show_value(true),
+            );
+            ui.add(
+                egui::Slider::new(&mut color_settings.contrast, 0.0..=100.0)
+                    .text("Contrast")
+                    .show_value(true),
+            );
+            ui.add(
+                egui::Slider::new(&mut color_settings.saturation, 0.0..=100.0)
+                    .text("Saturation")
+                    .show_value(true),
+            );
+            ui.add(
+                egui::Slider::new(&mut color_settings.gamma, 0.0..=100.0)
+                    .text("Gamma")
+                    .show_value(true),
+            );
+            ui.add(
+                egui::Slider::new(&mut color_settings.white_balance, 0.0..=100.0)
+                    .text("White Balance")
                     .show_value(true),
             );
         });
