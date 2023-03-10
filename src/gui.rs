@@ -47,7 +47,6 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
 ) {
-    let mut color: egui::Color32 = Default::default();
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
@@ -77,9 +76,6 @@ pub fn gui_full(
                     .text("White Balance")
                     .show_value(true),
             );
-            ui.label("Color Section");
-            ui.color_edit_button_srgba(&mut color);
-            ui.end_row();
         });
     egui::Window::new("Masks")
         .vscroll(true)
