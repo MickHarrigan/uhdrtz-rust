@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContext};
+use bevy_egui::{egui, EguiContexts};
 
 // constants for the different masks
 pub const FULL: u8 = 0;
@@ -40,7 +40,8 @@ pub struct UiState {
 }
 
 pub fn gui_full(
-    mut egui_ctx: ResMut<EguiContext>,
+    // mut egui_ctx: ResMut<EguiContext>, // old bevy 0.9.1 stuff
+    mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<CameraMaskSetting>,
     mut crosshair: ResMut<CameraCrosshair>,
@@ -50,7 +51,7 @@ pub fn gui_full(
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
-        .show(egui_ctx.ctx_mut(), |ui| {
+        .show(ctx.ctx_mut(), |ui| {
             ui.add(
                 egui::Slider::new(&mut color_settings.brightness, 0.0..=100.0)
                     .text("Brightness")
@@ -80,7 +81,7 @@ pub fn gui_full(
     egui::Window::new("Masks")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
-        .show(egui_ctx.ctx_mut(), |ui| {
+        .show(ctx.ctx_mut(), |ui| {
             ui.radio_value(&mut mask.0, MaskType::None, "No Mask");
             ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
             ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
@@ -106,19 +107,19 @@ pub fn gui_change_mask(
     for (mut vis, mask_num) in &mut mask_query.iter_mut() {
         match mask.0 {
             MaskType::None => match mask_num.0 {
-                FULL => *vis = Visibility::INVISIBLE,
-                HALF => *vis = Visibility::INVISIBLE,
-                _ => *vis = Visibility::INVISIBLE,
+                FULL => *vis = Visibility::Hidden,
+                HALF => *vis = Visibility::Hidden,
+                _ => *vis = Visibility::Hidden,
             },
             MaskType::Full => match mask_num.0 {
-                FULL => *vis = Visibility::VISIBLE,
-                HALF => *vis = Visibility::INVISIBLE,
-                _ => *vis = Visibility::INVISIBLE,
+                FULL => *vis = Visibility::Visible,
+                HALF => *vis = Visibility::Hidden,
+                _ => *vis = Visibility::Hidden,
             },
             MaskType::Half => match mask_num.0 {
-                FULL => *vis = Visibility::INVISIBLE,
-                HALF => *vis = Visibility::VISIBLE,
-                _ => *vis = Visibility::INVISIBLE,
+                FULL => *vis = Visibility::Hidden,
+                HALF => *vis = Visibility::Visible,
+                _ => *vis = Visibility::Hidden,
             },
         }
     }
@@ -130,8 +131,8 @@ pub fn gui_set_crosshair(
 ) {
     for mut vis in &mut cross_query.iter_mut() {
         match crosshair.0 {
-            true => *vis = Visibility::VISIBLE,
-            false => *vis = Visibility::INVISIBLE,
+            true => *vis = Visibility::Visible,
+            false => *vis = Visibility::Hidden,
         }
     }
 }
