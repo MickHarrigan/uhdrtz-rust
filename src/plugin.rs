@@ -9,7 +9,7 @@ use crate::bluetooth::{async_spawner, RotationInterval};
 use crate::camera::VideoFrame;
 use crate::gui::{
     gui_camera_control, gui_change_mask, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-    CameraMaskSetting, UiState,
+    CameraMaskSetting, ColorSettings, UiState,
 };
 use crate::zoetrope::{
     zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, ZoetropeMaxInterval,
@@ -59,6 +59,7 @@ impl Plugin for GuiPlugin {
                 is_window_open: false,
             })
             .init_resource::<CameraMaskSetting>()
+            .init_resource::<ColorSettings>()
             .insert_resource(CameraCrosshair(false))
             .add_system(gui_full)
             .add_system(gui_open)
