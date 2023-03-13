@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Update and Fix
+      run: sudo apt update --fix-missing
     - name: Install Packages
       run: sudo apt install -y libasound2-dev pkg-config clang libudev-dev libdbus-1-dev
     - uses: actions/checkout@v3
