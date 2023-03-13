@@ -51,7 +51,7 @@ pub fn zoetrope_setup(
         .spawn(SpriteBundle {
             texture: server.load("mask_full.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraMaskTag(FULL));
@@ -59,7 +59,7 @@ pub fn zoetrope_setup(
         .spawn(SpriteBundle {
             texture: server.load("mask_half.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraMaskTag(HALF));
@@ -67,7 +67,7 @@ pub fn zoetrope_setup(
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraCrosshairTag);

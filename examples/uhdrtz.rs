@@ -14,13 +14,21 @@ fn main() {
                 .build()
                 .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
                 .set(WindowPlugin {
-                    window: WindowDescriptor {
-                        mode: WindowMode::BorderlessFullscreen,
-                        present_mode: PresentMode::Fifo,
+                    primary_window: Some(Window {
+                        mode: bevy::window::WindowMode::BorderlessFullscreen,
+                        present_mode: PresentMode::AutoVsync,
                         ..default()
-                    },
+                    }),
                     ..default()
                 }),
+            //     {
+            //     window: WindowDescriptor {
+            //         mode: WindowMode::BorderlessFullscreen,
+            //         present_mode: PresentMode::Fifo,
+            //         ..default()
+            //     },
+            //     ..default()
+            // }),
         )
         .add_plugins(ZoetropePlugins)
         .run()
