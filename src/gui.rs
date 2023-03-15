@@ -88,10 +88,7 @@ pub fn gui_full(
             ui.checkbox(&mut crosshair.0, "Crosshair");
             if ui.add(egui::Button::new("Re-Center")).clicked() {
                 for mut transform in query.iter_mut() {
-                    transform.translation.x = 0.0;
-                    transform.translation.y = 0.0;
-                    transform.scale.x = 1.0;
-                    transform.scale.y = 1.0;
+                    *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 }
             }
         });
