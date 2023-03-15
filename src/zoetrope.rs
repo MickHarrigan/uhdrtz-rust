@@ -75,7 +75,7 @@ pub fn zoetrope_setup(
 
 pub fn zoetrope_animation(
     time: Res<Time>,
-    mut query: Query<&mut Transform, With<Camera>>,
+    mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeMaxInterval>,
 ) {
