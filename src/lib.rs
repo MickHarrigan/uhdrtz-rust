@@ -1,9 +1,10 @@
-pub mod audio;
-pub mod bluetooth;
-pub mod camera;
-pub mod gui;
-pub mod plugin;
 pub use nokhwa;
+mod audio;
+mod bluetooth;
+mod camera;
+mod gui;
+mod plugin;
+mod states;
 mod zoetrope;
 
 pub mod prelude {
@@ -17,5 +18,6 @@ pub mod prelude {
         plugin::{
             AnimationPlugin, AudioPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins,
         },
+        states::RunningStates,
     };
 }
