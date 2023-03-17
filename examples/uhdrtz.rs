@@ -1,7 +1,7 @@
 // this is the actual testing ground that is the primary test.
 // This will also be what the final binary should be made of and deployed from.
 use bevy::prelude::*;
-use bevy::window::PresentMode;
+use bevy::window::{PresentMode, WindowMode};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use uhdrtz::prelude::*;
 
@@ -15,7 +15,7 @@ fn main() {
                 .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        mode: bevy::window::WindowMode::BorderlessFullscreen,
+                        mode: WindowMode::BorderlessFullscreen,
                         present_mode: PresentMode::AutoVsync,
                         ..default()
                     }),
