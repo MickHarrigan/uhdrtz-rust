@@ -1,6 +1,8 @@
 use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
+use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::EguiPlugin;
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
@@ -25,8 +27,21 @@ struct BasePlugin; // Miscellaneous and background things that need to be set fo
 
 impl Plugin for BasePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ClearColor(Color::BLACK))
-            .add_system(bevy::window::close_on_esc);
+        app.add_plugins(
+            DefaultPlugins
+                .build()
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        mode: WindowMode::BorderlessFullscreen,
+                        present_mode: PresentMode::AutoVsync,
+                        ..default()
+                    }),
+                    ..default()
+                }),
+        )
+        .insert_resource(ClearColor(Color::BLACK))
+        .add_system(bevy::window::close_on_esc);
     }
 }
 
