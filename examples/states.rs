@@ -11,10 +11,14 @@ use uhdrtz::prelude::*;
 ///    - run @ OnExit(RunningStates::Setup) a way to write the selected config to a file?
 
 #[derive(Resource, Default)]
-struct SelectedCamera(String);
+struct SelectedCamera(Option<String>);
 
 #[derive(Resource, Default)]
 struct CaptureDevices(HashMap<String, u32>);
+
+#[derive(Resource, Default)]
+struct Resolution(String);
+const RESOLUTIONS: [&'static str; 3] = ["4k30", "1080p60", "1440p60(4:3)"];
 
 fn main() {
     App::new()
@@ -29,8 +33,9 @@ fn main() {
             ..default()
         }))
         // this line below should be replaced with getting the default camera (index 0)
-        .insert_resource(SelectedCamera("Other Device".to_owned()))
+        .insert_resource(SelectedCamera(Some("Other Device".to_owned())))
         .insert_resource(CaptureDevices::default())
+        .insert_resource(Resolution(RESOLUTIONS[0].to_owned()))
         .add_plugin(EguiPlugin)
         .add_state::<RunningStates>()
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
@@ -43,11 +48,15 @@ fn setup_menu(
     mut ctx: EguiContexts,
     mut selected: ResMut<SelectedCamera>,
     cameras: Res<CaptureDevices>,
+    mut quality: ResMut<Resolution>,
 ) {
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
-            ui.label(RichText::new("Large").font(FontId::proportional(40.0)));
+            ui.label(RichText::new("UHDRTZ Setup System").font(FontId::proportional(40.0)));
+            ui.label(RichText::new("This is where you can choose the different settings of the camera, arduino, resolution, etc.").font(FontId::proportional(20.0)));
         });
+
+        egui::Ui::add_space(ui, 20.0);
 
         egui::Grid::new("my_grid")
             .num_columns(2)
@@ -57,17 +66,33 @@ fn setup_menu(
                 // this is where the different items are defined
                 // start with a `ui.add()`
                 ui.add(egui::Label::new("Camera"));
-                egui::ComboBox::from_label("Select one!")
-                    .selected_text(format!("{}", selected.0))
-                    .show_ui(ui, |ui| {
-                        ui.style_mut().wrap = Some(false);
-                        ui.set_min_width(50.0);
-                        // this makes a new item for each camera that was found
-                        for each in cameras.0.iter() {
-                            ui.selectable_value(&mut selected.0, each.0.to_string(), each.0);
-                        }
-                    });
+                egui::ComboBox::from_label(
+                    "Select the camera that will be used to capture the video feed",
+                )
+                .selected_text(format!("{}", selected.0.clone().unwrap_or("No Camera".to_string())))
+                .show_ui(ui, |ui| {
+                    ui.style_mut().wrap = Some(false);
+                    ui.set_min_width(50.0);
+                    // this makes a new item for each camera that was found
+                    for each in cameras.0.iter() {
+                        ui.selectable_value(&mut selected.0, Some(each.0.to_string()), each.0);
+                    }
+                });
                 // end with a `ui.end_row()`
+                ui.end_row();
+
+                // this is for setting to either 4k30 or 1080p60
+                ui.add(egui::Label::new("Quality"));
+                egui::ComboBox::from_label(
+                    "Select the Quality of the video feed, in combined Resolution and Frame Rate"
+                ).selected_text(format!("{}", quality.0)).show_ui(ui, |ui| {
+                    ui.style_mut().wrap = Some(false);
+                    ui.set_min_width(50.0);
+                    // this makes a new item for each camera that was found
+                    for each in RESOLUTIONS {
+                        ui.selectable_value(&mut quality.0, each.to_string(), each);
+                    }
+                });
                 ui.end_row();
             });
     });
@@ -94,7 +119,11 @@ fn get_cameras(mut cams: ResMut<CaptureDevices>, mut selected: ResMut<SelectedCa
     }
 
     // this sets the default selected camera to that of the first thing obtained from the hash
-    selected.0 = hash.iter().nth(0).unwrap().0.to_string();
+    if hash.len() > 0 {
+        selected.0 = Some(hash.iter().nth(0).unwrap().0.to_string());
+    } else {
+        selected.0 = None;
+    }
     // this sets the "list" of cameras to that of the hash (un-ordered list in effect)
     cams.0 = hash;
 }
