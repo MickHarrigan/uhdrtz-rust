@@ -1,14 +1,29 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
+use bevy_tokio_tasks::*;
 use egui::{FontId, RichText};
 use nokhwa::query as nquery;
 use nokhwa::utils::ApiBackend;
 use uhdrtz::prelude::*;
 
+#[allow(unused_imports)]
+use btleplug::api::{Central, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
+#[allow(unused_imports)]
+use btleplug::platform::{Adapter, Manager, Peripheral};
+use futures::stream::StreamExt;
+use std::time::Duration;
+use uuid::Uuid;
+
+const PERIPHERAL_NAME_MATCH_FILTER: &str = "Arduino";
+
+const NOTIFY_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x13012F00_F8C3_4F4A_A8F4_15CD926DA146);
+
 /// TODO:
 ///    - Have a system run @ OnEnter(RunningStates::Setup) that gets the cameras and their properties as well as the bluetooth devices around (Arduino/RotaryArduino).
 ///    - run @ OnExit(RunningStates::Setup) a way to write the selected config to a file?
+///    - find the arduino and have its menu item be a spinner that awaits the finding and connecting to the arduino
+///    - add a method to set the capped framerate rotation
 
 #[derive(Resource, Default)]
 struct SelectedCamera(Option<String>);
@@ -18,7 +33,14 @@ struct CaptureDevices(HashMap<String, u32>);
 
 #[derive(Resource, Default)]
 struct Resolution(String);
+
 const RESOLUTIONS: [&'static str; 3] = ["4k30", "1080p60", "1440p60(4:3)"];
+
+#[derive(Resource, Default)]
+struct Arduino(bool);
+
+#[derive(Resource)]
+pub struct RotationInterval(pub i8); // Converted rotation value for use in external modules
 
 fn main() {
     App::new()
@@ -33,15 +55,28 @@ fn main() {
             ..default()
         }))
         // this line below should be replaced with getting the default camera (index 0)
+        .add_plugin(TokioTasksPlugin::default())
         .insert_resource(SelectedCamera(Some("Other Device".to_owned())))
         .insert_resource(CaptureDevices::default())
         .insert_resource(Resolution(RESOLUTIONS[0].to_owned()))
+        .insert_resource(Arduino(false))
+        .insert_resource(RotationInterval(0))
         .add_plugin(EguiPlugin)
         .add_state::<RunningStates>()
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
+        // .add_system(check_space.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(get_cameras.in_schedule(OnEnter(RunningStates::Setup)))
+        // .add_system(find_crank_arduino.in_schedule(OnEnter(RunningStates::Setup)))
+        .add_system(async_spawner.in_schedule(OnEnter(RunningStates::Setup)))
         .add_system(cleanup_menu.in_schedule(OnExit(RunningStates::Setup)))
         .run();
+}
+
+fn check_space(input: Res<Input<KeyCode>>, mut arduino: ResMut<Arduino>) {
+    // if space is pressed, update the arduino resource
+    if input.pressed(KeyCode::Space) {
+        arduino.0 = !arduino.0;
+    }
 }
 
 fn setup_menu(
@@ -49,6 +84,8 @@ fn setup_menu(
     mut selected: ResMut<SelectedCamera>,
     cameras: Res<CaptureDevices>,
     mut quality: ResMut<Resolution>,
+    arduino: Res<Arduino>,
+    rot: Res<RotationInterval>,
 ) {
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
@@ -88,12 +125,22 @@ fn setup_menu(
                 ).selected_text(format!("{}", quality.0)).show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
-                    // this makes a new item for each camera that was found
                     for each in RESOLUTIONS {
                         ui.selectable_value(&mut quality.0, each.to_string(), each);
                     }
                 });
                 ui.end_row();
+
+                // this is the device that should be found such that the crank can be used
+                ui.add(egui::Label::new("Crank"));
+                // create a spinner that updates to a checkmark when arduino = true
+                if !arduino.0 {
+                    ui.add(egui::widgets::Spinner::new());
+                }
+                else {
+                    ui.add(egui::Label::new("Rotary Arduino Connected!"));
+                    ui.add(egui::Label::new(format!("{}", rot.0)));
+                }
             });
     });
 }
@@ -126,4 +173,122 @@ fn get_cameras(mut cams: ResMut<CaptureDevices>, mut selected: ResMut<SelectedCa
     }
     // this sets the "list" of cameras to that of the hash (un-ordered list in effect)
     cams.0 = hash;
+}
+
+async fn find_crank_arduino(mut ctx: TaskContext) {
+    let manager = Manager::new().await.unwrap();
+    let adapter_list = manager.adapters().await.unwrap();
+    if adapter_list.is_empty() {
+        eprintln!("No Bluetooth adapters found");
+    }
+
+    for adapter in adapter_list.iter() {
+        println!("Starting scan...");
+        adapter
+            .start_scan(ScanFilter::default())
+            .await
+            .expect("Can't scan BLE adapter for connected devices...");
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let peripherals = adapter.peripherals().await.unwrap();
+
+        if peripherals.is_empty() {
+            eprintln!("->>> BLE peripheral devices were not found, sorry. Exiting...");
+        } else {
+            // All peripheral devices in range.
+            for peripheral in peripherals.iter() {
+                let properties = peripheral.properties().await.unwrap();
+                let is_connected = peripheral.is_connected().await.unwrap();
+                let local_name = properties
+                    .unwrap()
+                    .local_name
+                    .unwrap_or(String::from("(peripheral name unknown)"));
+                // Check if it's the peripheral we want.
+                if local_name.contains(PERIPHERAL_NAME_MATCH_FILTER) {
+                    println!("Found matching peripheral {:?}...", &local_name);
+                    if !is_connected {
+                        // Connect if we aren't already connected.
+                        if let Err(err) = peripheral.connect().await {
+                            eprintln!("Error connecting to peripheral, skipping: {}", err);
+                            continue;
+                        }
+                    }
+                    let is_connected = peripheral.is_connected().await.unwrap();
+                    println!(
+                        "Now connected ({:?}) to peripheral {:?}.",
+                        is_connected, &local_name
+                    );
+                    if is_connected {
+                        println!("Discover peripheral {:?} services...", local_name);
+                        peripheral.discover_services().await.unwrap();
+                        for characteristic in peripheral.characteristics() {
+                            println!("Checking characteristic {:?}", characteristic);
+                            // Subscribe to notifications from the characteristic with the selected
+                            // UUID.
+                            if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
+                                println!("Subscribing to characteristic {:?}", characteristic.uuid);
+                                peripheral.subscribe(&characteristic).await.unwrap();
+                                let mut notification_stream =
+                                    peripheral.notifications().await.unwrap();
+
+                                // once the connection (and stream) is made, then updated the arduino as being usable.
+                                ctx.run_on_main_thread(move |ctx| {
+                                    if let Some(mut arduino) =
+                                        ctx.world.get_resource_mut::<Arduino>()
+                                    {
+                                        arduino.0 = true;
+                                    }
+                                })
+                                .await;
+                                loop {
+                                    if let Some(data) = notification_stream.next().await {
+                                        ctx.run_on_main_thread(move |ctx| {
+                                            if let Some(state) =
+                                                ctx.world.get_resource::<State<RunningStates>>()
+                                            {
+                                                match state.0 {
+                                                    // RunningStates::Setup => {
+                                                    //     // in this case the rotationinterval doesn't exist, thus it shouldn't run
+                                                    // }
+                                                    RunningStates::Running
+                                                    | RunningStates::Setup => {
+                                                        // in this case the rotationinterval does exist, so its good to recv
+
+                                                        if let Some(mut rotation) = ctx
+                                                            .world
+                                                            .get_resource_mut::<RotationInterval>(
+                                                        ) {
+                                                            let val = *data
+                                                                .value
+                                                                .iter()
+                                                                .next()
+                                                                .unwrap_or(&0);
+                                                            #[allow(unused_assignments)]
+                                                            let out: i8;
+                                                            if val > 128 {
+                                                                out = -1 * (255 - val) as i8;
+                                                            } else {
+                                                                out = val as i8;
+                                                            }
+
+                                                            rotation.0 = out;
+                                                        }
+                                                    }
+                                                    _ => println!("Uhhhh"),
+                                                }
+                                            }
+                                        })
+                                        .await;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub fn async_spawner(rt: Res<TokioTasksRuntime>) {
+    rt.spawn_background_task(find_crank_arduino);
 }
