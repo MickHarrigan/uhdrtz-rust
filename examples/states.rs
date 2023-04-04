@@ -64,6 +64,7 @@ pub struct RotationInterval(pub i8); // Converted rotation value for use in exte
 struct Settings {
     camera: nokhwa::utils::CameraIndex,
     resolution: nokhwa::utils::Resolution,
+    frame_rate: u32,
     arduino_connection: bool,
 }
 
@@ -88,6 +89,7 @@ fn main() {
         .insert_resource(Settings {
             camera: nokhwa::utils::CameraIndex::default(),
             resolution: nokhwa::utils::Resolution::default(),
+            frame_rate: 0,
             arduino_connection: false,
         })
         .insert_resource(ArduinoConnected(false))
@@ -97,7 +99,6 @@ fn main() {
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(get_cameras.in_schedule(OnEnter(RunningStates::Setup)))
         .add_system(async_converter_arduino_finder.in_schedule(OnEnter(RunningStates::Setup)))
-        .add_system(save_settings.in_schedule(OnExit(RunningStates::Setup)))
         // this line below is where the typical UHDRTZ stuff should happen
         .add_system(async_converter_arduino_reader.in_schedule(OnEnter(RunningStates::Running)))
         .run();
@@ -172,20 +173,15 @@ fn setup_menu(
         if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
             println!("Clicked!");
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.0.clone().unwrap().1);
-            settings.resolution = match *quality {
-                Resolutions::Fourk => nokhwa::utils::Resolution::new(3840, 2160), 
-                Resolutions::TenEighty => nokhwa::utils::Resolution::new(1920, 1080),
-                Resolutions::FourteenFourty => nokhwa::utils::Resolution::new(1920, 1440),
+            (settings.resolution, settings.frame_rate) = match *quality {
+                Resolutions::Fourk => (nokhwa::utils::Resolution::new(3840, 2160), 30),
+                Resolutions::TenEighty => (nokhwa::utils::Resolution::new(1920, 1080), 60),
+                Resolutions::FourteenFourty => (nokhwa::utils::Resolution::new(1920, 1440), 60),
             };
             settings.arduino_connection = arduino.0;
             next_state.set(RunningStates::Running);
         }
     });
-}
-
-fn save_settings(settings: Res<Settings>) {
-    println!("{:?}", settings);
-    info!("Cleaned up!");
 }
 
 fn get_cameras(mut cams: ResMut<CaptureDevices>, mut selected: ResMut<SelectedCamera>) {
@@ -220,11 +216,11 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
     let manager = Manager::new().await.unwrap();
     let adapter_list = manager.adapters().await.unwrap();
     if adapter_list.is_empty() {
-        eprintln!("No Bluetooth adapters found");
+        error!("No Bluetooth adapters found");
     }
 
     for adapter in adapter_list.iter() {
-        println!("Starting scan...");
+        info!("Starting scan...");
         adapter
             .start_scan(ScanFilter::default())
             .await
@@ -233,7 +229,7 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
         let peripherals = adapter.peripherals().await.unwrap();
 
         if peripherals.is_empty() {
-            eprintln!("->>> BLE peripheral devices were not found, sorry. Exiting...");
+            error!("->>> BLE peripheral devices were not found, sorry. Exiting...");
         } else {
             // All peripheral devices in range.
             for peripheral in peripherals.iter() {
@@ -245,19 +241,15 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
                     .unwrap_or(String::from("(peripheral name unknown)"));
                 // Check if it's the peripheral we want.
                 if local_name.contains(PERIPHERAL_NAME_MATCH_FILTER) {
-                    println!("Found matching peripheral {:?}...", &local_name);
+                    info!("Found matching peripheral {:?}...", &local_name);
                     if !is_connected {
                         // Connect if we aren't already connected.
                         if let Err(err) = peripheral.connect().await {
-                            eprintln!("Error connecting to peripheral, skipping: {}", err);
+                            error!("Error connecting to peripheral, skipping: {}", err);
                             continue;
                         }
                     }
                     let is_connected = peripheral.is_connected().await.unwrap();
-                    println!(
-                        "Now connected ({:?}) to peripheral {:?}.",
-                        is_connected, &local_name
-                    );
                     // set the ArduinoConnected to true here
                     ctx.run_on_main_thread(move |ctx| {
                         if let Some(mut arduino_connection) =
@@ -302,7 +294,7 @@ pub async fn get_bluetooth_data(mut ctx: TaskContext) {
             peripheral.discover_services().await.unwrap();
             for characteristic in peripheral.characteristics() {
                 if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
-                    println!("Subscribing to characteristic {:?}", characteristic.uuid);
+                    info!("Subscribing to characteristic {:?}", characteristic.uuid);
                     peripheral.subscribe(&characteristic).await.unwrap();
                     let mut notification_stream = peripheral.notifications().await.unwrap();
                     loop {
