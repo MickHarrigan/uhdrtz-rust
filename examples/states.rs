@@ -37,7 +37,7 @@ struct Resolution(String);
 const RESOLUTIONS: [&'static str; 3] = ["4k30", "1080p60", "1440p60(4:3)"];
 
 #[derive(Resource, Default)]
-struct Arduino(bool);
+struct ArduinoConnected(bool);
 
 #[derive(Resource)]
 pub struct RotationInterval(pub i8); // Converted rotation value for use in external modules
@@ -59,7 +59,7 @@ fn main() {
         .insert_resource(SelectedCamera(Some("Other Device".to_owned())))
         .insert_resource(CaptureDevices::default())
         .insert_resource(Resolution(RESOLUTIONS[0].to_owned()))
-        .insert_resource(Arduino(false))
+        .insert_resource(ArduinoConnected(false))
         .insert_resource(RotationInterval(0))
         .add_plugin(EguiPlugin)
         .add_state::<RunningStates>()
@@ -72,7 +72,7 @@ fn main() {
         .run();
 }
 
-fn check_space(input: Res<Input<KeyCode>>, mut arduino: ResMut<Arduino>) {
+fn check_space(input: Res<Input<KeyCode>>, mut arduino: ResMut<ArduinoConnected>) {
     // if space is pressed, update the arduino resource
     if input.pressed(KeyCode::Space) {
         arduino.0 = !arduino.0;
@@ -84,7 +84,7 @@ fn setup_menu(
     mut selected: ResMut<SelectedCamera>,
     cameras: Res<CaptureDevices>,
     mut quality: ResMut<Resolution>,
-    arduino: Res<Arduino>,
+    arduino: Res<ArduinoConnected>,
     rot: Res<RotationInterval>,
 ) {
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
@@ -139,9 +139,13 @@ fn setup_menu(
                 }
                 else {
                     ui.add(egui::Label::new("Rotary Arduino Connected!"));
-                    ui.add(egui::Label::new(format!("{}", rot.0)));
                 }
             });
+
+        // only let this be clicked if arduino.0 is true
+        if ui.add_enabled(arduino.0,egui::Button::new("Continue")).clicked() {
+            println!("Clicked!");
+        }
     });
 }
 
@@ -217,72 +221,15 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
                         "Now connected ({:?}) to peripheral {:?}.",
                         is_connected, &local_name
                     );
-                    if is_connected {
-                        println!("Discover peripheral {:?} services...", local_name);
-                        peripheral.discover_services().await.unwrap();
-                        for characteristic in peripheral.characteristics() {
-                            println!("Checking characteristic {:?}", characteristic);
-                            // Subscribe to notifications from the characteristic with the selected
-                            // UUID.
-                            if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
-                                println!("Subscribing to characteristic {:?}", characteristic.uuid);
-                                peripheral.subscribe(&characteristic).await.unwrap();
-                                let mut notification_stream =
-                                    peripheral.notifications().await.unwrap();
-
-                                // once the connection (and stream) is made, then updated the arduino as being usable.
-                                ctx.run_on_main_thread(move |ctx| {
-                                    if let Some(mut arduino) =
-                                        ctx.world.get_resource_mut::<Arduino>()
-                                    {
-                                        arduino.0 = true;
-                                    }
-                                })
-                                .await;
-                                loop {
-                                    if let Some(data) = notification_stream.next().await {
-                                        ctx.run_on_main_thread(move |ctx| {
-                                            if let Some(state) =
-                                                ctx.world.get_resource::<State<RunningStates>>()
-                                            {
-                                                match state.0 {
-                                                    // RunningStates::Setup => {
-                                                    //     // in this case the rotationinterval doesn't exist, thus it shouldn't run
-                                                    // }
-                                                    RunningStates::Running
-                                                    | RunningStates::Setup => {
-                                                        // in this case the rotationinterval does exist, so its good to recv
-
-                                                        if let Some(mut rotation) = ctx
-                                                            .world
-                                                            .get_resource_mut::<RotationInterval>(
-                                                        ) {
-                                                            let val = *data
-                                                                .value
-                                                                .iter()
-                                                                .next()
-                                                                .unwrap_or(&0);
-                                                            #[allow(unused_assignments)]
-                                                            let out: i8;
-                                                            if val > 128 {
-                                                                out = -1 * (255 - val) as i8;
-                                                            } else {
-                                                                out = val as i8;
-                                                            }
-
-                                                            rotation.0 = out;
-                                                        }
-                                                    }
-                                                    _ => println!("Uhhhh"),
-                                                }
-                                            }
-                                        })
-                                        .await;
-                                    }
-                                }
-                            }
+                    // set the ArduinoConnected to true here
+                    ctx.run_on_main_thread(move |ctx| {
+                        if let Some(mut arduino_connection) =
+                            ctx.world.get_resource_mut::<ArduinoConnected>()
+                        {
+                            arduino_connection.0 = is_connected;
                         }
-                    }
+                    })
+                    .await;
                 }
             }
         }
@@ -292,3 +239,39 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
 pub fn async_spawner(rt: Res<TokioTasksRuntime>) {
     rt.spawn_background_task(find_crank_arduino);
 }
+
+// pub async fn get_bluetooth_data() {
+//     if is_connected {
+//         peripheral.discover_services().await.unwrap();
+//         for characteristic in peripheral.characteristics() {
+//             if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
+//                 println!("Subscribing to characteristic {:?}", characteristic.uuid);
+//                 peripheral.subscribe(&characteristic).await.unwrap();
+//                 let mut notification_stream = peripheral.notifications().await.unwrap();
+//                 loop {
+//                     if let Some(data) = notification_stream.next().await {
+//                         ctx.run_on_main_thread(move |ctx| {
+//                             if let Some(mut rotation) =
+//                                 ctx.world.get_resource_mut::<RotationInterval>()
+//                             {
+//                                 let val = *data.value.iter().next().unwrap_or(&0);
+//                                 #[allow(unused_assignments)]
+//                                 let out: i8;
+//                                 if val > 128 {
+//                                     out = -1 * (255 - val) as i8;
+//                                 } else {
+//                                     out = val as i8;
+//                                 }
+
+//                                 rotation.0 = out;
+//                             }
+//                         })
+//                         .await;
+//                     }
+//                 }
+//             }
+//         }
+//         println!("Disconnecting from peripheral {:?}...", local_name);
+//         peripheral.disconnect().await.unwrap();
+//     }
+// }
