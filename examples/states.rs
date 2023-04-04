@@ -26,7 +26,7 @@ const NOTIFY_CHARACTERISTIC_UUID: Uuid = Uuid::from_u128(0x13012F00_F8C3_4F4A_A8
 ///    - add a method to set the capped framerate rotation
 
 #[derive(Resource, Default)]
-struct SelectedCamera(Option<String>);
+struct SelectedCamera(Option<(String, u32)>);
 
 #[derive(Resource, Default)]
 struct CaptureDevices(HashMap<String, u32>);
@@ -36,11 +36,36 @@ struct Resolution(String);
 
 const RESOLUTIONS: [&'static str; 3] = ["4k30", "1080p60", "1440p60(4:3)"];
 
+#[derive(Resource, Default, PartialEq)]
+pub enum Resolutions {
+    #[default]
+    Fourk,
+    TenEighty,
+    FourteenFourty,
+}
+
+impl std::fmt::Display for Resolutions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Fourk => write!(f, "{}", RESOLUTIONS[0]),
+            Self::TenEighty => write!(f, "{}", RESOLUTIONS[1]),
+            Self::FourteenFourty => write!(f, "{}", RESOLUTIONS[2]),
+        }
+    }
+}
+
 #[derive(Resource, Default)]
 struct ArduinoConnected(bool);
 
 #[derive(Resource)]
 pub struct RotationInterval(pub i8); // Converted rotation value for use in external modules
+
+#[derive(Resource, Debug)]
+struct Settings {
+    camera: nokhwa::utils::CameraIndex,
+    resolution: nokhwa::utils::Resolution,
+    arduino_connection: bool,
+}
 
 fn main() {
     App::new()
@@ -56,36 +81,36 @@ fn main() {
         }))
         // this line below should be replaced with getting the default camera (index 0)
         .add_plugin(TokioTasksPlugin::default())
-        .insert_resource(SelectedCamera(Some("Other Device".to_owned())))
+        .insert_resource(SelectedCamera(Some(("Other Device".to_owned(), u32::MAX))))
         .insert_resource(CaptureDevices::default())
-        .insert_resource(Resolution(RESOLUTIONS[0].to_owned()))
+        // .insert_resource(Resolution(RESOLUTIONS[0].to_owned()))
+        .insert_resource(Resolutions::default())
+        .insert_resource(Settings {
+            camera: nokhwa::utils::CameraIndex::default(),
+            resolution: nokhwa::utils::Resolution::default(),
+            arduino_connection: false,
+        })
         .insert_resource(ArduinoConnected(false))
         .insert_resource(RotationInterval(0))
         .add_plugin(EguiPlugin)
         .add_state::<RunningStates>()
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
-        // .add_system(check_space.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(get_cameras.in_schedule(OnEnter(RunningStates::Setup)))
-        // .add_system(find_crank_arduino.in_schedule(OnEnter(RunningStates::Setup)))
-        .add_system(async_spawner.in_schedule(OnEnter(RunningStates::Setup)))
-        .add_system(cleanup_menu.in_schedule(OnExit(RunningStates::Setup)))
+        .add_system(async_converter_arduino_finder.in_schedule(OnEnter(RunningStates::Setup)))
+        .add_system(save_settings.in_schedule(OnExit(RunningStates::Setup)))
+        // this line below is where the typical UHDRTZ stuff should happen
+        .add_system(async_converter_arduino_reader.in_schedule(OnEnter(RunningStates::Running)))
         .run();
-}
-
-fn check_space(input: Res<Input<KeyCode>>, mut arduino: ResMut<ArduinoConnected>) {
-    // if space is pressed, update the arduino resource
-    if input.pressed(KeyCode::Space) {
-        arduino.0 = !arduino.0;
-    }
 }
 
 fn setup_menu(
     mut ctx: EguiContexts,
     mut selected: ResMut<SelectedCamera>,
     cameras: Res<CaptureDevices>,
-    mut quality: ResMut<Resolution>,
+    mut quality: ResMut<Resolutions>,
     arduino: Res<ArduinoConnected>,
-    rot: Res<RotationInterval>,
+    mut next_state: ResMut<NextState<RunningStates>>,
+    mut settings: ResMut<Settings>,
 ) {
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
@@ -106,13 +131,13 @@ fn setup_menu(
                 egui::ComboBox::from_label(
                     "Select the camera that will be used to capture the video feed",
                 )
-                .selected_text(format!("{}", selected.0.clone().unwrap_or("No Camera".to_string())))
+                .selected_text(format!("{}", selected.0.clone().unwrap_or(("No Camera".to_string(), u32::MAX)).0))
                 .show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
                     // this makes a new item for each camera that was found
-                    for each in cameras.0.iter() {
-                        ui.selectable_value(&mut selected.0, Some(each.0.to_string()), each.0);
+                    for (name, ind) in cameras.0.iter() {
+                        ui.selectable_value(&mut selected.0, Some((name.to_string(), *ind)), name);
                     }
                 });
                 // end with a `ui.end_row()`
@@ -122,12 +147,13 @@ fn setup_menu(
                 ui.add(egui::Label::new("Quality"));
                 egui::ComboBox::from_label(
                     "Select the Quality of the video feed, in combined Resolution and Frame Rate"
-                ).selected_text(format!("{}", quality.0)).show_ui(ui, |ui| {
+                ).selected_text(format!("{}", *quality)).show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
-                    for each in RESOLUTIONS {
-                        ui.selectable_value(&mut quality.0, each.to_string(), each);
-                    }
+                    // this is all settings for resolutions
+                    ui.selectable_value(&mut *quality, Resolutions::Fourk, RESOLUTIONS[0]);
+                    ui.selectable_value(&mut *quality, Resolutions::TenEighty, RESOLUTIONS[1]);
+                    ui.selectable_value(&mut *quality, Resolutions::FourteenFourty, RESOLUTIONS[2]);
                 });
                 ui.end_row();
 
@@ -142,14 +168,23 @@ fn setup_menu(
                 }
             });
 
-        // only let this be clicked if arduino.0 is true
-        if ui.add_enabled(arduino.0,egui::Button::new("Continue")).clicked() {
+        // this is where the settings are converted to nokhwa settings
+        if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
             println!("Clicked!");
+            settings.camera = nokhwa::utils::CameraIndex::Index(selected.0.clone().unwrap().1);
+            settings.resolution = match *quality {
+                Resolutions::Fourk => nokhwa::utils::Resolution::new(3840, 2160), 
+                Resolutions::TenEighty => nokhwa::utils::Resolution::new(1920, 1080),
+                Resolutions::FourteenFourty => nokhwa::utils::Resolution::new(1920, 1440),
+            };
+            settings.arduino_connection = arduino.0;
+            next_state.set(RunningStates::Running);
         }
     });
 }
 
-fn cleanup_menu() {
+fn save_settings(settings: Res<Settings>) {
+    println!("{:?}", settings);
     info!("Cleaned up!");
 }
 
@@ -171,7 +206,9 @@ fn get_cameras(mut cams: ResMut<CaptureDevices>, mut selected: ResMut<SelectedCa
 
     // this sets the default selected camera to that of the first thing obtained from the hash
     if hash.len() > 0 {
-        selected.0 = Some(hash.iter().nth(0).unwrap().0.to_string());
+        // selected.0 = Some(hash.iter().nth(0).unwrap().0.to_string());
+        let (name, ind) = hash.iter().nth(0).unwrap();
+        selected.0 = Some((name.clone().to_string(), *ind));
     } else {
         selected.0 = None;
     }
@@ -236,42 +273,62 @@ async fn find_crank_arduino(mut ctx: TaskContext) {
     }
 }
 
-pub fn async_spawner(rt: Res<TokioTasksRuntime>) {
+pub fn async_converter_arduino_finder(rt: Res<TokioTasksRuntime>) {
     rt.spawn_background_task(find_crank_arduino);
 }
 
-// pub async fn get_bluetooth_data() {
-//     if is_connected {
-//         peripheral.discover_services().await.unwrap();
-//         for characteristic in peripheral.characteristics() {
-//             if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
-//                 println!("Subscribing to characteristic {:?}", characteristic.uuid);
-//                 peripheral.subscribe(&characteristic).await.unwrap();
-//                 let mut notification_stream = peripheral.notifications().await.unwrap();
-//                 loop {
-//                     if let Some(data) = notification_stream.next().await {
-//                         ctx.run_on_main_thread(move |ctx| {
-//                             if let Some(mut rotation) =
-//                                 ctx.world.get_resource_mut::<RotationInterval>()
-//                             {
-//                                 let val = *data.value.iter().next().unwrap_or(&0);
-//                                 #[allow(unused_assignments)]
-//                                 let out: i8;
-//                                 if val > 128 {
-//                                     out = -1 * (255 - val) as i8;
-//                                 } else {
-//                                     out = val as i8;
-//                                 }
+pub fn async_converter_arduino_reader(rt: Res<TokioTasksRuntime>) {
+    rt.spawn_background_task(get_bluetooth_data);
+}
 
-//                                 rotation.0 = out;
-//                             }
-//                         })
-//                         .await;
-//                     }
-//                 }
-//             }
-//         }
-//         println!("Disconnecting from peripheral {:?}...", local_name);
-//         peripheral.disconnect().await.unwrap();
-//     }
-// }
+pub async fn get_bluetooth_data(mut ctx: TaskContext) {
+    // absolutely awful lineup of applied functions
+    // this is a breakdown of getting the first adapter from the manager and then a vector of the peripherals from that
+    let peripherals = Manager::new()
+        .await
+        .unwrap()
+        .adapters()
+        .await
+        .unwrap()
+        .first()
+        .unwrap()
+        .peripherals()
+        .await
+        .unwrap();
+    for peripheral in peripherals.iter() {
+        let is_connected = peripheral.is_connected().await.unwrap();
+
+        if is_connected {
+            peripheral.discover_services().await.unwrap();
+            for characteristic in peripheral.characteristics() {
+                if characteristic.uuid == NOTIFY_CHARACTERISTIC_UUID {
+                    println!("Subscribing to characteristic {:?}", characteristic.uuid);
+                    peripheral.subscribe(&characteristic).await.unwrap();
+                    let mut notification_stream = peripheral.notifications().await.unwrap();
+                    loop {
+                        if let Some(data) = notification_stream.next().await {
+                            ctx.run_on_main_thread(move |ctx| {
+                                if let Some(mut rotation) =
+                                    ctx.world.get_resource_mut::<RotationInterval>()
+                                {
+                                    let val = *data.value.iter().next().unwrap_or(&0);
+                                    #[allow(unused_assignments)]
+                                    let out: i8;
+                                    if val > 128 {
+                                        out = -1 * (255 - val) as i8;
+                                    } else {
+                                        out = val as i8;
+                                    }
+
+                                    rotation.0 = out;
+                                }
+                            })
+                            .await;
+                        }
+                    }
+                }
+            }
+            peripheral.disconnect().await.unwrap();
+        }
+    }
+}
