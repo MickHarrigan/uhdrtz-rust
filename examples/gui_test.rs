@@ -4,16 +4,17 @@ use uhdrtz::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::WHITE))
+        .insert_resource(ClearColor(Color::BLACK))
         .init_resource::<UiState>()
         .init_resource::<CameraCrosshair>()
         .init_resource::<CameraMaskSetting>()
         .init_resource::<ColorSettings>()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            window: WindowDescriptor {
-                mode: WindowMode::BorderlessFullscreen,
+            primary_window: Some(Window {
+                mode: bevy::window::WindowMode::BorderlessFullscreen,
+                present_mode: bevy::window::PresentMode::AutoVsync,
                 ..default()
-            },
+            }),
             ..default()
         }))
         .add_plugin(EguiPlugin)
@@ -42,7 +43,7 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
         .spawn(SpriteBundle {
             texture: server.load("mask_full.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraMaskTag(0));
@@ -50,7 +51,7 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
         .spawn(SpriteBundle {
             texture: server.load("mask_half.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraMaskTag(1));
@@ -58,7 +59,7 @@ fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::INVISIBLE,
+            visibility: Visibility::Hidden,
             ..default()
         })
         .insert(CameraCrosshairTag);
