@@ -83,9 +83,9 @@ impl Plugin for CameraPlugin {
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeMaxInterval(10))
-            // .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running))); // ISSUE: ram usage
-            .add_system(zoetrope_next_camera_frame.in_schedule(OnEnter(RunningStates::Running)))
-            .add_system(zoetrope_animation.in_schedule(OnEnter(RunningStates::Running)));
+            .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
+            .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
+            .add_system(zoetrope_animation.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
@@ -97,11 +97,11 @@ impl Plugin for GuiPlugin {
         .insert_resource(CameraMaskSetting::default())
         .insert_resource(ColorSettings::default())
         .insert_resource(CameraCrosshair(false))
-        .add_system(gui_full.in_schedule(OnEnter(RunningStates::Running)))
-        .add_system(gui_open.in_schedule(OnEnter(RunningStates::Running)))
-        // .add_system(gui_camera_control.in_schedule(OnEnter(RunningStates::Running))) // this one has issues
-        .add_system(gui_set_crosshair.in_schedule(OnEnter(RunningStates::Running)))
-        .add_system(gui_change_mask.in_schedule(OnEnter(RunningStates::Running)));
+        .add_system(gui_full.in_set(OnUpdate(RunningStates::Running)))
+        .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
+        .add_system(gui_camera_control.in_set(OnUpdate(RunningStates::Running)))
+        .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)))
+        .add_system(gui_change_mask.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
@@ -109,7 +109,7 @@ impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(KiraAudioPlugin)
             .add_system(audio_setup.in_schedule(OnEnter(RunningStates::Running)))
-            .add_system(audio_modulation_rotation.in_schedule(OnEnter(RunningStates::Running)));
+            .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
