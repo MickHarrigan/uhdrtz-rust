@@ -19,6 +19,8 @@ jobs:
       run: sudo apt update --fix-missing
     - name: Install Packages
       run: sudo apt install -y libasound2-dev pkg-config clang libudev-dev libdbus-1-dev
+    - name: Update Rust
+      run: rustup update
     - uses: actions/checkout@v3
     - name: Build
       run: cargo build --verbose
