@@ -33,7 +33,7 @@ pub fn zoetrope_setup(
     .unwrap();
 
     commands
-        .spawn(bevy::prelude::Camera2dBundle {
+        .spawn(bevy::core_pipeline::core_2d::Camera2dBundle {
             transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })

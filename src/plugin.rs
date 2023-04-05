@@ -40,7 +40,7 @@ impl Plugin for BasePlugin {
                     ..default()
                 }),
         )
-        .insert_resource(bevy::prelude::ClearColor(Color::BLACK))
+        .insert_resource(bevy::core_pipeline::prelude::ClearColor(Color::BLACK))
         .add_system(bevy::window::close_on_esc);
     }
 }
