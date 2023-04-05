@@ -3,10 +3,12 @@ use anyhow::Result;
 use bevy::asset::Handle;
 use bevy::ecs::{component::Component, system::Resource};
 use bevy::render::texture::Image;
+use bevy::utils::HashMap;
 use flume::unbounded;
 use image::RgbaImage;
 use nokhwa::pixel_format::RgbAFormat;
-use nokhwa::utils::{CameraIndex, RequestedFormat};
+use nokhwa::query;
+use nokhwa::utils::{ApiBackend, CameraIndex, RequestedFormat};
 use nokhwa::CallbackCamera;
 
 #[derive(Resource, Clone)]
@@ -54,4 +56,37 @@ impl Drop for VideoStream {
         // as I believe that the incorrect dropping of the VideoStream "object" is at play here.
         println!("VideoStream Dropped!");
     }
+}
+
+pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
+    // mut selected: ResMut<SelectedCamera>,
+) -> (Option<(String, u32)>, HashMap<String, u32>) {
+    // TODO: make this a function that returns a CaptureDevices or the hash itself to save on some resource complexity
+
+    // this is where the query for cameras should occur and then filter out any repeats
+    let cameras = query(ApiBackend::Auto).unwrap();
+    let mut hash: HashMap<String, _> = HashMap::new();
+    for camera in cameras.iter() {
+        if hash.contains_key(&camera.human_name()) {
+            // if the old value in the hash is greater than the new one
+            // replace it with the smaller value
+            if hash.get(&camera.human_name()).unwrap() > &camera.index().as_index().unwrap() {
+                hash.insert(camera.human_name(), camera.index().as_index().unwrap());
+            }
+        } else {
+            hash.insert(camera.human_name(), camera.index().as_index().unwrap());
+        }
+    }
+
+    // this sets the default selected camera to that of the first thing obtained from the hash
+    let selected: Option<(String, u32)>;
+    if hash.len() > 0 {
+        let (name, ind) = hash.iter().nth(0).unwrap();
+        selected = Some((name.clone().to_string(), *ind));
+    } else {
+        selected = None;
+    }
+    // this sets the "list" of cameras to that of the hash (un-ordered list in effect)
+    // cams.0 = hash;
+    (selected, hash)
 }
