@@ -2,6 +2,7 @@ use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
 use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, HALF};
 use bevy::prelude::*;
+use bevy_core_pipeline::core_2d::Camera2dBundle;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
@@ -33,7 +34,7 @@ pub fn zoetrope_setup(
     .unwrap();
 
     commands
-        .spawn(bevy::core_pipeline::core_2d::Camera2dBundle {
+        .spawn(Camera2dBundle {
             transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
