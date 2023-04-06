@@ -1,6 +1,7 @@
 use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
-use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, HALF};
+use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
+use crate::setup::Settings;
 use bevy::prelude::*;
 use bevy_core_pipeline::core_2d::Camera2dBundle;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
@@ -16,6 +17,7 @@ pub struct ZoetropeMaxInterval(pub i8);
 pub fn zoetrope_setup(
     mut commands: Commands,
     video_images: Res<VideoFrame>,
+    settings: Res<Settings>,
     server: Res<AssetServer>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
@@ -24,11 +26,11 @@ pub fn zoetrope_setup(
     // and to display that image to a plane that a 2d camera is looking at
 
     let cam = VideoStream::new(
-        0,
+        settings.camera.clone(),
         RequestedFormat::new::<RgbAFormat>(RequestedFormatType::Closest(CameraFormat::new(
-            Resolution::new(3840, 2160),
+            settings.resolution,
             FrameFormat::MJPEG,
-            30,
+            settings.frame_rate,
         ))),
     )
     .unwrap();
@@ -58,12 +60,20 @@ pub fn zoetrope_setup(
         .insert(CameraMaskTag(FULL));
     commands
         .spawn(SpriteBundle {
-            texture: server.load("mask_half.png"),
+            texture: server.load("mask1080.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             visibility: Visibility::Hidden,
             ..default()
         })
-        .insert(CameraMaskTag(HALF));
+        .insert(CameraMaskTag(LOW));
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("mask1440.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::Hidden,
+            ..default()
+        })
+        .insert(CameraMaskTag(MED));
     commands
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
@@ -99,25 +109,30 @@ pub fn zoetrope_animation(
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,
+    settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
     mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
 ) {
     for camera in cam_query.iter() {
         while let Some(img) = camera.image_rx.drain().last() {
             for mut tex in &mut tex_query.iter_mut() {
-                *tex = images.set(
-                    &image.0,
-                    Image::new_fill(
-                        Extent3d {
-                            width: 3840,
-                            height: 2160,
-                            depth_or_array_layers: 1,
-                        },
-                        TextureDimension::D2,
-                        &img,
-                        TextureFormat::Rgba8UnormSrgb,
-                    ),
-                );
+                match settings.resolution {
+                    Resolution { width_x, height_y } => {
+                        *tex = images.set(
+                            &image.0,
+                            Image::new_fill(
+                                Extent3d {
+                                    width: width_x,
+                                    height: height_y,
+                                    depth_or_array_layers: 1,
+                                },
+                                TextureDimension::D2,
+                                &img,
+                                TextureFormat::Rgba8UnormSrgb,
+                            ),
+                        )
+                    }
+                };
             }
         }
     }

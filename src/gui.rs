@@ -1,9 +1,11 @@
+use crate::audio::Volume;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
 // constants for the different masks
 pub const FULL: u8 = 0;
-pub const HALF: u8 = 1;
+pub const MED: u8 = 1;
+pub const LOW: u8 = 2;
 
 #[derive(Resource, Default)]
 pub struct ColorSettings {
@@ -22,7 +24,8 @@ enum MaskType {
     #[default]
     None,
     Full,
-    Half,
+    Medium,
+    Low,
 }
 
 #[derive(Resource, Default)]
@@ -47,6 +50,7 @@ pub fn gui_full(
     mut crosshair: ResMut<CameraCrosshair>,
     mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
+    mut volume: ResMut<Volume>,
 ) {
     egui::Window::new("Effects")
         .vscroll(true)
@@ -83,14 +87,24 @@ pub fn gui_full(
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
             ui.radio_value(&mut mask.0, MaskType::None, "No Mask");
-            ui.radio_value(&mut mask.0, MaskType::Full, "Mask Full");
-            ui.radio_value(&mut mask.0, MaskType::Half, "Mask Half");
+            ui.radio_value(&mut mask.0, MaskType::Full, "Mask 4k");
+            ui.radio_value(&mut mask.0, MaskType::Medium, "Mask 1440");
+            ui.radio_value(&mut mask.0, MaskType::Low, "Mask 1080");
             ui.checkbox(&mut crosshair.0, "Crosshair");
             if ui.add(egui::Button::new("Re-Center")).clicked() {
                 for mut transform in query.iter_mut() {
                     *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 }
             }
+        });
+    egui::Window::new("Volume")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(
+                egui::Slider::new(&mut volume.0, 0.0..=1.0)
+                    .text("Volume")
+                    .show_value(true),
+            );
         });
 }
 
@@ -103,19 +117,31 @@ pub fn gui_change_mask(
     // MaskType = Half -> mask_full = INVISIBLE && mask_half = VISIBLE
     for (mut vis, mask_num) in &mut mask_query.iter_mut() {
         match mask.0 {
+            // 4k
             MaskType::None => match mask_num.0 {
                 FULL => *vis = Visibility::Hidden,
-                HALF => *vis = Visibility::Hidden,
+                MED => *vis = Visibility::Hidden,
+                LOW => *vis = Visibility::Hidden,
                 _ => *vis = Visibility::Hidden,
             },
             MaskType::Full => match mask_num.0 {
                 FULL => *vis = Visibility::Visible,
-                HALF => *vis = Visibility::Hidden,
+                MED => *vis = Visibility::Hidden,
+                LOW => *vis = Visibility::Hidden,
                 _ => *vis = Visibility::Hidden,
             },
-            MaskType::Half => match mask_num.0 {
+            // 1440p
+            MaskType::Medium => match mask_num.0 {
                 FULL => *vis = Visibility::Hidden,
-                HALF => *vis = Visibility::Visible,
+                MED => *vis = Visibility::Visible,
+                LOW => *vis = Visibility::Hidden,
+                _ => *vis = Visibility::Hidden,
+            },
+            // 1080p
+            MaskType::Low => match mask_num.0 {
+                FULL => *vis = Visibility::Hidden,
+                MED => *vis = Visibility::Hidden,
+                LOW => *vis = Visibility::Visible,
                 _ => *vis = Visibility::Hidden,
             },
         }
