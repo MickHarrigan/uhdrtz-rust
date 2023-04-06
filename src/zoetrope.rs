@@ -1,6 +1,6 @@
 use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
-use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, HALF};
+use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
 use crate::setup::Settings;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
@@ -59,12 +59,20 @@ pub fn zoetrope_setup(
         .insert(CameraMaskTag(FULL));
     commands
         .spawn(SpriteBundle {
-            texture: server.load("mask_half.png"),
+            texture: server.load("mask1080.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             visibility: Visibility::Hidden,
             ..default()
         })
-        .insert(CameraMaskTag(HALF));
+        .insert(CameraMaskTag(LOW));
+    commands
+        .spawn(SpriteBundle {
+            texture: server.load("mask1440.png"),
+            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            visibility: Visibility::Hidden,
+            ..default()
+        })
+        .insert(CameraMaskTag(MED));
     commands
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),

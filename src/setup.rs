@@ -155,7 +155,7 @@ pub fn setup_menu(
         if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             (settings.resolution, settings.frame_rate) = match *quality {
-                Resolutions::Fourk => (nokhwa::utils::Resolution::new(3840, 2160), 30),
+                Resolutions::Fourk => (nokhwa::utils::Resolution::new(2880, 2160), 30),
                 Resolutions::TenEighty => (nokhwa::utils::Resolution::new(1920, 1080), 60),
                 Resolutions::FourteenFourty => (nokhwa::utils::Resolution::new(1920, 1440), 60),
             };
