@@ -1,4 +1,5 @@
 use crate::bluetooth::ArduinoConnected;
+use crate::audio::Song;
 use crate::camera::hash_available_cameras;
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowMode};
@@ -60,6 +61,7 @@ pub fn cleanup_menu(mut windows: Query<&mut Window>) {
 pub fn setup_menu(
     mut ctx: EguiContexts,
     mut quality: ResMut<Resolutions>,
+    mut song: ResMut<Song>,
     arduino: Res<ArduinoConnected>,
     mut next_state: ResMut<NextState<RunningStates>>,
     mut settings: ResMut<Settings>,
@@ -74,7 +76,7 @@ pub fn setup_menu(
         egui::Ui::add_space(ui, 20.0);
 
         egui::Grid::new("my_grid")
-            .num_columns(2)
+            .num_columns(3)
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
@@ -119,6 +121,27 @@ pub fn setup_menu(
                 else {
                     ui.add(egui::Label::new("Rotary Arduino Connected!"));
                 }
+                ui.end_row();
+
+                // music changer
+                ui.add(egui::Label::new("Audio"));
+                egui::ComboBox::from_label("Select the song to play during the animation").selected_text(format!("{}", song.0)).show_ui(ui, |ui| {
+                    ui.style_mut().wrap = Some(false);
+                    ui.set_min_width(50.0);
+
+                    let paths = std::fs::read_dir("./assets/audio").unwrap();
+
+                    for path in paths {
+                        let file = path.unwrap().file_name().into_string().unwrap();
+                        ui.selectable_value(&mut song.0, file.clone(), file);
+                    }
+                });
+                // make a button to open the audio location
+                if ui.add(egui::Button::new("Open Audio Location")).clicked() {
+                    // open the location for audio in the default file browser
+                    std::process::Command::new("xdg-open").arg("./assets/audio").spawn().unwrap();
+                }
+                
             });
 
         // this is where the settings are converted to nokhwa settings

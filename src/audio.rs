@@ -3,6 +3,9 @@ use crate::zoetrope::ZoetropeMaxInterval;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
+#[derive(Resource)]
+pub struct Song(pub String);
+
 pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>) {
     audio
         .play(server.load("RomanceAnonimo.mp3"))
