@@ -50,6 +50,7 @@ impl Plugin for SetupPlugin {
             resolution: nokhwa::utils::Resolution::default(),
             frame_rate: 0,
             arduino_connection: false,
+            song: None,
         })
         .insert_resource(ArduinoConnected(false))
         .insert_resource(RotationInterval(0))

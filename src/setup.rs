@@ -38,6 +38,7 @@ pub struct Settings {
     pub resolution: nokhwa::utils::Resolution,
     pub frame_rate: u32,
     pub arduino_connection: bool,
+    pub song: Option<String>,
 }
 // States that the system can be in
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
@@ -125,7 +126,7 @@ pub fn setup_menu(
 
                 // music changer
                 ui.add(egui::Label::new("Audio"));
-                egui::ComboBox::from_label("Select the song to play during the animation").selected_text(format!("{}", song.0)).show_ui(ui, |ui| {
+                egui::ComboBox::from_label("Select the song to play during the animation. Must be an mp3.").selected_text(format!("{}", song.0)).show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
 
@@ -135,12 +136,18 @@ pub fn setup_menu(
                         let file = path.unwrap().file_name().into_string().unwrap();
                         ui.selectable_value(&mut song.0, file.clone(), file);
                     }
+                    // extra listing for no music
+                    ui.selectable_value(&mut song.0,"None".into(), "None");
                 });
                 // make a button to open the audio location
                 if ui.add(egui::Button::new("Open Audio Location")).clicked() {
                     // open the location for audio in the default file browser
                     std::process::Command::new("xdg-open").arg("./assets/audio").spawn().unwrap();
                 }
+                ui.end_row();
+
+                // location for setting the "slices" of the art?
+                // TODO: Ask dyer about this section and if it should be included in a certain manner
                 
             });
 
@@ -153,6 +160,12 @@ pub fn setup_menu(
                 Resolutions::FourteenFourty => (nokhwa::utils::Resolution::new(1920, 1440), 60),
             };
             settings.arduino_connection = arduino.0;
+            // update the song things so that its confirmed a correct song
+            settings.song = match song.0.as_str() {
+                "None" => None,
+                a => Some(a.to_string()),
+            };
+
             next_state.set(RunningStates::Running);
         }
     });
