@@ -20,7 +20,7 @@ pub struct VideoStream {
 }
 
 impl VideoStream {
-    pub fn new(index: u32, format: RequestedFormat) -> Result<Self> {
+    pub fn new(index: CameraIndex, format: RequestedFormat) -> Result<Self> {
         // lots of this is *heavily* taken from https://github.com/foxzool/bevy_nokhwa/blob/main/src/camera.rs
         let (sender, receiver) = unbounded();
 
@@ -29,9 +29,8 @@ impl VideoStream {
             let _ = sender.send(image);
         };
 
-        let mut threaded_camera =
-            CallbackCamera::new(CameraIndex::Index(index), format, callback_fn)
-                .expect("Could not create a CallbackCamera");
+        let mut threaded_camera = CallbackCamera::new(index, format, callback_fn)
+            .expect("Could not create a CallbackCamera");
 
         threaded_camera
             .open_stream()

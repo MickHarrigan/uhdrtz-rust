@@ -1,4 +1,5 @@
 use crate::bluetooth::RotationInterval;
+use crate::setup::Settings;
 use crate::zoetrope::ZoetropeMaxInterval;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
@@ -6,11 +7,16 @@ use bevy_kira_audio::prelude::*;
 #[derive(Resource)]
 pub struct Song(pub String);
 
-pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>) {
-    audio
-        .play(server.load("RomanceAnonimo.mp3"))
-        .looped()
-        .with_volume(0.1);
+pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>, settings: Res<Settings>) {
+    match &settings.song {
+        Some(music) => {
+            audio
+                .play(server.load(format!("audio/{}", music)))
+                .looped()
+                .with_volume(0.6);
+        }
+        None => {}
+    }
 }
 
 pub fn audio_modulation_keyboard(input: Res<Input<KeyCode>>, audio: Res<Audio>) {

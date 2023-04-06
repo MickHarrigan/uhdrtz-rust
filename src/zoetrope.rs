@@ -1,6 +1,7 @@
 use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
 use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, HALF};
+use crate::setup::Settings;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
@@ -15,6 +16,7 @@ pub struct ZoetropeMaxInterval(pub i8);
 pub fn zoetrope_setup(
     mut commands: Commands,
     video_images: Res<VideoFrame>,
+    settings: Res<Settings>,
     server: Res<AssetServer>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
@@ -23,11 +25,11 @@ pub fn zoetrope_setup(
     // and to display that image to a plane that a 2d camera is looking at
 
     let cam = VideoStream::new(
-        0,
+        settings.camera.clone(),
         RequestedFormat::new::<RgbAFormat>(RequestedFormatType::Closest(CameraFormat::new(
-            Resolution::new(3840, 2160),
+            settings.resolution,
             FrameFormat::MJPEG,
-            30,
+            settings.frame_rate,
         ))),
     )
     .unwrap();
