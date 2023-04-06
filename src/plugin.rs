@@ -1,5 +1,7 @@
 use bevy::app::PluginGroupBuilder;
 use bevy::prelude::*;
+use bevy::window::{PresentMode, WindowMode};
+use bevy_core_pipeline::clear_color::ClearColor;
 use bevy_egui::EguiPlugin;
 // use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
