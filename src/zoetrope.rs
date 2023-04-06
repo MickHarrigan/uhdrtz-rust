@@ -100,25 +100,30 @@ pub fn zoetrope_animation(
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
     image: Res<VideoFrame>,
+    settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
     mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
 ) {
     for camera in cam_query.iter() {
         while let Some(img) = camera.image_rx.drain().last() {
             for mut tex in &mut tex_query.iter_mut() {
-                *tex = images.set(
-                    &image.0,
-                    Image::new_fill(
-                        Extent3d {
-                            width: 3840,
-                            height: 2160,
-                            depth_or_array_layers: 1,
-                        },
-                        TextureDimension::D2,
-                        &img,
-                        TextureFormat::Rgba8UnormSrgb,
-                    ),
-                );
+                match settings.resolution {
+                    Resolution { width_x, height_y } => {
+                        *tex = images.set(
+                            &image.0,
+                            Image::new_fill(
+                                Extent3d {
+                                    width: width_x,
+                                    height: height_y,
+                                    depth_or_array_layers: 1,
+                                },
+                                TextureDimension::D2,
+                                &img,
+                                TextureFormat::Rgba8UnormSrgb,
+                            ),
+                        )
+                    }
+                };
             }
         }
     }
