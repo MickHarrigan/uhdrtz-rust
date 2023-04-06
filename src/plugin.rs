@@ -5,7 +5,7 @@ use bevy_egui::EguiPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
-use crate::audio::{audio_modulation_rotation, audio_setup, Song};
+use crate::audio::{audio_modulation_rotation, audio_setup, change_audio_volume, Song, Volume};
 use crate::bluetooth::{
     async_converter_arduino_finder, async_converter_arduino_reader, ArduinoConnected,
     RotationInterval,
@@ -110,8 +110,10 @@ impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(KiraAudioPlugin)
             .insert_resource(Song("RomanceAnonimo.mp3".to_string()))
+            .insert_resource(Volume(0.5))
             .add_system(audio_setup.in_schedule(OnEnter(RunningStates::Running)))
-            .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)));
+            .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)))
+            .add_system(change_audio_volume.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 

@@ -1,3 +1,4 @@
+use crate::audio::Volume;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
@@ -49,6 +50,7 @@ pub fn gui_full(
     mut crosshair: ResMut<CameraCrosshair>,
     mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
+    mut volume: ResMut<Volume>,
 ) {
     egui::Window::new("Effects")
         .vscroll(true)
@@ -94,6 +96,15 @@ pub fn gui_full(
                     *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 }
             }
+        });
+    egui::Window::new("Volume")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(
+                egui::Slider::new(&mut volume.0, 0.0..=1.0)
+                    .text("Volume")
+                    .show_value(true),
+            );
         });
 }
 
