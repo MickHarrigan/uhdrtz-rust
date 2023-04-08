@@ -10,6 +10,7 @@ anyhow = "1.0.69"
 bevy = { version = "0.10.1", default-features = false, features = ["bevy_asset", "bevy_winit", "bevy_sprite", "bevy_core_pipeline", "png", "x11"] }
 bevy-tokio-tasks = "0.10.0"
 bevy_egui = "0.20.0"
+bevy_embedded_assets = "0.7.0"
 bevy_kira_audio = { version = "0.15.0", features = ["mp3"] }
 btleplug = "0.10.4"
 egui = "0.21.0"

@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::EguiPlugin;
 // use bevy_embedded_assets::EmbeddedAssetPlugin;
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
@@ -33,16 +34,21 @@ struct SetupPlugin; // Things that run within the setup window before the actual
 impl Plugin for SetupPlugin {
     fn build(&self, app: &mut App) {
         // this is where all the setup things should be converted to be used in main
-        app.add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "UHDRTZ Setup".to_string(),
-                position: WindowPosition::Centered {
-                    0: MonitorSelection::Primary,
-                },
-                ..default()
-            }),
-            ..default()
-        }))
+        app.add_plugins(
+            DefaultPlugins
+                .build()
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "UHDRTZ Setup".to_string(),
+                        position: WindowPosition::Centered {
+                            0: MonitorSelection::Primary,
+                        },
+                        ..default()
+                    }),
+                    ..default()
+                }),
+        )
         .add_plugin(TokioTasksPlugin::default())
         .add_plugin(EguiPlugin)
         .insert_resource(Resolutions::default())
@@ -110,7 +116,7 @@ impl Plugin for GuiPlugin {
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(KiraAudioPlugin)
-            .insert_resource(Song("RomanceAnonimo.mp3".to_string()))
+            .insert_resource(Song("None".to_string()))
             .insert_resource(Volume(0.5))
             .add_system(audio_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)))
