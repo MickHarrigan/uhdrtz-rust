@@ -3,7 +3,6 @@ use crate::camera::{VideoFrame, VideoStream};
 use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
 use crate::setup::Settings;
 use bevy::prelude::*;
-use bevy_core_pipeline::core_2d::Camera2dBundle;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
