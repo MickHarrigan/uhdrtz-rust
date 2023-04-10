@@ -2,6 +2,7 @@
 use anyhow::Result;
 use bevy::asset::Handle;
 use bevy::ecs::{component::Component, system::Resource};
+use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::render::texture::Image;
 use bevy::utils::HashMap;
 use flume::bounded;
@@ -16,7 +17,7 @@ pub struct VideoFrame(pub Handle<Image>);
 
 #[derive(Component)]
 pub struct VideoStream {
-    pub image_rx: flume::Receiver<RgbaImage>,
+    pub image_rx: flume::Receiver<Image>,
 }
 
 impl VideoStream {
@@ -25,7 +26,9 @@ impl VideoStream {
         let (sender, receiver) = bounded(1);
 
         let callback_fn = move |buffer: nokhwa::Buffer| {
-            let image = buffer.decode_image::<RgbAFormat>().unwrap();
+            let buf = buffer.decode_image::<RgbAFormat>().unwrap();
+            let wh = (2880, 2160);
+            let image = Self::make_image(wh, &buf);
             let _ = sender.send(image);
         };
 
@@ -46,6 +49,20 @@ impl VideoStream {
         });
 
         Ok(Self { image_rx: receiver })
+    }
+
+    #[inline]
+    fn make_image(wh: (u32, u32), buffer: &[u8]) -> Image {
+        Image::new(
+            Extent3d {
+                width: wh.0,
+                height: wh.1,
+                depth_or_array_layers: 1,
+            },
+            TextureDimension::D2,
+            buffer.to_vec(),
+            TextureFormat::Rgba8UnormSrgb,
+        )
     }
 }
 
