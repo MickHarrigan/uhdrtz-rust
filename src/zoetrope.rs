@@ -15,7 +15,7 @@ pub struct ZoetropeMaxInterval(pub i8);
 
 pub fn zoetrope_setup(
     mut commands: Commands,
-    video_images: Res<VideoFrame>,
+    // video_images: Res<VideoFrame>,
     settings: Res<Settings>,
     server: Res<AssetServer>,
 ) {
@@ -43,7 +43,7 @@ pub fn zoetrope_setup(
 
     commands
         .spawn(SpriteBundle {
-            texture: video_images.0.clone_weak(),
+            texture: Handle::default(),
             transform: Transform::from_xyz(0.0, 0.0, -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
@@ -107,32 +107,23 @@ pub fn zoetrope_animation(
 
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
-    image: Res<VideoFrame>,
+    // image: Res<VideoFrame>,
     settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
     mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
 ) {
-    for camera in cam_query.iter() {
-        while let Some(img) = camera.image_rx.drain().last() {
-            for mut tex in &mut tex_query.iter_mut() {
-                match settings.resolution {
-                    Resolution { width_x, height_y } => {
-                        *tex = images.set(
-                            &image.0,
-                            Image::new_fill(
-                                Extent3d {
-                                    width: width_x,
-                                    height: height_y,
-                                    depth_or_array_layers: 1,
-                                },
-                                TextureDimension::D2,
-                                &img,
-                                TextureFormat::Rgba8UnormSrgb,
-                            ),
-                        )
-                    }
-                };
-            }
-        }
+    let camera = cam_query.single();
+    let wh = (settings.resolution.width(), settings.resolution.height());
+    if let Some(buffer) = camera.image_rx.drain().last() {
+        *tex_query.single_mut() = images.add(Image::new_fill(
+            Extent3d {
+                width: wh.0,
+                height: wh.1,
+                depth_or_array_layers: 1,
+            },
+            TextureDimension::D2,
+            &buffer,
+            TextureFormat::Rgba8UnormSrgb,
+        ));
     }
 }
