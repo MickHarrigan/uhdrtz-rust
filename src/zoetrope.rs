@@ -115,15 +115,20 @@ pub fn zoetrope_next_camera_frame(
     let camera = cam_query.single();
     let wh = (settings.resolution.width(), settings.resolution.height());
     if let Some(buffer) = camera.image_rx.drain().last() {
-        *tex_query.single_mut() = images.add(Image::new_fill(
-            Extent3d {
-                width: wh.0,
-                height: wh.1,
-                depth_or_array_layers: 1,
-            },
-            TextureDimension::D2,
-            &buffer,
-            TextureFormat::Rgba8UnormSrgb,
-        ));
+        *tex_query.single_mut() = images.add(make_image(wh, &buffer));
     }
+}
+
+#[inline]
+fn make_image(wh: (u32, u32), buffer: &[u8]) -> Image {
+    Image::new(
+        Extent3d {
+            width: wh.0,
+            height: wh.1,
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        buffer.to_vec(),
+        TextureFormat::Rgba8UnormSrgb,
+    )
 }

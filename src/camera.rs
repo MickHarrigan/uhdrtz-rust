@@ -4,7 +4,7 @@ use bevy::asset::Handle;
 use bevy::ecs::{component::Component, system::Resource};
 use bevy::render::texture::Image;
 use bevy::utils::HashMap;
-use flume::unbounded;
+use flume::bounded;
 use image::RgbaImage;
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::query;
@@ -22,7 +22,7 @@ pub struct VideoStream {
 impl VideoStream {
     pub fn new(index: CameraIndex, format: RequestedFormat) -> Result<Self> {
         // lots of this is *heavily* taken from https://github.com/foxzool/bevy_nokhwa/blob/main/src/camera.rs
-        let (sender, receiver) = unbounded();
+        let (sender, receiver) = bounded(1);
 
         let callback_fn = move |buffer: nokhwa::Buffer| {
             let image = buffer.decode_image::<RgbAFormat>().unwrap();
