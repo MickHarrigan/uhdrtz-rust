@@ -108,13 +108,15 @@ pub fn zoetrope_animation(
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
     // image: Res<VideoFrame>,
-    settings: Res<Settings>,
+    // settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
     mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
 ) {
     let camera = cam_query.single();
-    let wh = (settings.resolution.width(), settings.resolution.height());
+    // let wh = (settings.resolution.width(), settings.resolution.height());
     if let Some(image) = camera.image_rx.drain().last() {
-        *tex_query.single_mut() = images.add(image);
+        // *tex_query.single_mut() = images.add(image);
+        let mut tex = tex_query.single_mut();
+        *tex = images.set(tex.clone_weak(), image);
     }
 }
