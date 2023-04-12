@@ -6,7 +6,7 @@ use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::render::texture::Image;
 use bevy::utils::HashMap;
 use flume::bounded;
-use image::RgbaImage;
+use image::{ImageBuffer, Rgba};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::query;
 use nokhwa::utils::{ApiBackend, CameraIndex, RequestedFormat};
@@ -26,9 +26,9 @@ impl VideoStream {
         let (sender, receiver) = bounded(1);
 
         let callback_fn = move |buffer: nokhwa::Buffer| {
-            let buf = buffer.decode_image::<RgbAFormat>().unwrap();
-            let wh = (2880, 2160);
-            let image = Self::make_image(wh, &buf);
+            let mut buf = buffer.decode_image::<RgbAFormat>().unwrap();
+            let wh = (2160, 2160);
+            let image = Self::make_image(wh, &mut buf);
             let _ = sender.send(image);
         };
 
@@ -52,7 +52,7 @@ impl VideoStream {
     }
 
     #[inline]
-    fn make_image(wh: (u32, u32), buffer: &[u8]) -> Image {
+    fn make_image(wh: (u32, u32), buffer: &mut ImageBuffer<Rgba<u8>, Vec<u8>>) -> Image {
         Image::new(
             Extent3d {
                 width: wh.0,
@@ -60,7 +60,9 @@ impl VideoStream {
                 depth_or_array_layers: 1,
             },
             TextureDimension::D2,
-            buffer.to_vec(),
+            image::imageops::crop(buffer, 360, 0, 2160, 2160)
+                .to_image()
+                .to_vec(),
             TextureFormat::Rgba8UnormSrgb,
         )
     }
@@ -77,8 +79,6 @@ impl Drop for VideoStream {
 pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
     // mut selected: ResMut<SelectedCamera>,
 ) -> (Option<(String, u32)>, HashMap<String, u32>) {
-    // TODO: make this a function that returns a CaptureDevices or the hash itself to save on some resource complexity
-
     // this is where the query for cameras should occur and then filter out any repeats
     let cameras = query(ApiBackend::Auto).unwrap();
     let mut hash: HashMap<String, _> = HashMap::new();

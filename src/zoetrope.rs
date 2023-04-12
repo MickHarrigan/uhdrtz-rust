@@ -16,6 +16,8 @@ pub struct ZoetropeMaxInterval(pub i8);
 pub fn zoetrope_setup(
     mut commands: Commands,
     // video_images: Res<VideoFrame>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     settings: Res<Settings>,
     server: Res<AssetServer>,
 ) {
@@ -35,16 +37,32 @@ pub fn zoetrope_setup(
     .unwrap();
 
     commands
-        .spawn(Camera2dBundle {
+        .spawn(Camera3dBundle {
             transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(cam);
 
+    // commands
+    //     .spawn(SpriteBundle {
+    //         texture: Handle::default(),
+    //         transform: Transform::from_xyz(0.0, 0.0, -1.0).looking_at(Vec3::ZERO, Vec3::Y),
+    //         ..default()
+    //     })
+    //     .insert(ZoetropeImage);
+
+    // let mesh = Mesh::from(shape::Plane::from_size(20.0));
+    let mesh = Mesh::from(shape::Circle::new(40.0));
+    let material = StandardMaterial {
+        unlit: true,
+        // base_color_texture: Some(Handle::default()),
+        ..default()
+    };
     commands
-        .spawn(SpriteBundle {
-            texture: Handle::default(),
-            transform: Transform::from_xyz(0.0, 0.0, -1.0).looking_at(Vec3::ZERO, Vec3::Y),
+        .spawn(PbrBundle {
+            mesh: meshes.add(mesh),
+            material: materials.add(material),
+            transform: Transform::from_xyz(0., 0., 10.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(ZoetropeImage);
@@ -107,16 +125,15 @@ pub fn zoetrope_animation(
 
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
-    // image: Res<VideoFrame>,
-    // settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
-    mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mat_query: Query<&Handle<StandardMaterial>, With<ZoetropeImage>>,
 ) {
     let camera = cam_query.single();
-    // let wh = (settings.resolution.width(), settings.resolution.height());
     if let Some(image) = camera.image_rx.drain().last() {
-        // *tex_query.single_mut() = images.add(image);
-        let mut tex = tex_query.single_mut();
-        *tex = images.set(tex.clone_weak(), image);
+        let mat = mat_query.single();
+        if let Some(material) = materials.get_mut(&mat) {
+            material.base_color_texture = Some(images.add(image));
+        }
     }
 }

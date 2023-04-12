@@ -108,8 +108,8 @@ impl Plugin for GuiPlugin {
         .add_system(gui_full.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_camera_control.in_set(OnUpdate(RunningStates::Running)))
-        .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)))
-        .add_system(gui_change_mask.in_set(OnUpdate(RunningStates::Running)));
+        .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)));
+        // .add_system(gui_change_mask.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
