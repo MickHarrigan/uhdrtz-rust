@@ -1,4 +1,5 @@
 use bevy::app::PluginGroupBuilder;
+use bevy::pbr::PbrPlugin;
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::EguiPlugin;
