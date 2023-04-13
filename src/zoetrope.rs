@@ -15,7 +15,9 @@ pub struct ZoetropeMaxInterval(pub i8);
 
 pub fn zoetrope_setup(
     mut commands: Commands,
-    video_images: Res<VideoFrame>,
+    // video_images: Res<VideoFrame>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<Settings>,
     server: Res<AssetServer>,
 ) {
@@ -42,9 +44,10 @@ pub fn zoetrope_setup(
         .insert(cam);
 
     commands
-        .spawn(SpriteBundle {
-            texture: video_images.0.clone_weak(),
-            transform: Transform::from_xyz(0.0, 0.0, -1.0).looking_at(Vec3::ZERO, Vec3::Y),
+        .spawn(bevy::sprite::MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Circle::new(800.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::WHITE)),
+            transform: Transform::from_xyz(0., 0., 50.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(ZoetropeImage);
@@ -107,32 +110,15 @@ pub fn zoetrope_animation(
 
 pub fn zoetrope_next_camera_frame(
     cam_query: Query<&mut VideoStream>,
-    image: Res<VideoFrame>,
-    settings: Res<Settings>,
     mut images: ResMut<Assets<Image>>,
-    mut tex_query: Query<&mut Handle<Image>, With<ZoetropeImage>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mat_query: Query<&Handle<ColorMaterial>, With<ZoetropeImage>>,
 ) {
-    for camera in cam_query.iter() {
-        while let Some(img) = camera.image_rx.drain().last() {
-            for mut tex in &mut tex_query.iter_mut() {
-                match settings.resolution {
-                    Resolution { width_x, height_y } => {
-                        *tex = images.set(
-                            &image.0,
-                            Image::new_fill(
-                                Extent3d {
-                                    width: width_x,
-                                    height: height_y,
-                                    depth_or_array_layers: 1,
-                                },
-                                TextureDimension::D2,
-                                &img,
-                                TextureFormat::Rgba8UnormSrgb,
-                            ),
-                        )
-                    }
-                };
-            }
+    let camera = cam_query.single();
+    if let Some(image) = camera.image_rx.drain().last() {
+        let mat = mat_query.single();
+        if let Some(material) = materials.get_mut(&mat) {
+            material.texture = Some(images.add(image));
         }
     }
 }

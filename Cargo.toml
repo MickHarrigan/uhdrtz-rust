@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.69"
-bevy = { version = "0.10.1", default-features = false, features = ["bevy_asset", "bevy_winit", "bevy_sprite", "bevy_core_pipeline", "png", "x11"] }
+bevy = { version = "0.10.1", default-features = false, features = ["bevy_asset", "bevy_winit", "bevy_sprite", "bevy_core_pipeline", "png", "x11", "bevy_pbr"] }
 bevy-tokio-tasks = "0.10.0"
 bevy_egui = "0.20.0"
 bevy_embedded_assets = "0.7.0"

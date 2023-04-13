@@ -187,8 +187,8 @@ pub fn gui_camera_control(
         transform.translation.y -= movement_speed;
     }
     if keyboard_input.pressed(KeyCode::PageUp) {
-        transform.scale -= movement_speed / 500.0;
+        transform.translation.z += movement_speed;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
-        transform.scale += movement_speed / 500.0;
+        transform.translation.z -= movement_speed;
     }
 }
