@@ -28,9 +28,9 @@ pub fn audio_modulation_keyboard(input: Res<Input<KeyCode>>, audio: Res<Audio>) 
         rate = 2.5;
     }
     if input.pressed(KeyCode::Left) {
-        audio.set_playback_rate(-rate);
-    } else if input.pressed(KeyCode::Right) {
         audio.set_playback_rate(rate);
+    } else if input.pressed(KeyCode::Right) {
+        audio.set_playback_rate(-rate);
     } else {
         audio.set_playback_rate(0.);
     }
