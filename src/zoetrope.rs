@@ -92,11 +92,9 @@ pub fn zoetrope_setup(
 }
 
 pub fn zoetrope_animation(
-    time: Res<Time>,
     mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeMaxInterval>,
-    mut count: ResMut<Counter>,
 ) {
     // the ratio between 24 fps and 60 fps is 0.4
     // this means that every 2.5 times the animation should run
@@ -122,6 +120,29 @@ pub fn zoetrope_animation(
     // } else {
     //     count.0 += 1;
     // }
+}
+
+pub fn zoetrope_animation_keyboard(
+    // mut query: Query<&mut Transform, With<ZoetropeImage>>,
+    mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
+    input: Res<Input<KeyCode>>,
+) {
+    for mut transform in query.iter_mut() {
+        let mut rate: f32 = 0.5;
+        if input.pressed(KeyCode::LShift) {
+            rate = 1.0;
+        }
+        if input.pressed(KeyCode::RShift) {
+            rate = 0.75;
+        }
+        if input.pressed(KeyCode::Q) {
+            transform.rotate_z(-PI / 12.0 * rate);
+        } else if input.pressed(KeyCode::E) {
+            transform.rotate_z(PI / 12.0 * rate);
+        } else {
+            transform.rotate_z(0.);
+        }
+    }
 }
 
 pub fn zoetrope_next_camera_frame(

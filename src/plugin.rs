@@ -21,7 +21,8 @@ use crate::gui::{
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, Counter, ZoetropeMaxInterval,
+    zoetrope_animation, zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_setup,
+    Counter, ZoetropeMaxInterval,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -102,7 +103,7 @@ impl Plugin for AnimationPlugin {
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
-                zoetrope_animation
+                zoetrope_animation_keyboard
                     .in_set(OnUpdate(RunningStates::Running))
                     .in_schedule(CoreSchedule::FixedUpdate),
             );
