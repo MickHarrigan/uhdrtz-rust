@@ -145,17 +145,12 @@ pub fn setup_menu(
             });
 
         // this is where the settings are converted to nokhwa settings
-        if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
+        if ui.add(egui::Button::new("Continue")).clicked() {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             (settings.resolution, settings.frame_rate) = match *quality {
                 Resolutions::Fourk => (nokhwa::utils::Resolution::new(2880, 2160), 30),
                 Resolutions::TenEighty => (nokhwa::utils::Resolution::new(1920, 1080), 60),
                 Resolutions::FourteenFourty => (nokhwa::utils::Resolution::new(1920, 1440), 60),
-            };
-            settings.arduino_connection = arduino.0;
-            settings.song = match song.0.as_str() {
-                "None" => None,
-                a => Some(a.to_string()),
             };
 
             next_state.set(RunningStates::Running);
