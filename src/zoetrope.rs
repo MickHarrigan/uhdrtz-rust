@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
 use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
@@ -12,6 +14,9 @@ pub struct ZoetropeImage;
 
 #[derive(Resource)]
 pub struct ZoetropeMaxInterval(pub i8);
+
+#[derive(Resource)]
+pub struct Counter(pub u8);
 
 pub fn zoetrope_setup(
     mut commands: Commands,
@@ -91,20 +96,31 @@ pub fn zoetrope_animation(
     mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeMaxInterval>,
+    mut count: ResMut<Counter>,
 ) {
-    for mut transform in query.iter_mut() {
-        // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
-        let val: f32;
-        // rotation is an i8
-        // need to get it to an f32
-        if rotation.0 > max.0 {
-            val = (max.0).into();
-        } else if rotation.0 < -max.0 {
-            val = (-max.0).into();
-        } else {
-            val = (rotation.0).into();
+    // the ratio between 24 fps and 60 fps is 0.4
+    // this means that every 2.5 times the animation should run
+    // here this is making it 3, though 2 could be used instead potentially.
+    // This breaks down to either the ceil() or floor() functions on the
+    // ratio output.
+    if count.0 == 3 {
+        count.0 = 0;
+        for mut transform in query.iter_mut() {
+            let val: f32;
+            // rotation is an i8
+            // need to get it to an f32
+            if rotation.0 >= max.0 {
+                val = 1.0;
+            } else if rotation.0 <= -max.0 {
+                val = -1.0;
+            } else {
+                val = (rotation.0 as f32 / max.0 as f32).into();
+            }
+            // PI / 12.0 should be tied to the framerate (slices) of the art in question
+            transform.rotate_z(PI / 12.0 * val);
         }
-        transform.rotate_z(time.delta_seconds() * val /*rotation.0 as f32*/);
+    } else {
+        count.0 += 1;
     }
 }
 

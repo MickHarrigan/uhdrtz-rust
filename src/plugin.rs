@@ -1,7 +1,6 @@
 use bevy::app::PluginGroupBuilder;
-use bevy::pbr::PbrPlugin;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::EguiPlugin;
 // use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -15,12 +14,12 @@ use crate::bluetooth::{
 };
 use crate::camera::VideoFrame;
 use crate::gui::{
-    gui_camera_control, gui_change_mask, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-    CameraMaskSetting, ColorSettings, UiState,
+    gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, CameraMaskSetting,
+    ColorSettings, UiState,
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, ZoetropeMaxInterval,
+    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, Counter, ZoetropeMaxInterval,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -50,6 +49,9 @@ impl Plugin for SetupPlugin {
                     ..default()
                 }),
         )
+        // frame rate logging of the whole system
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(TokioTasksPlugin::default())
         .add_plugin(EguiPlugin)
         .insert_resource(Resolutions::default())
@@ -92,6 +94,7 @@ impl Plugin for CameraPlugin {
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeMaxInterval(10))
+            .insert_resource(Counter(0))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
             .add_system(zoetrope_animation.in_set(OnUpdate(RunningStates::Running)));
