@@ -2,11 +2,6 @@ use crate::audio::Volume;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-// constants for the different masks
-pub const FULL: u8 = 0;
-pub const MED: u8 = 1;
-pub const LOW: u8 = 2;
-
 #[derive(Resource, Default)]
 pub struct ColorSettings {
     pub brightness: f32,
@@ -15,21 +10,6 @@ pub struct ColorSettings {
     pub gamma: f32,
     pub white_balance: f32,
 }
-
-#[derive(Component)]
-pub struct CameraMaskTag(pub u8);
-
-#[derive(PartialEq, Default)]
-enum MaskType {
-    #[default]
-    None,
-    Full,
-    Medium,
-    Low,
-}
-
-#[derive(Resource, Default)]
-pub struct CameraMaskSetting(MaskType);
 
 #[derive(Resource, Default)]
 pub struct CameraCrosshair(pub bool);
@@ -45,7 +25,6 @@ pub struct UiState {
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
-    mut mask: ResMut<CameraMaskSetting>,
     mut crosshair: ResMut<CameraCrosshair>,
     mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
@@ -81,21 +60,7 @@ pub fn gui_full(
                     .show_value(true),
             );
         });
-    egui::Window::new("Masks")
-        .vscroll(true)
-        .open(&mut ui_state.is_window_open)
-        .show(ctx.ctx_mut(), |ui| {
-            ui.radio_value(&mut mask.0, MaskType::None, "No Mask");
-            ui.radio_value(&mut mask.0, MaskType::Full, "Mask 4k");
-            ui.radio_value(&mut mask.0, MaskType::Medium, "Mask 1440");
-            ui.radio_value(&mut mask.0, MaskType::Low, "Mask 1080");
-            ui.checkbox(&mut crosshair.0, "Crosshair");
-            if ui.add(egui::Button::new("Re-Center")).clicked() {
-                for mut transform in query.iter_mut() {
-                    *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
-                }
-            }
-        });
+
     egui::Window::new("Volume")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
@@ -105,46 +70,6 @@ pub fn gui_full(
                     .show_value(true),
             );
         });
-}
-
-pub fn gui_change_mask(
-    mask: Res<CameraMaskSetting>,
-    mut mask_query: Query<(&mut Visibility, &CameraMaskTag)>,
-) {
-    // MaskType = None -> mask_full && mask_half = INVISIBLE
-    // MaskType = Full -> mask_full = VISIBLE && mask_half = INVISIBLE
-    // MaskType = Half -> mask_full = INVISIBLE && mask_half = VISIBLE
-    for (mut vis, mask_num) in &mut mask_query.iter_mut() {
-        match mask.0 {
-            // 4k
-            MaskType::None => match mask_num.0 {
-                FULL => *vis = Visibility::Hidden,
-                MED => *vis = Visibility::Hidden,
-                LOW => *vis = Visibility::Hidden,
-                _ => *vis = Visibility::Hidden,
-            },
-            MaskType::Full => match mask_num.0 {
-                FULL => *vis = Visibility::Visible,
-                MED => *vis = Visibility::Hidden,
-                LOW => *vis = Visibility::Hidden,
-                _ => *vis = Visibility::Hidden,
-            },
-            // 1440p
-            MaskType::Medium => match mask_num.0 {
-                FULL => *vis = Visibility::Hidden,
-                MED => *vis = Visibility::Visible,
-                LOW => *vis = Visibility::Hidden,
-                _ => *vis = Visibility::Hidden,
-            },
-            // 1080p
-            MaskType::Low => match mask_num.0 {
-                FULL => *vis = Visibility::Hidden,
-                MED => *vis = Visibility::Hidden,
-                LOW => *vis = Visibility::Visible,
-                _ => *vis = Visibility::Hidden,
-            },
-        }
-    }
 }
 
 pub fn gui_set_crosshair(

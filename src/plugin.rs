@@ -16,13 +16,12 @@ use crate::bluetooth::{
 };
 use crate::camera::VideoFrame;
 use crate::gui::{
-    gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, CameraMaskSetting,
-    ColorSettings, UiState,
+    gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, ColorSettings,
+    UiState,
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_setup,
-    Counter, ZoetropeMaxInterval,
+    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, ZoetropeMaxInterval,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -103,7 +102,6 @@ impl Plugin for CameraPlugin {
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeMaxInterval(10))
-            .insert_resource(Counter(0))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
@@ -119,7 +117,6 @@ impl Plugin for GuiPlugin {
         app.insert_resource(UiState {
             is_window_open: false,
         })
-        .insert_resource(CameraMaskSetting::default())
         .insert_resource(ColorSettings::default())
         .insert_resource(CameraCrosshair(false))
         .add_system(gui_full.in_set(OnUpdate(RunningStates::Running)))

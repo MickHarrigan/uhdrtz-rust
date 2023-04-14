@@ -22,6 +22,7 @@ pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>, settings: Res<Se
     }
 }
 
+#[allow(dead_code)]
 pub fn audio_modulation_keyboard(input: Res<Input<KeyCode>>, audio: Res<Audio>) {
     let mut rate: f64 = 1.0;
     if input.pressed(KeyCode::LShift) || input.pressed(KeyCode::RShift) {
