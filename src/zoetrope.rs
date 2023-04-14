@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::bluetooth::RotationInterval;
 use crate::camera::{VideoFrame, VideoStream};
 use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
@@ -12,6 +14,9 @@ pub struct ZoetropeImage;
 
 #[derive(Resource)]
 pub struct ZoetropeMaxInterval(pub i8);
+
+#[derive(Resource)]
+pub struct Counter(pub u8);
 
 pub fn zoetrope_setup(
     mut commands: Commands,
@@ -47,7 +52,7 @@ pub fn zoetrope_setup(
         .spawn(bevy::sprite::MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(800.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(0., 0., 50.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 0., -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(ZoetropeImage);
@@ -87,24 +92,47 @@ pub fn zoetrope_setup(
 }
 
 pub fn zoetrope_animation(
-    time: Res<Time>,
     mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeMaxInterval>,
 ) {
     for mut transform in query.iter_mut() {
-        // https://github.com/bevyengine/bevy/blob/main/examples/2d/rotation.rs
         let val: f32;
         // rotation is an i8
         // need to get it to an f32
-        if rotation.0 > max.0 {
-            val = (max.0).into();
-        } else if rotation.0 < -max.0 {
-            val = (-max.0).into();
+        if rotation.0 >= max.0 {
+            val = 1.0;
+        } else if rotation.0 <= -max.0 {
+            val = -1.0;
         } else {
-            val = (rotation.0).into();
+            val = (rotation.0 as f32 / max.0 as f32).into();
         }
-        transform.rotate_z(time.delta_seconds() * val /*rotation.0 as f32*/);
+        // PI / 12.0 should be tied to the framerate (slices) of the art in question
+        transform.rotate_z(PI / 12.0 * val);
+    }
+}
+
+#[allow(dead_code)]
+pub fn zoetrope_animation_keyboard(
+    // mut query: Query<&mut Transform, With<ZoetropeImage>>,
+    mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
+    input: Res<Input<KeyCode>>,
+) {
+    for mut transform in query.iter_mut() {
+        let mut rate: f32 = 0.5;
+        if input.pressed(KeyCode::LShift) {
+            rate = 1.0;
+        }
+        if input.pressed(KeyCode::RShift) {
+            rate = 0.75;
+        }
+        if input.pressed(KeyCode::Q) {
+            transform.rotate_z(-PI / 12.0 * rate);
+        } else if input.pressed(KeyCode::E) {
+            transform.rotate_z(PI / 12.0 * rate);
+        } else {
+            transform.rotate_z(0.);
+        }
     }
 }
 

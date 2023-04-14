@@ -43,8 +43,6 @@ pub enum RunningStates {
     #[default]
     Setup,
     Running,
-    Loading,
-    Standby, // this one is more for the fact that there may be some state that I have no idea of that is just sitting and doing nothing
 }
 
 pub fn cleanup_menu(mut windows: Query<&mut Window>) {

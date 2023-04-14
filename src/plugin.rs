@@ -1,7 +1,8 @@
+use std::time::Duration;
+
 use bevy::app::PluginGroupBuilder;
-use bevy::pbr::PbrPlugin;
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::EguiPlugin;
 // use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -15,12 +16,13 @@ use crate::bluetooth::{
 };
 use crate::camera::VideoFrame;
 use crate::gui::{
-    gui_camera_control, gui_change_mask, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-    CameraMaskSetting, ColorSettings, UiState,
+    gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, CameraMaskSetting,
+    ColorSettings, UiState,
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, ZoetropeMaxInterval,
+    zoetrope_animation, zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_setup,
+    Counter, ZoetropeMaxInterval,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -66,11 +68,20 @@ impl Plugin for SetupPlugin {
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(async_converter_arduino_finder.in_schedule(OnEnter(RunningStates::Setup)))
         .add_system(cleanup_menu.in_schedule(OnExit(RunningStates::Setup)));
+
+        if cfg!(debug_assertions) {
+            app
+                // frame rate logging of the whole system
+                .add_plugin(LogDiagnosticsPlugin::default())
+                .add_plugin(FrameTimeDiagnosticsPlugin::default());
+        }
     }
 }
 
 impl Plugin for BasePlugin {
     fn build(&self, app: &mut App) {
+        *app.world.get_resource_mut::<FixedTime>().unwrap() =
+            FixedTime::new(Duration::from_millis((1. / 24. * 1000.) as u64));
         app.insert_resource(ClearColor(Color::BLACK))
             .add_system(bevy::window::close_on_esc);
     }
@@ -92,9 +103,14 @@ impl Plugin for CameraPlugin {
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeMaxInterval(10))
+            .insert_resource(Counter(0))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
-            .add_system(zoetrope_animation.in_set(OnUpdate(RunningStates::Running)));
+            .add_system(
+                zoetrope_animation
+                    .in_set(OnUpdate(RunningStates::Running))
+                    .in_schedule(CoreSchedule::FixedUpdate),
+            );
     }
 }
 
@@ -110,7 +126,6 @@ impl Plugin for GuiPlugin {
         .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_camera_control.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)));
-        // .add_system(gui_change_mask.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
