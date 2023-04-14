@@ -103,25 +103,25 @@ pub fn zoetrope_animation(
     // here this is making it 3, though 2 could be used instead potentially.
     // This breaks down to either the ceil() or floor() functions on the
     // ratio output.
-    if count.0 == 3 {
-        count.0 = 0;
-        for mut transform in query.iter_mut() {
-            let val: f32;
-            // rotation is an i8
-            // need to get it to an f32
-            if rotation.0 >= max.0 {
-                val = 1.0;
-            } else if rotation.0 <= -max.0 {
-                val = -1.0;
-            } else {
-                val = (rotation.0 as f32 / max.0 as f32).into();
-            }
-            // PI / 12.0 should be tied to the framerate (slices) of the art in question
-            transform.rotate_z(PI / 12.0 * val);
+    // if count.0 == 3 {
+    //     count.0 = 0;
+    for mut transform in query.iter_mut() {
+        let val: f32;
+        // rotation is an i8
+        // need to get it to an f32
+        if rotation.0 >= max.0 {
+            val = 1.0;
+        } else if rotation.0 <= -max.0 {
+            val = -1.0;
+        } else {
+            val = (rotation.0 as f32 / max.0 as f32).into();
         }
-    } else {
-        count.0 += 1;
+        // PI / 12.0 should be tied to the framerate (slices) of the art in question
+        transform.rotate_z(PI / 12.0 * val);
     }
+    // } else {
+    //     count.0 += 1;
+    // }
 }
 
 pub fn zoetrope_next_camera_frame(

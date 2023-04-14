@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::app::PluginGroupBuilder;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
@@ -73,6 +75,8 @@ impl Plugin for SetupPlugin {
 
 impl Plugin for BasePlugin {
     fn build(&self, app: &mut App) {
+        *app.world.get_resource_mut::<FixedTime>().unwrap() =
+            FixedTime::new(Duration::from_millis((1. / 24. * 1000.) as u64));
         app.insert_resource(ClearColor(Color::BLACK))
             .add_system(bevy::window::close_on_esc);
     }
@@ -97,7 +101,11 @@ impl Plugin for AnimationPlugin {
             .insert_resource(Counter(0))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
-            .add_system(zoetrope_animation.in_set(OnUpdate(RunningStates::Running)));
+            .add_system(
+                zoetrope_animation
+                    .in_set(OnUpdate(RunningStates::Running))
+                    .in_schedule(CoreSchedule::FixedUpdate),
+            );
     }
 }
 
