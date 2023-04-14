@@ -25,8 +25,6 @@ pub struct UiState {
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
-    mut crosshair: ResMut<CameraCrosshair>,
-    mut query: Query<&mut Transform, With<Camera>>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
 ) {
@@ -73,14 +71,13 @@ pub fn gui_full(
 }
 
 pub fn gui_set_crosshair(
-    crosshair: Res<CameraCrosshair>,
     mut cross_query: Query<&mut Visibility, With<CameraCrosshairTag>>,
+    ui_state: Res<UiState>,
 ) {
-    for mut vis in &mut cross_query.iter_mut() {
-        match crosshair.0 {
-            true => *vis = Visibility::Visible,
-            false => *vis = Visibility::Hidden,
-        }
+    if ui_state.is_window_open {
+        *cross_query.single_mut() = Visibility::Visible;
+    } else {
+        *cross_query.single_mut() = Visibility::Hidden;
     }
 }
 
