@@ -43,7 +43,6 @@ pub struct UiState {
 }
 
 pub fn gui_full(
-    // mut egui_ctx: ResMut<EguiContext>, // old bevy 0.9.1 stuff
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut mask: ResMut<CameraMaskSetting>,
@@ -168,7 +167,6 @@ pub fn gui_open(keyboard_input: Res<Input<KeyCode>>, mut ui_state: ResMut<UiStat
 
 pub fn gui_camera_control(
     keyboard_input: Res<Input<KeyCode>>,
-    // mut movement: ResMut<CameraMovement>,
     mut query: Query<&mut Transform, With<Camera>>,
 ) {
     let mut transform = query.single_mut();

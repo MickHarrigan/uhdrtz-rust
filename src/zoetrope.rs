@@ -52,7 +52,7 @@ pub fn zoetrope_setup(
         .spawn(bevy::sprite::MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(800.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(0., 0., 50.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 0., -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(ZoetropeImage);
@@ -96,13 +96,6 @@ pub fn zoetrope_animation(
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeMaxInterval>,
 ) {
-    // the ratio between 24 fps and 60 fps is 0.4
-    // this means that every 2.5 times the animation should run
-    // here this is making it 3, though 2 could be used instead potentially.
-    // This breaks down to either the ceil() or floor() functions on the
-    // ratio output.
-    // if count.0 == 3 {
-    //     count.0 = 0;
     for mut transform in query.iter_mut() {
         let val: f32;
         // rotation is an i8
@@ -117,11 +110,9 @@ pub fn zoetrope_animation(
         // PI / 12.0 should be tied to the framerate (slices) of the art in question
         transform.rotate_z(PI / 12.0 * val);
     }
-    // } else {
-    //     count.0 += 1;
-    // }
 }
 
+#[allow(dead_code)]
 pub fn zoetrope_animation_keyboard(
     // mut query: Query<&mut Transform, With<ZoetropeImage>>,
     mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,

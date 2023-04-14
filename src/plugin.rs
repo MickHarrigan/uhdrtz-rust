@@ -52,9 +52,6 @@ impl Plugin for SetupPlugin {
                     ..default()
                 }),
         )
-        // frame rate logging of the whole system
-        .add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(TokioTasksPlugin::default())
         .add_plugin(EguiPlugin)
         .insert_resource(Resolutions::default())
@@ -71,6 +68,13 @@ impl Plugin for SetupPlugin {
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(async_converter_arduino_finder.in_schedule(OnEnter(RunningStates::Setup)))
         .add_system(cleanup_menu.in_schedule(OnExit(RunningStates::Setup)));
+
+        if cfg!(debug_assertions) {
+            app
+                // frame rate logging of the whole system
+                .add_plugin(LogDiagnosticsPlugin::default())
+                .add_plugin(FrameTimeDiagnosticsPlugin::default());
+        }
     }
 }
 
@@ -103,7 +107,7 @@ impl Plugin for AnimationPlugin {
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
-                zoetrope_animation_keyboard
+                zoetrope_animation
                     .in_set(OnUpdate(RunningStates::Running))
                     .in_schedule(CoreSchedule::FixedUpdate),
             );
@@ -122,7 +126,6 @@ impl Plugin for GuiPlugin {
         .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_camera_control.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)));
-        // .add_system(gui_change_mask.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 
