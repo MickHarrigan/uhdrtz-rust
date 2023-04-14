@@ -12,7 +12,7 @@ use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatT
 pub struct ZoetropeImage;
 
 #[derive(Resource)]
-pub struct ZoetropeMaxInterval(pub i8);
+pub struct ZoetropeAnimationThresholdSpeed(pub i8);
 
 #[derive(Resource)]
 pub struct Counter(pub u8);
@@ -69,7 +69,7 @@ pub fn zoetrope_setup(
 pub fn zoetrope_animation(
     mut query: Query<&mut Transform, With<ZoetropeImage>>,
     rotation: Res<RotationInterval>,
-    max: Res<ZoetropeMaxInterval>,
+    max: Res<ZoetropeAnimationThresholdSpeed>,
 ) {
     for mut transform in query.iter_mut() {
         let val: f32;

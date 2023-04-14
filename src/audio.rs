@@ -1,6 +1,6 @@
 use crate::bluetooth::RotationInterval;
 use crate::setup::Settings;
-use crate::zoetrope::ZoetropeMaxInterval;
+use crate::zoetrope::ZoetropeAnimationThresholdSpeed;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -39,7 +39,7 @@ pub fn audio_modulation_keyboard(input: Res<Input<KeyCode>>, audio: Res<Audio>) 
 
 pub fn audio_modulation_rotation(
     rotation: Res<RotationInterval>,
-    max: Res<ZoetropeMaxInterval>,
+    max: Res<ZoetropeAnimationThresholdSpeed>,
     audio: Res<Audio>,
 ) {
     let val: f64;
