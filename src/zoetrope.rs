@@ -1,19 +1,18 @@
 use std::f32::consts::PI;
 
 use crate::bluetooth::RotationInterval;
-use crate::camera::{VideoFrame, VideoStream};
-use crate::gui::{CameraCrosshairTag, CameraMaskTag, FULL, LOW, MED};
+use crate::camera::VideoStream;
+use crate::prelude::CameraCrosshairTag;
 use crate::setup::Settings;
 use bevy::prelude::*;
-use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use nokhwa::pixel_format::RgbAFormat;
-use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType, Resolution};
+use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType};
 
 #[derive(Component)]
 pub struct ZoetropeImage;
 
 #[derive(Resource)]
-pub struct ZoetropeMaxInterval(pub i8);
+pub struct ZoetropeAnimationThresholdSpeed(pub i8);
 
 #[derive(Resource)]
 pub struct Counter(pub u8);
@@ -59,30 +58,6 @@ pub fn zoetrope_setup(
 
     commands
         .spawn(SpriteBundle {
-            texture: server.load("mask_full.png"),
-            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::Hidden,
-            ..default()
-        })
-        .insert(CameraMaskTag(FULL));
-    commands
-        .spawn(SpriteBundle {
-            texture: server.load("mask1080.png"),
-            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::Hidden,
-            ..default()
-        })
-        .insert(CameraMaskTag(LOW));
-    commands
-        .spawn(SpriteBundle {
-            texture: server.load("mask1440.png"),
-            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::Hidden,
-            ..default()
-        })
-        .insert(CameraMaskTag(MED));
-    commands
-        .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
             transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             visibility: Visibility::Hidden,
@@ -92,9 +67,9 @@ pub fn zoetrope_setup(
 }
 
 pub fn zoetrope_animation(
-    mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
+    mut query: Query<&mut Transform, With<ZoetropeImage>>,
     rotation: Res<RotationInterval>,
-    max: Res<ZoetropeMaxInterval>,
+    max: Res<ZoetropeAnimationThresholdSpeed>,
 ) {
     for mut transform in query.iter_mut() {
         let val: f32;
@@ -115,7 +90,7 @@ pub fn zoetrope_animation(
 #[allow(dead_code)]
 pub fn zoetrope_animation_keyboard(
     // mut query: Query<&mut Transform, With<ZoetropeImage>>,
-    mut query: Query<&mut Transform, Or<(With<ZoetropeImage>, With<CameraMaskTag>)>>,
+    mut query: Query<&mut Transform, With<ZoetropeImage>>,
     input: Res<Input<KeyCode>>,
 ) {
     for mut transform in query.iter_mut() {
