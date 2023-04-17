@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_core_pipeline::{core_2d::Camera2dBundle, clear_color::ClearColor};
+// use bevy_core_pipeline::{core_2d::Camera2dBundle, clear_color::ClearColor};
 use bevy_egui::EguiPlugin;
 use uhdrtz::prelude::*;
 
@@ -10,6 +10,7 @@ fn main() {
         .init_resource::<CameraCrosshair>()
         .init_resource::<CameraMaskSetting>()
         .init_resource::<ColorSettings>()
+        .insert_resource(Volume(0.5))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 mode: bevy::window::WindowMode::BorderlessFullscreen,
@@ -30,32 +31,31 @@ fn main() {
         .run();
 }
 
+#[derive(Component)]
+pub struct ZoetropeImage;
+
 fn configure_ui_state(mut ui_state: ResMut<UiState>) {
     ui_state.is_window_open = true;
 }
 
-fn set_background_color(mut commands: Commands, server: Res<AssetServer>) {
+fn set_background_color(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     commands.spawn(Camera2dBundle {
         transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
-
     commands
-        .spawn(SpriteBundle {
-            texture: server.load("mask_full.png"),
-            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::Hidden,
+        .spawn(bevy::sprite::MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Circle::new(800.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::WHITE)),
+            transform: Transform::from_xyz(0., 0., 50.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
-        .insert(CameraMaskTag(0));
-    commands
-        .spawn(SpriteBundle {
-            texture: server.load("mask_half.png"),
-            transform: Transform::from_xyz(0.0, 0.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            visibility: Visibility::Hidden,
-            ..default()
-        })
-        .insert(CameraMaskTag(1));
+        .insert(ZoetropeImage);
     commands
         .spawn(SpriteBundle {
             texture: server.load("xhair.png"),
