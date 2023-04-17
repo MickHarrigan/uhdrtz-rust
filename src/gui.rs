@@ -27,6 +27,7 @@ pub fn gui_full(
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
+    mut query: Query<&mut Transform, With<Camera>>,
 ) {
     egui::Window::new("Effects")
         .vscroll(true)
@@ -67,6 +68,15 @@ pub fn gui_full(
                     .text("Volume")
                     .show_value(true),
             );
+        });
+
+    egui::Window::new("Presets")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            if ui.add(egui::Button::new("Re-Center")).clicked() {
+                let mut transform = query.single_mut();
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+            }
         });
 }
 
