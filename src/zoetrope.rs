@@ -43,10 +43,7 @@ pub fn zoetrope_setup(
     )
     .unwrap();
 
-    // this should be defined by the resolution within the settings
-    let window = windows.single().height();
-    let size = (window / 2.).ceil() + TOP_BAR_SIZE as f32;
-    println!("{size}");
+    let size = (windows.single().height() / 2.).ceil() + TOP_BAR_SIZE as f32;
 
     commands
         .spawn(Camera2dBundle {

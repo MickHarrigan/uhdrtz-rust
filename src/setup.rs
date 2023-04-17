@@ -2,7 +2,7 @@ use crate::bluetooth::ArduinoConnected;
 use crate::audio::Song;
 use crate::camera::hash_available_cameras;
 use bevy::prelude::*;
-use bevy::window::{PresentMode, WindowMode, WindowResolution};
+use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::{egui, EguiContexts};
 use egui::{FontId, RichText};
 
