@@ -83,20 +83,20 @@ pub fn setup_menu(
             .striped(true)
             .show(ui, |ui| {
                 // this is where the different items are defined
-                ui.add(egui::Label::new("Camera"));
-                egui::ComboBox::from_label(
-                    "Select the camera that will be used to capture the video feed",
-                )
-                .selected_text(format!("{}", selected.clone().unwrap_or(("No Camera".to_string(), u32::MAX)).0))
-                .show_ui(ui, |ui| {
-                    ui.style_mut().wrap = Some(false);
-                    ui.set_min_width(50.0);
-                    // this makes a new item for each camera that was found
-                    for (name, ind) in cameras.iter() {
-                        ui.selectable_value(&mut selected, Some((name.to_string(), *ind)), name);
-                    }
-                });
-                ui.end_row();
+                // ui.add(egui::Label::new("Camera"));
+                // egui::ComboBox::from_label(
+                //     "Select the camera that will be used to capture the video feed",
+                // )
+                // .selected_text(format!("{}", selected.clone().unwrap_or(("No Camera".to_string(), u32::MAX)).0))
+                // .show_ui(ui, |ui| {
+                //     ui.style_mut().wrap = Some(false);
+                //     ui.set_min_width(50.0);
+                //     // this makes a new item for each camera that was found
+                //     for (name, ind) in cameras.iter() {
+                //         ui.selectable_value(&mut selected, Some((name.to_string(), *ind)), name);
+                //     }
+                // });
+                // ui.end_row();
 
                 // this is for setting the resolutions
                 ui.add(egui::Label::new("Quality"));
@@ -113,15 +113,15 @@ pub fn setup_menu(
                 ui.end_row();
 
                 // this is the device that should be found such that the crank can be used
-                ui.add(egui::Label::new("Crank"));
-                // create a spinner that updates to a checkmark when arduino = true
-                if !arduino.0 {
-                    ui.add(egui::widgets::Spinner::new());
-                }
-                else {
-                    ui.add(egui::Label::new("Rotary Arduino Connected!"));
-                }
-                ui.end_row();
+                // ui.add(egui::Label::new("Crank"));
+                // // create a spinner that updates to a checkmark when arduino = true
+                // if !arduino.0 {
+                //     ui.add(egui::widgets::Spinner::new());
+                // }
+                // else {
+                //     ui.add(egui::Label::new("Rotary Arduino Connected!"));
+                // }
+                // ui.end_row();
 
                 // music changer
                 ui.add(egui::Label::new("Audio"));
@@ -151,14 +151,14 @@ pub fn setup_menu(
             });
 
         // this is where the settings are converted to nokhwa settings
-        if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
-            settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
+        if ui.add(egui::Button::new("Continue")).clicked() {
+            //settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             (settings.resolution, settings.frame_rate) = match *quality {
                 Resolutions::Fourk => (nokhwa::utils::Resolution::new(2880, 2160), 30),
                 Resolutions::TenEighty => (nokhwa::utils::Resolution::new(1920, 1080), 60),
                 Resolutions::FourteenFourty => (nokhwa::utils::Resolution::new(1920, 1440), 60),
             };
-            settings.arduino_connection = arduino.0;
+            //settings.arduino_connection = arduino.0;
             settings.song = match song.0.as_str() {
                 "None" => None,
                 a => Some(a.to_string()),
