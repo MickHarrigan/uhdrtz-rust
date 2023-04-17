@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-// use bevy_core_pipeline::{core_2d::Camera2dBundle, clear_color::ClearColor};
 use bevy_egui::EguiPlugin;
 use uhdrtz::prelude::*;
 
