@@ -1,5 +1,7 @@
-use crate::audio::Volume;
-use crate::zoetrope::Slices;
+use crate::{
+    audio::Volume,
+    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed},
+};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
@@ -29,6 +31,7 @@ pub fn gui_full(
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
     slices: Res<Slices>,
+    mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
 ) {
     egui::Window::new("Effects")
         .vscroll(true)
@@ -73,7 +76,17 @@ pub fn gui_full(
     egui::Window::new("Debug value inspector")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            ui.add(egui::Label::new(format!("{}", slices.0)))
+            ui.add(egui::Label::new(format!("{}", slices.0)));
+        });
+
+    egui::Window::new("Rotational Speed Threshold")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(
+                egui::Slider::new(&mut threshold.0, 1..=20)
+                    .text("Required Rotational Speed to animate fully")
+                    .show_value(true),
+            );
         });
 }
 
