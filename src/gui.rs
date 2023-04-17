@@ -28,6 +28,8 @@ pub fn gui_full(
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
+    mut query: Query<&mut Transform, With<Camera>>,
+    window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
 ) {
     let window = window_query.single();
@@ -82,10 +84,9 @@ pub fn gui_full(
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
-                transform.scale = Vec3::new( 0.825, 0.825, 1.);
+                transform.scale = Vec3::new(0.825, 0.825, 1.);
             }
         });
-
     egui::Window::new("Rotational Speed Threshold")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
