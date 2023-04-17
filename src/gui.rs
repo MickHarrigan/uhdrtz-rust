@@ -80,8 +80,11 @@ pub fn gui_full(
             if ui.add(egui::Button::new("Re-Center")).clicked() {
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
             }
+            ui.separator();
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
+                transform.scale = Vec3::new( 0.825, 0.825, 1.);
             }
         });
 }

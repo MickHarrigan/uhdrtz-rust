@@ -50,7 +50,7 @@ fn set_background_color(
         .spawn(bevy::sprite::MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(800.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(0., 0., 50.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 0., -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
         .insert(ZoetropeImage);
