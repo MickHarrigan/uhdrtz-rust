@@ -1,4 +1,4 @@
-use crate::audio::Volume;
+use crate::{audio::Volume, zoetrope::ZoetropeAnimationThresholdSpeed};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use nokhwa::utils::Resolution;
@@ -28,8 +28,7 @@ pub fn gui_full(
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
-    mut query: Query<&mut Transform, With<Camera>>,
-    window_query: Query<&Window>,
+    mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
@@ -85,6 +84,16 @@ pub fn gui_full(
                 transform.translation.y = window.resolution.height() / 2.0;
                 transform.scale = Vec3::new( 0.825, 0.825, 1.);
             }
+        });
+
+    egui::Window::new("Rotational Speed Threshold")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(
+                egui::Slider::new(&mut threshold.0, 1..=20)
+                    .text("Required Rotational Speed to animate fully")
+                    .show_value(true),
+            );
         });
 }
 
