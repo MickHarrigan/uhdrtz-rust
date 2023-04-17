@@ -107,14 +107,14 @@ pub fn gui_camera_control(
         movement_speed = 3.;
     }
     if keyboard_input.pressed(KeyCode::Left) {
-        transform.translation.x -= movement_speed;
-    } else if keyboard_input.pressed(KeyCode::Right) {
         transform.translation.x += movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Right) {
+        transform.translation.x -= movement_speed;
     }
     if keyboard_input.pressed(KeyCode::Up) {
-        transform.translation.y += movement_speed;
-    } else if keyboard_input.pressed(KeyCode::Down) {
         transform.translation.y -= movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Down) {
+        transform.translation.y += movement_speed;
     }
     if keyboard_input.pressed(KeyCode::PageUp) {
         transform.scale -= movement_speed / 500.0;
