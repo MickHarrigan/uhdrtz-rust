@@ -8,6 +8,8 @@ use bevy::prelude::*;
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType};
 
+const TOP_BAR_SIZE: u32 = 12;
+
 #[derive(Component)]
 pub struct ZoetropeImage;
 
@@ -24,6 +26,7 @@ pub fn zoetrope_setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<Settings>,
     server: Res<AssetServer>,
+    windows: Query<&Window>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
@@ -40,6 +43,11 @@ pub fn zoetrope_setup(
     )
     .unwrap();
 
+    // this should be defined by the resolution within the settings
+    let window = windows.single().height();
+    let size = (window / 2.).ceil() + TOP_BAR_SIZE as f32;
+    println!("{size}");
+
     commands
         .spawn(Camera2dBundle {
             transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
@@ -49,7 +57,7 @@ pub fn zoetrope_setup(
 
     commands
         .spawn(bevy::sprite::MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(800.).into()).into(),
+            mesh: meshes.add(shape::Circle::new(size).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(0., 0., -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
