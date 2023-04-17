@@ -31,8 +31,12 @@ pub fn gui_full(
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
     slices: Res<Slices>,
+    mut query: Query<&mut Transform, With<Camera>>,
+    window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
 ) {
+    let window = window_query.single();
+    let mut transform = query.single_mut();
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
@@ -79,6 +83,19 @@ pub fn gui_full(
             ui.add(egui::Label::new(format!("{}", slices.0)));
         });
 
+    egui::Window::new("Presets")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            if ui.add(egui::Button::new("Re-Center")).clicked() {
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+            }
+            if ui.add(egui::Button::new("Semi-Circle")).clicked() {
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+                transform.translation.y = window.resolution.height() / 2.0;
+                transform.scale = Vec3::new(0.825, 0.825, 1.);
+            }
+        });
+
     egui::Window::new("Rotational Speed Threshold")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
@@ -117,14 +134,14 @@ pub fn gui_camera_control(
         movement_speed = 3.;
     }
     if keyboard_input.pressed(KeyCode::Left) {
-        transform.translation.x -= movement_speed;
-    } else if keyboard_input.pressed(KeyCode::Right) {
         transform.translation.x += movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Right) {
+        transform.translation.x -= movement_speed;
     }
     if keyboard_input.pressed(KeyCode::Up) {
-        transform.translation.y += movement_speed;
-    } else if keyboard_input.pressed(KeyCode::Down) {
         transform.translation.y -= movement_speed;
+    } else if keyboard_input.pressed(KeyCode::Down) {
+        transform.translation.y += movement_speed;
     }
     if keyboard_input.pressed(KeyCode::PageUp) {
         transform.scale -= movement_speed / 500.0;
