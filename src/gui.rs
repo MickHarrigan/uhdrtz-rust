@@ -1,6 +1,7 @@
 use crate::audio::Volume;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
+use nokhwa::utils::Resolution;
 
 #[derive(Resource, Default)]
 pub struct ColorSettings {
@@ -28,7 +29,10 @@ pub fn gui_full(
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
     mut query: Query<&mut Transform, With<Camera>>,
+    window_query: Query<&Window>,
 ) {
+    let window = window_query.single();
+    let mut transform = query.single_mut();
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
@@ -74,8 +78,10 @@ pub fn gui_full(
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
             if ui.add(egui::Button::new("Re-Center")).clicked() {
-                let mut transform = query.single_mut();
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+            }
+            if ui.add(egui::Button::new("Semi-Circle")).clicked() {
+                transform.translation.y = window.resolution.height() / 2.0;
             }
         });
 }
