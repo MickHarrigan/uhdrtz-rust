@@ -51,6 +51,8 @@ pub fn cleanup_menu(mut windows: Query<&mut Window>) {
         window.mode = WindowMode::BorderlessFullscreen;
         window.present_mode = PresentMode::AutoVsync;
         window.title = "UHDRTZ".to_string();
+        println!("logical height: {}", window.resolution.height());
+        println!("physical height: {}", window.resolution.physical_height());
     }
 }
 
@@ -61,7 +63,11 @@ pub fn setup_menu(
     arduino: Res<ArduinoConnected>,
     mut next_state: ResMut<NextState<RunningStates>>,
     mut settings: ResMut<Settings>,
+    mut windows: Query<&mut Window>,
 ) {
+    let mut window = windows.single_mut();
+    window.set_maximized(true);
+    window.decorations = false;
     let (mut selected, cameras) = hash_available_cameras();
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
