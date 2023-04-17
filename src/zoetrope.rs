@@ -19,6 +19,9 @@ pub struct ZoetropeAnimationThresholdSpeed(pub i8);
 #[derive(Resource)]
 pub struct Counter(pub u8);
 
+#[derive(Resource)]
+pub struct Slices(pub u8);
+
 pub fn zoetrope_setup(
     mut commands: Commands,
     // video_images: Res<VideoFrame>,
@@ -75,6 +78,7 @@ pub fn zoetrope_animation(
     mut query: Query<&mut Transform, With<ZoetropeImage>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeAnimationThresholdSpeed>,
+    slices: Res<Slices>,
 ) {
     for mut transform in query.iter_mut() {
         let val: f32;
@@ -88,7 +92,7 @@ pub fn zoetrope_animation(
             val = (rotation.0 as f32 / max.0 as f32).into();
         }
         // PI / 12.0 should be tied to the framerate (slices) of the art in question
-        transform.rotate_z(PI / 12.0 * val);
+        transform.rotate_z((2. * PI / slices.0 as f32) * val);
     }
 }
 

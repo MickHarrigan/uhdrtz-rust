@@ -1,4 +1,5 @@
 use crate::audio::Volume;
+use crate::zoetrope::Slices;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
@@ -27,6 +28,7 @@ pub fn gui_full(
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
+    slices: Res<Slices>,
 ) {
     egui::Window::new("Effects")
         .vscroll(true)
@@ -67,6 +69,11 @@ pub fn gui_full(
                     .text("Volume")
                     .show_value(true),
             );
+        });
+    egui::Window::new("Debug value inspector")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(egui::Label::new(format!("{}", slices.0)))
         });
 }
 
