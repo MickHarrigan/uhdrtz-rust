@@ -51,8 +51,6 @@ pub fn cleanup_menu(mut windows: Query<&mut Window>) {
         window.mode = WindowMode::BorderlessFullscreen;
         window.present_mode = PresentMode::AutoVsync;
         window.title = "UHDRTZ".to_string();
-        println!("logical height: {}", window.resolution.height());
-        println!("physical height: {}", window.resolution.physical_height());
     }
 }
 
