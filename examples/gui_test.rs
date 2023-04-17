@@ -8,7 +8,6 @@ fn main() {
         .insert_resource(ClearColor(Color::BLACK))
         .init_resource::<UiState>()
         .init_resource::<CameraCrosshair>()
-        .init_resource::<CameraMaskSetting>()
         .init_resource::<ColorSettings>()
         .insert_resource(Volume(0.5))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -25,7 +24,6 @@ fn main() {
         .add_system(gui_full)
         .add_system(gui_open)
         .add_system(gui_set_crosshair)
-        .add_system(gui_change_mask)
         .add_system(gui_camera_control)
         .add_system(bevy::window::close_on_esc)
         .run();
