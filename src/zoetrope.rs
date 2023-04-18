@@ -134,3 +134,14 @@ pub fn zoetrope_next_camera_frame(
         }
     }
 }
+
+pub fn zoetrope_next_frame_static(
+    mat_query: Query<&Handle<ColorMaterial>, With<ZoetropeImage>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    server: Res<AssetServer>,
+) {
+    let mat = mat_query.single();
+    if let Some(material) = materials.get_mut(&mat) {
+        material.texture = Some(server.load("background.png"));
+    }
+}
