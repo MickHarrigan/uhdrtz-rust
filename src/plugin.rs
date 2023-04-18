@@ -20,8 +20,8 @@ use crate::gui::{
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, Slices,
-    ZoetropeAnimationThresholdSpeed,
+    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_next_frame_static, zoetrope_setup,
+    Slices, ZoetropeAnimationThresholdSpeed,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -106,7 +106,8 @@ impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeAnimationThresholdSpeed(10))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
-            .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
+            // .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
+            .add_system(zoetrope_next_frame_static.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
                 zoetrope_animation
                     .in_set(OnUpdate(RunningStates::Running))
