@@ -1,7 +1,9 @@
-use crate::{audio::Volume, zoetrope::ZoetropeAnimationThresholdSpeed};
+use crate::{
+    audio::Volume,
+    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed},
+};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use nokhwa::utils::Resolution;
 
 #[derive(Resource, Default)]
 pub struct ColorSettings {
@@ -28,6 +30,7 @@ pub fn gui_full(
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
+    slices: Res<Slices>,
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
@@ -74,6 +77,11 @@ pub fn gui_full(
                     .show_value(true),
             );
         });
+    egui::Window::new("Debug value inspector")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.add(egui::Label::new(format!("{}", slices.0)));
+        });
 
     egui::Window::new("Presets")
         .open(&mut ui_state.is_window_open)
@@ -87,6 +95,7 @@ pub fn gui_full(
                 transform.scale = Vec3::new(0.825, 0.825, 1.);
             }
         });
+
     egui::Window::new("Rotational Speed Threshold")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {

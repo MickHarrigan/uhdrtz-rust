@@ -1,4 +1,5 @@
 use crate::bluetooth::ArduinoConnected;
+use crate::zoetrope::Slices;
 use crate::audio::Song;
 use crate::camera::hash_available_cameras;
 use bevy::prelude::*;
@@ -28,6 +29,10 @@ impl Resolutions {
         }
     }
 }
+
+
+#[derive(Resource)]
+pub struct StringBuffer(pub String);
 
 #[derive(Resource, Debug)]
 pub struct Settings {
@@ -62,6 +67,9 @@ pub fn setup_menu(
     mut next_state: ResMut<NextState<RunningStates>>,
     mut settings: ResMut<Settings>,
     mut windows: Query<&mut Window>,
+    mut slices: ResMut<Slices>,
+    // this buffer is truly the most innefficient thing ever
+    mut str_buffer: ResMut<StringBuffer>,
 ) {
     let mut window = windows.single_mut();
     window.set_maximized(true);
@@ -143,14 +151,22 @@ pub fn setup_menu(
                 }
                 ui.end_row();
 
-                // location for setting the "slices" of the art?
-                // TODO: Ask dyer about this section and if it should be included in a certain manner
+                ui.add(egui::Label::new("Slices"));
+                ui.add(egui::TextEdit::singleline(&mut str_buffer.0).hint_text("Defaults to 24. Example: \"28\""));
                 
             });
 
         // this is where the settings are converted to nokhwa settings
         if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
+            match str_buffer.0.parse::<u8>() {
+                Ok(x) => slices.0 = x,
+                Err(e) => {
+                    warn!("Error parsing the input value for the slices: {}", e);
+                    info!("Falling back to 24 slices");
+                    slices.0 = 24;
+                }
+            }
             (settings.resolution, settings.frame_rate) = match *quality {
                 Resolutions::Fourk => (nokhwa::utils::Resolution::new(2880, 2160), 30),
                 Resolutions::TenEighty => (nokhwa::utils::Resolution::new(1920, 1080), 60),
