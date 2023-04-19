@@ -1,8 +1,8 @@
 use crate::{
     audio::Volume,
-    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed},
+    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage},
 };
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
 #[derive(Resource, Default)]
@@ -34,6 +34,8 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
+    mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
@@ -90,7 +92,10 @@ pub fn gui_full(
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
             }
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
-                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+                // change the circle radius
+                *circle.single_mut() = meshes.add(shape::Circle::new(864.0).into()).into();
+
+                // *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
                 transform.scale = Vec3::new(0.825, 0.825, 1.);
             }
