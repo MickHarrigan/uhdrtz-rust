@@ -1,6 +1,6 @@
 use crate::{
     audio::Volume,
-    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage},
+    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
@@ -89,15 +89,15 @@ pub fn gui_full(
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
             if ui.add(egui::Button::new("Re-Center")).clicked() {
+                let size = (window.height() / 2.).ceil() + TOP_BAR_SIZE as f32;
+                *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
             }
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
-                // change the circle radius
-                *circle.single_mut() = meshes.add(shape::Circle::new(864.0).into()).into();
+                let size = ((window.width() / 2.0) * 0.9).ceil();
+                *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
 
-                // *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
-                transform.scale = Vec3::new(0.825, 0.825, 1.);
             }
         });
 

@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType};
 
-const TOP_BAR_SIZE: u32 = 12;
+pub const TOP_BAR_SIZE: u32 = 12;
 
 #[derive(Component)]
 pub struct ZoetropeImage;

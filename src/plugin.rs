@@ -150,6 +150,6 @@ impl PluginGroup for ZoetropePlugins {
             .add(AnimationPlugin)
             .add(CameraPlugin)
             .add(GuiPlugin)
-            .add(BluetoothPlugin)
+        // .add(BluetoothPlugin)
     }
 }
