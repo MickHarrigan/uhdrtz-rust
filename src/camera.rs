@@ -68,14 +68,6 @@ impl VideoStream {
     }
 }
 
-impl Drop for VideoStream {
-    fn drop(&mut self) {
-        // this should soon be updated to hopefully try and remove the lock poisoning
-        // as I believe that the incorrect dropping of the VideoStream "object" is at play here.
-        println!("VideoStream Dropped!");
-    }
-}
-
 pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
     // mut selected: ResMut<SelectedCamera>,
 ) -> (Option<(String, u32)>, HashMap<String, u32>) {
