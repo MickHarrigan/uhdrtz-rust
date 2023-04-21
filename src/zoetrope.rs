@@ -8,6 +8,8 @@ use bevy::prelude::*;
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::utils::{CameraFormat, FrameFormat, RequestedFormat, RequestedFormatType};
 
+const TOP_BAR_SIZE: u32 = 12;
+
 #[derive(Component)]
 pub struct ZoetropeImage;
 
@@ -17,6 +19,9 @@ pub struct ZoetropeAnimationThresholdSpeed(pub i8);
 #[derive(Resource)]
 pub struct Counter(pub u8);
 
+#[derive(Resource)]
+pub struct Slices(pub u8);
+
 pub fn zoetrope_setup(
     mut commands: Commands,
     // video_images: Res<VideoFrame>,
@@ -24,6 +29,7 @@ pub fn zoetrope_setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<Settings>,
     server: Res<AssetServer>,
+    windows: Query<&Window>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
@@ -40,6 +46,8 @@ pub fn zoetrope_setup(
     )
     .unwrap();
 
+    let size = (windows.single().height() / 2.).ceil() + TOP_BAR_SIZE as f32;
+
     commands
         .spawn(Camera2dBundle {
             transform: Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y),
@@ -49,7 +57,7 @@ pub fn zoetrope_setup(
 
     commands
         .spawn(bevy::sprite::MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(800.).into()).into(),
+            mesh: meshes.add(shape::Circle::new(size).into()).into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(0., 0., -1.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
@@ -70,6 +78,7 @@ pub fn zoetrope_animation(
     mut query: Query<&mut Transform, With<ZoetropeImage>>,
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeAnimationThresholdSpeed>,
+    slices: Res<Slices>,
 ) {
     for mut transform in query.iter_mut() {
         let val: f32;
@@ -83,7 +92,7 @@ pub fn zoetrope_animation(
             val = (rotation.0 as f32 / max.0 as f32).into();
         }
         // PI / 12.0 should be tied to the framerate (slices) of the art in question
-        transform.rotate_z(PI / 12.0 * val);
+        transform.rotate_z((2. * PI / slices.0 as f32) * val);
     }
 }
 

@@ -4,7 +4,6 @@ use bevy::app::PluginGroupBuilder;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
-// use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
@@ -19,9 +18,9 @@ use crate::gui::{
     gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, ColorSettings,
     UiState,
 };
-use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings};
+use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
-    zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_setup,
+    zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_setup, Slices,
     ZoetropeAnimationThresholdSpeed,
 };
 
@@ -54,6 +53,7 @@ impl Plugin for SetupPlugin {
         )
         .add_plugin(TokioTasksPlugin::default())
         .add_plugin(EguiPlugin)
+        .insert_resource(StringBuffer(String::default()))
         .insert_resource(Resolutions::default())
         .insert_resource(Settings {
             camera: nokhwa::utils::CameraIndex::default(),
@@ -62,6 +62,7 @@ impl Plugin for SetupPlugin {
             arduino_connection: false,
             song: None,
         })
+        .insert_resource(Slices(24))
         .insert_resource(ArduinoConnected(false))
         .insert_resource(RotationInterval(0))
         .add_state::<RunningStates>()
@@ -80,8 +81,9 @@ impl Plugin for SetupPlugin {
 
 impl Plugin for BasePlugin {
     fn build(&self, app: &mut App) {
+        let slices = app.world.get_resource::<Slices>().unwrap().0;
         *app.world.get_resource_mut::<FixedTime>().unwrap() =
-            FixedTime::new(Duration::from_millis((1. / 24. * 1000.) as u64));
+            FixedTime::new(Duration::from_millis((1. / (slices as f32) * 1000.) as u64));
         app.insert_resource(ClearColor(Color::BLACK))
             .add_system(bevy::window::close_on_esc);
     }
