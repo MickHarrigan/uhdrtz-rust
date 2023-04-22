@@ -96,8 +96,24 @@ pub fn gui_full(
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
                 let size = ((window.width() / 2.0) * 0.9).ceil();
                 *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
-
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
+            }
+            if ui.add(egui::Button::new("Right")).clicked() {
+                let size = (window.height()).ceil();
+                *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
+                let location = ((window.width()) / 2.0).ceil();
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+                transform.translation.y = window.resolution.height() / 2.0;
+                transform.translation.x = -location;
+            }
+            if ui.add(egui::Button::new("Left")).clicked() {
+                let size = (window.height()).ceil();
+                *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
+                let location = ((window.width()) / 2.0).ceil();
+                *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
+                transform.translation.y = window.resolution.height() / 2.0;
+                transform.translation.x = location;
             }
         });
 
