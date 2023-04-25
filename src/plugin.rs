@@ -8,7 +8,7 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
-use crate::audio::{audio_modulation_keyboard, audio_setup, change_audio_volume, Song, Volume};
+use crate::audio::{audio_modulation_rotation, audio_setup, change_audio_volume, Song, Volume};
 use crate::bluetooth::{
     async_converter_arduino_finder, async_converter_arduino_reader, ArduinoConnected,
     RotationInterval,
@@ -20,8 +20,8 @@ use crate::gui::{
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
-    zoetrope_animation_keyboard, zoetrope_next_camera_frame, zoetrope_next_frame_static,
-    zoetrope_setup, Slices, ZoetropeAnimationThresholdSpeed,
+    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, Slices,
+    ZoetropeAnimationThresholdSpeed,
 };
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
@@ -106,10 +106,12 @@ impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeAnimationThresholdSpeed(10))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
-            // .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
-            .add_system(zoetrope_next_frame_static.in_set(OnUpdate(RunningStates::Running)))
+            .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
+            // the line below is for a debug system in which a static image is displayed instead of the
+            // camera being used.
+            // .add_system(zoetrope_next_frame_static.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
-                zoetrope_animation_keyboard
+                zoetrope_animation
                     .in_set(OnUpdate(RunningStates::Running))
                     .in_schedule(CoreSchedule::FixedUpdate),
             );
@@ -136,7 +138,7 @@ impl Plugin for AudioPlugin {
             .insert_resource(Song("None".to_string()))
             .insert_resource(Volume(0.5))
             .add_system(audio_setup.in_schedule(OnEnter(RunningStates::Running)))
-            .add_system(audio_modulation_keyboard.in_set(OnUpdate(RunningStates::Running)))
+            .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)))
             .add_system(change_audio_volume.in_set(OnUpdate(RunningStates::Running)));
     }
 }
@@ -150,6 +152,6 @@ impl PluginGroup for ZoetropePlugins {
             .add(AnimationPlugin)
             .add(CameraPlugin)
             .add(GuiPlugin)
-        // .add(BluetoothPlugin)
+            .add(BluetoothPlugin)
     }
 }
