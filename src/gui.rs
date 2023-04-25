@@ -1,18 +1,12 @@
 use crate::{
     audio::Volume,
+    camera::{CameraSetting, ColorSettings, VideoStream},
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
-#[derive(Resource, Default)]
-pub struct ColorSettings {
-    pub brightness: f32,
-    pub contrast: f32,
-    pub saturation: f32,
-    pub gamma: f32,
-    pub white_balance: f32,
-}
+use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
 
 #[derive(Resource, Default)]
 pub struct CameraCrosshair(pub bool);
@@ -25,6 +19,8 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
+pub struct CameraControlEvent;
+
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
@@ -34,40 +30,119 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
+    mut event_writer: EventWriter<CameraControlEvent>,
+    cam_query: Query<&VideoStream>,
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
+    let cam = cam_query.single();
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            ui.add(
-                egui::Slider::new(&mut color_settings.brightness, 0.0..=100.0)
-                    .text("Brightness")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.contrast, 0.0..=100.0)
-                    .text("Contrast")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.saturation, 0.0..=100.0)
-                    .text("Saturation")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.gamma, 0.0..=100.0)
-                    .text("Gamma")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.white_balance, 0.0..=100.0)
-                    .text("White Balance")
-                    .show_value(true),
-            );
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.brightness, 0..=15)
+                        .text("Brightness")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Brightness,
+                    control: ControlValueSetter::Integer(color_settings.brightness.into()),
+                }) {
+                    eprintln!("{}", why);
+                }
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.contrast, 0..=30)
+                        .text("Contrast")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Contrast,
+                    control: ControlValueSetter::Integer(color_settings.contrast.into()),
+                });
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.saturation, 0..=60)
+                        .text("Saturation")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                // event_writer.send(CameraControlEvent);
+                cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Saturation,
+                    control: ControlValueSetter::Integer(color_settings.saturation.into()),
+                });
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.gamma, 40..=500)
+                        .text("Gamma")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.gain, 0..=100)
+                        .text("Gain")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
+                        .text("White Balance")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.sharpness, 0..=127)
+                        .text("Sharpness")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.zoom, 100..=800)
+                        .text("Zoom")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
+            if ui
+                .add(egui::Checkbox::new(
+                    &mut color_settings.auto_exposure,
+                    "Auto Exposure",
+                ))
+                .changed()
+            {
+                event_writer.send(CameraControlEvent);
+            }
         });
 
     egui::Window::new("Volume")
