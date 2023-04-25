@@ -1,16 +1,20 @@
+use std::collections::BTreeMap;
+
 // This is for the handling of the physical camera and its implementation of the overall controlling within the other modules.
 use anyhow::Result;
-use bevy::asset::Handle;
-use bevy::ecs::{component::Component, system::Resource};
+use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
-use bevy::render::texture::Image;
 use bevy::utils::HashMap;
-use flume::bounded;
+use flume::{bounded, unbounded};
 use image::{ImageBuffer, Rgba};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::query;
-use nokhwa::utils::{ApiBackend, CameraIndex, RequestedFormat};
+use nokhwa::utils::{
+    ApiBackend, CameraControl, CameraIndex, ControlValueSetter, KnownCameraControl, RequestedFormat,
+};
 use nokhwa::Camera;
+
+use crate::gui::CameraControlEvent;
 
 #[derive(Resource, Clone)]
 pub struct VideoFrame(pub Handle<Image>);
@@ -18,29 +22,68 @@ pub struct VideoFrame(pub Handle<Image>);
 #[derive(Component)]
 pub struct VideoStream {
     pub image_rx: flume::Receiver<Image>,
+    pub op_tx: flume::Sender<CameraSetting>,
+    pub known_controls: BTreeMap<KnownCameraControl, CameraControl>,
+    pub controls: BTreeMap<KnownCameraControl, ControlValueSetter>,
+}
+
+#[derive(Resource)]
+pub struct ColorSettings {
+    pub brightness: i8,
+    pub contrast: u8,
+    pub saturation: u8,
+    pub gamma: u16,
+    pub gain: u8,
+    pub white_balance: u32,
+    pub sharpness: u8,
+    pub auto_exposure: bool,
+    pub zoom: u16,
+}
+
+impl Default for ColorSettings {
+    fn default() -> Self {
+        Self {
+            brightness: 0,
+            contrast: 15,
+            saturation: 32,
+            gamma: 220,
+            gain: 0,
+            white_balance: 5000,
+            sharpness: 16,
+            auto_exposure: true,
+            zoom: 100,
+        }
+    }
+}
+
+pub struct CameraSetting {
+    pub id: KnownCameraControl,
+    pub control: ControlValueSetter,
 }
 
 impl VideoStream {
     pub fn new(index: CameraIndex, format: RequestedFormat) -> Result<Self> {
         // lots of this is *heavily* taken from https://github.com/foxzool/bevy_nokhwa/blob/main/src/camera.rs
         let (sender, receiver) = bounded(1);
+        let (op_tx, op_rx) = bounded::<CameraSetting>(1);
 
-        // let callback_fn = move |buffer: nokhwa::Buffer| {
-        //     let mut buf = buffer.decode_image::<RgbAFormat>().unwrap();
-        //     let wh = (2160, 2160);
-        //     let image = Self::make_image(wh, &mut buf);
-        //     let _ = sender.send(image);
-        // };
-
-        // let mut threaded_camera = CallbackCamera::new(index, format, callback_fn)
-        //     .expect("Could not create a CallbackCamera");
         let mut cam = Camera::new(index, format).unwrap();
 
         cam.open_stream().expect("Could not open the camera stream");
+        let known_controls = cam.camera_controls_known_camera_controls().unwrap();
 
         std::thread::spawn(move || {
             #[allow(clippy::empty_loop)]
             loop {
+                match op_rx.try_recv() {
+                    Ok(op) => {
+                        if let Err(why) = cam.set_camera_control(op.id, op.control) {
+                            eprintln!("Couldn't set the control: {}", why);
+                        }
+                    }
+                    // Err(why) => eprintln!("couldn't receive: {}", why),
+                    Err(_why) => (),
+                }
                 let buffer = cam.frame().expect("Couldn't receive the camera frame");
                 let mut buf = buffer.decode_image::<RgbAFormat>().unwrap();
                 let wh = (2160, 2160);
@@ -49,7 +92,24 @@ impl VideoStream {
             }
         });
 
-        Ok(Self { image_rx: receiver })
+        let known_controls: BTreeMap<KnownCameraControl, CameraControl> = known_controls
+            .into_iter()
+            .map(|(k, cont)| (k, cont))
+            .collect();
+
+        let controls = known_controls
+            .iter()
+            .map(|(k, cont)| {
+                let value = cont.value();
+                (*k, value)
+            })
+            .collect();
+        Ok(Self {
+            image_rx: receiver,
+            op_tx,
+            known_controls,
+            controls,
+        })
     }
 
     #[inline]
@@ -98,4 +158,69 @@ pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
     // this sets the "list" of cameras to that of the hash (un-ordered list in effect)
     // cams.0 = hash;
     (selected, hash)
+}
+
+pub fn send_camera_controls(
+    cam_query: Query<&VideoStream>,
+    color_settings: Res<ColorSettings>,
+    mut event_reader: EventReader<CameraControlEvent>,
+) {
+    // this function shall send the controls to the camera
+    for _ in event_reader.iter() {
+        for cam in cam_query.iter() {
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Brightness,
+                control: ControlValueSetter::Integer(color_settings.brightness.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Contrast,
+                control: ControlValueSetter::Integer(color_settings.contrast.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Saturation,
+                control: ControlValueSetter::Integer(color_settings.saturation.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Gamma,
+                control: ControlValueSetter::Integer(color_settings.gamma.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Gain,
+                control: ControlValueSetter::Integer(color_settings.gain.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::WhiteBalance,
+                control: ControlValueSetter::Integer(color_settings.white_balance.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Sharpness,
+                control: ControlValueSetter::Integer(color_settings.sharpness.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Zoom,
+                control: ControlValueSetter::Integer(color_settings.zoom.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            // cam.op_tx.try_send(CameraSetting {
+            //     id: KnownCameraControl::WhiteBalanceAutomatic,
+            //     control: ControlValueSetter::Integer(color_settings.auto_exposure.into()),
+            // });
+        }
+    }
+    event_reader.clear();
 }
