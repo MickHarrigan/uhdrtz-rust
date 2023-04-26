@@ -25,15 +25,6 @@ impl VideoStream {
         // lots of this is *heavily* taken from https://github.com/foxzool/bevy_nokhwa/blob/main/src/camera.rs
         let (sender, receiver) = bounded(1);
 
-        // let callback_fn = move |buffer: nokhwa::Buffer| {
-        //     let mut buf = buffer.decode_image::<RgbAFormat>().unwrap();
-        //     let wh = (2160, 2160);
-        //     let image = Self::make_image(wh, &mut buf);
-        //     let _ = sender.send(image);
-        // };
-
-        // let mut threaded_camera = CallbackCamera::new(index, format, callback_fn)
-        //     .expect("Could not create a CallbackCamera");
         let mut cam = Camera::new(index, format).unwrap();
 
         cam.open_stream().expect("Could not open the camera stream");

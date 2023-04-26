@@ -120,11 +120,10 @@ pub fn setup_menu(
 
                 // this is the device that should be found such that the crank can be used
                 ui.add(egui::Label::new("Crank"));
-                // create a spinner that updates to a checkmark when arduino = true
+                // // create a spinner that updates to a checkmark when arduino = true
                 if !arduino.0 {
                     ui.add(egui::widgets::Spinner::new());
-                }
-                else {
+                } else {
                     ui.add(egui::Label::new("Rotary Arduino Connected!"));
                 }
                 ui.end_row();
@@ -157,7 +156,7 @@ pub fn setup_menu(
             });
 
         // this is where the settings are converted to nokhwa settings
-        if ui.add_enabled(arduino.0, egui::Button::new("Continue")).clicked() {
+        if ui.add(egui::Button::new("Continue")).clicked() {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             match str_buffer.0.parse::<u8>() {
                 Ok(x) => slices.0 = x,

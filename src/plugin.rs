@@ -107,6 +107,9 @@ impl Plugin for AnimationPlugin {
         app.insert_resource(ZoetropeAnimationThresholdSpeed(10))
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
+            // the line below is for a debug system in which a static image is displayed instead of the
+            // camera being used.
+            // .add_system(zoetrope_next_frame_static.in_set(OnUpdate(RunningStates::Running)))
             .add_system(
                 zoetrope_animation
                     .in_set(OnUpdate(RunningStates::Running))
