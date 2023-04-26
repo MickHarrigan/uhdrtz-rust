@@ -40,9 +40,10 @@ pub fn gui_full(
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
+            // Brightness
             if ui
                 .add(
-                    egui::Slider::new(&mut color_settings.brightness, 0..=15)
+                    egui::Slider::new(&mut color_settings.brightness, -15..=15)
                         .text("Brightness")
                         .show_value(true),
                 )
@@ -55,6 +56,8 @@ pub fn gui_full(
                     eprintln!("{}", why);
                 }
             }
+
+            // Contrast
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.contrast, 0..=30)
@@ -63,11 +66,15 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                cam.op_tx.send(CameraSetting {
+                if let Err(why) = cam.op_tx.send(CameraSetting {
                     id: KnownCameraControl::Contrast,
                     control: ControlValueSetter::Integer(color_settings.contrast.into()),
-                });
+                }) {
+                    eprintln!("{}", why);
+                }
             }
+
+            // Saturation
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.saturation, 0..=60)
@@ -76,12 +83,15 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                // event_writer.send(CameraControlEvent);
-                cam.op_tx.send(CameraSetting {
+                if let Err(why) = cam.op_tx.send(CameraSetting {
                     id: KnownCameraControl::Saturation,
                     control: ControlValueSetter::Integer(color_settings.saturation.into()),
-                });
+                }) {
+                    eprintln!("{}", why);
+                }
             }
+
+            // Gamma
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.gamma, 40..=500)
@@ -90,8 +100,15 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                event_writer.send(CameraControlEvent);
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Gamma,
+                    control: ControlValueSetter::Integer(color_settings.gamma.into()),
+                }) {
+                    eprintln!("{}", why);
+                }
             }
+
+            // Gain
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.gain, 0..=100)
@@ -100,8 +117,15 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                event_writer.send(CameraControlEvent);
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Gain,
+                    control: ControlValueSetter::Integer(color_settings.gain.into()),
+                }) {
+                    eprintln!("{}", why);
+                }
             }
+
+            // White Balance
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
@@ -110,8 +134,15 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                event_writer.send(CameraControlEvent);
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::WhiteBalance,
+                    control: ControlValueSetter::Integer(color_settings.white_balance.into()),
+                }) {
+                    eprintln!("{}", why);
+                }
             }
+
+            // Sharpness
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.sharpness, 0..=127)
@@ -120,27 +151,41 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                event_writer.send(CameraControlEvent);
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: KnownCameraControl::Sharpness,
+                    control: ControlValueSetter::Integer(color_settings.sharpness.into()),
+                }) {
+                    eprintln!("{}", why);
+                }
             }
-            if ui
-                .add(
-                    egui::Slider::new(&mut color_settings.zoom, 100..=800)
-                        .text("Zoom")
-                        .show_value(true),
-                )
-                .changed()
-            {
-                event_writer.send(CameraControlEvent);
-            }
-            if ui
-                .add(egui::Checkbox::new(
-                    &mut color_settings.auto_exposure,
-                    "Auto Exposure",
-                ))
-                .changed()
-            {
-                event_writer.send(CameraControlEvent);
-            }
+
+            // Zoom
+            // if ui
+            //     .add(
+            //         egui::Slider::new(&mut color_settings.zoom, 100..=800)
+            //             .text("Zoom")
+            //             .show_value(true),
+            //     )
+            //     .changed()
+            // {
+            //     event_writer.send(CameraControlEvent);
+            // }
+
+            // Auto Exposure
+            // if ui
+            //     .add(egui::Checkbox::new(
+            //         &mut color_settings.auto_exposure,
+            //         "Auto Exposure",
+            //     ))
+            //     .changed()
+            // {
+            //     event_writer.send(CameraControlEvent);
+            // }
+
+            // TODO: add button to reset values to default
+            // if ui.add(egui::Button::new("Reset")).clicked() {
+            //     color_settings = ColorSettings::default();
+            // }
         });
 
     egui::Window::new("Volume")
