@@ -56,6 +56,12 @@ impl Default for ColorSettings {
     }
 }
 
+// impl ColorSettings {
+//     pub fn reset_to_defaults() {
+        
+//     }
+// }
+
 pub struct CameraSetting {
     pub id: KnownCameraControl,
     pub control: ControlValueSetter,
