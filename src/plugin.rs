@@ -13,7 +13,7 @@ use crate::bluetooth::{
     async_converter_arduino_finder, async_converter_arduino_reader, ArduinoConnected,
     RotationInterval,
 };
-use crate::camera::{send_camera_controls, ColorSettings, VideoFrame};
+use crate::camera::{/*send_camera_controls,*/ ColorSettings, VideoFrame};
 use crate::gui::{
     gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraControlEvent, CameraCrosshair,
     UiState,
@@ -99,8 +99,8 @@ impl Plugin for BluetoothPlugin {
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CameraControlEvent>()
-            .insert_resource(VideoFrame(Handle::default()))
-            .add_system(send_camera_controls.in_set(OnUpdate(RunningStates::Running)));
+            .insert_resource(VideoFrame(Handle::default()));
+            // .add_system(send_camera_controls.in_set(OnUpdate(RunningStates::Running)));
     }
 }
 

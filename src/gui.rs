@@ -3,9 +3,10 @@ use crate::{
     camera::{CameraSetting, ColorSettings, VideoStream},
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
-use bevy::{prelude::*, sprite::Mesh2dHandle};
+use bevy::{{prelude::*, render::color}, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
+use egui::color_picker::color_picker_color32;
 use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
 
 #[derive(Resource, Default)]
@@ -42,6 +43,15 @@ pub fn gui_full(
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
+            fn send_camera_setting(cam: &VideoStream, id: KnownCameraControl, value: i64) {
+                if let Err(why) = cam.op_tx.send(CameraSetting {
+                    id: id,
+                    control: ControlValueSetter::Integer(value),
+                }) {
+                    eprintln!("{}", why);
+                }
+            }
+
             // Brightness
             if ui
                 .add(
@@ -51,12 +61,11 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Brightness,
-                    control: ControlValueSetter::Integer(color_settings.brightness.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Brightness,
+                    color_settings.brightness.into(),
+                );
             }
 
             // Contrast
@@ -68,12 +77,11 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Contrast,
-                    control: ControlValueSetter::Integer(color_settings.contrast.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Contrast,
+                    color_settings.contrast.into(),
+                );
             }
 
             // Saturation
@@ -85,12 +93,11 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Saturation,
-                    control: ControlValueSetter::Integer(color_settings.saturation.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Saturation,
+                    color_settings.saturation.into(),
+                );
             }
 
             // Gamma
@@ -102,47 +109,36 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Gamma,
-                    control: ControlValueSetter::Integer(color_settings.gamma.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
+                send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
             }
 
             // Gain
-            if ui
-                .add(
-                    egui::Slider::new(&mut color_settings.gain, 0..=100)
-                        .text("Gain")
-                        .show_value(true),
-                )
-                .changed()
-            {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Gain,
-                    control: ControlValueSetter::Integer(color_settings.gain.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
-            }
+            // if ui
+            //     .add(
+            //         egui::Slider::new(&mut color_settings.gain, 0..=100)
+            //             .text("Gain")
+            //             .show_value(true),
+            //     )
+            //     .changed()
+            // {
+            //     send_camera_setting(cam, KnownCameraControl::Gain, color_settings.gain.into());
+            // }
 
             // White Balance
-            if ui
-                .add(
-                    egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
-                        .text("White Balance")
-                        .show_value(true),
-                )
-                .changed()
-            {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::WhiteBalance,
-                    control: ControlValueSetter::Integer(color_settings.white_balance.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
-            }
+            // if ui
+            //     .add(
+            //         egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
+            //             .text("White Balance")
+            //             .show_value(true),
+            //     )
+            //     .changed()
+            // {
+            //     send_camera_setting(
+            //         cam,
+            //         KnownCameraControl::WhiteBalance,
+            //         color_settings.white_balance.into(),
+            //     );
+            // }
 
             // Sharpness
             if ui
@@ -153,41 +149,47 @@ pub fn gui_full(
                 )
                 .changed()
             {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: KnownCameraControl::Sharpness,
-                    control: ControlValueSetter::Integer(color_settings.sharpness.into()),
-                }) {
-                    eprintln!("{}", why);
-                }
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Sharpness,
+                    color_settings.sharpness.into(),
+                );
             }
 
-            // Zoom
-            // if ui
-            //     .add(
-            //         egui::Slider::new(&mut color_settings.zoom, 100..=800)
-            //             .text("Zoom")
-            //             .show_value(true),
-            //     )
-            //     .changed()
-            // {
-            //     event_writer.send(CameraControlEvent);
-            // }
+            if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
+                const BRIGHTNESS_DEFAULT: i8 = 0;
+                const CONTRAST_DEFAULT: u8 = 15;
+                const SATURATION_DEFAULT: u8 = 32;
+                const GAMMA_DEFAULT: u16 = 220;
+                const SHARPNESS_DEFAULT: u8 = 16;
 
-            // Auto Exposure
-            // if ui
-            //     .add(egui::Checkbox::new(
-            //         &mut color_settings.auto_exposure,
-            //         "Auto Exposure",
-            //     ))
-            //     .changed()
-            // {
-            //     event_writer.send(CameraControlEvent);
-            // }
+                color_settings.brightness = BRIGHTNESS_DEFAULT;
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Brightness,
+                    BRIGHTNESS_DEFAULT.into(),
+                );
 
-            // TODO: add button to reset values to default
-            // if ui.add(egui::Button::new("Reset")).clicked() {
-            //     color_settings = ColorSettings::default();
-            // }
+                color_settings.contrast = CONTRAST_DEFAULT;
+                send_camera_setting(cam, KnownCameraControl::Contrast, CONTRAST_DEFAULT.into());
+
+                color_settings.saturation = SATURATION_DEFAULT;
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Saturation,
+                    SATURATION_DEFAULT.into(),
+                );
+
+                color_settings.gamma = GAMMA_DEFAULT;
+                send_camera_setting(cam, KnownCameraControl::Gamma, GAMMA_DEFAULT.into());
+
+                // send_camera_setting(cam, KnownCameraControl::Gain, 0);
+
+                // send_camera_setting(cam, KnownCameraControl::WhiteBalance, 5000);
+
+                color_settings.sharpness = SHARPNESS_DEFAULT;
+                send_camera_setting(cam, KnownCameraControl::Sharpness, SHARPNESS_DEFAULT.into());
+            }
         });
 
     egui::Window::new("Volume")
