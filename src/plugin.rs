@@ -15,8 +15,8 @@ use crate::bluetooth::{
 };
 use crate::camera::VideoFrame;
 use crate::gui::{
-    gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair, ColorSettings,
-    UiState,
+    cursor_visibility, gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
+    ColorSettings, UiState,
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
@@ -126,6 +126,7 @@ impl Plugin for GuiPlugin {
         .insert_resource(ColorSettings::default())
         .insert_resource(CameraCrosshair(false))
         .add_system(gui_full.in_set(OnUpdate(RunningStates::Running)))
+        .add_system(cursor_visibility.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_camera_control.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_set_crosshair.in_set(OnUpdate(RunningStates::Running)));
