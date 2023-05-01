@@ -161,67 +161,67 @@ pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
     (selected, hash)
 }
 
-// pub fn send_camera_controls(
-//     cam_query: Query<&VideoStream>,
-//     color_settings: Res<ColorSettings>,
-//     mut event_reader: EventReader<CameraControlEvent>,
-// ) {
-//     // this function shall send the controls to the camera
-//     for _ in event_reader.iter() {
-//         for cam in cam_query.iter() {
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Brightness,
-//                 control: ControlValueSetter::Integer(color_settings.brightness.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Contrast,
-//                 control: ControlValueSetter::Integer(color_settings.contrast.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Saturation,
-//                 control: ControlValueSetter::Integer(color_settings.saturation.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Gamma,
-//                 control: ControlValueSetter::Integer(color_settings.gamma.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Gain,
-//                 control: ControlValueSetter::Integer(color_settings.gain.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::WhiteBalance,
-//                 control: ControlValueSetter::Integer(color_settings.white_balance.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Sharpness,
-//                 control: ControlValueSetter::Integer(color_settings.sharpness.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             if let Err(why) = cam.op_tx.try_send(CameraSetting {
-//                 id: KnownCameraControl::Zoom,
-//                 control: ControlValueSetter::Integer(color_settings.zoom.into()),
-//             }) {
-//                 eprintln!("{}", why);
-//             }
-//             // cam.op_tx.try_send(CameraSetting {
-//             //     id: KnownCameraControl::WhiteBalanceAutomatic,
-//             //     control: ControlValueSetter::Integer(color_settings.auto_exposure.into()),
-//             // });
-//         }
-//     }
-//     event_reader.clear();
-// }
+pub fn send_camera_controls(
+    cam_query: Query<&VideoStream>,
+    color_settings: Res<ColorSettings>,
+    mut event_reader: EventReader<CameraControlEvent>,
+) {
+    // this function shall send the controls to the camera
+    for _ in event_reader.iter() {
+        for cam in cam_query.iter() {
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Brightness,
+                control: ControlValueSetter::Integer(color_settings.brightness.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Contrast,
+                control: ControlValueSetter::Integer(color_settings.contrast.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Saturation,
+                control: ControlValueSetter::Integer(color_settings.saturation.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Gamma,
+                control: ControlValueSetter::Integer(color_settings.gamma.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Gain,
+                control: ControlValueSetter::Integer(color_settings.gain.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::WhiteBalance,
+                control: ControlValueSetter::Integer(color_settings.white_balance.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Sharpness,
+                control: ControlValueSetter::Integer(color_settings.sharpness.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            if let Err(why) = cam.op_tx.try_send(CameraSetting {
+                id: KnownCameraControl::Zoom,
+                control: ControlValueSetter::Integer(color_settings.zoom.into()),
+            }) {
+                eprintln!("{}", why);
+            }
+            // cam.op_tx.try_send(CameraSetting {
+            //     id: KnownCameraControl::WhiteBalanceAutomatic,
+            //     control: ControlValueSetter::Integer(color_settings.auto_exposure.into()),
+            // });
+        }
+    }
+    event_reader.clear();
+}
