@@ -52,7 +52,103 @@ Test
 Test
 
 ## Operational Scenario(s)
-Test
+This will be an in-depth instructional manual for getting the High- Definition Real Time Zoetrope system up and running.
+
+### Whats Included & Whats Needed
+The following list are all item that will be included in the UHDRTZ kit. This section will also cover what will be needed during the installation process.
+- INCLUDED
+    - Mini PC
+    - AC Power Cable
+    - 4K USB-C Camera
+    - USB-A to USB-C Cable
+    - Micro USB to USB-A Cable
+    - Crank Housing
+        - Arduino
+        - Rotary Encoder
+- Suggested items for setup
+    - Level
+    - Tape
+    - USB Keyboard & Mouse
+
+### Where to Start
+This section will cover the setup of the physical system. The installation of the artwork is assumed.
+
+- Place the camera so that is points towards the center of the artwork and is directly in line with the center of the artwork.
+    - If you are pointing the camera down to look at the artwork on the floor, a level would be useful. 
+- Mount the Mini PC close to the camera. 
+    - Attach the camera to the Mini PC using the USB-C to USB-A cable. 
+    - Plug the AC Power Cable into the mini and connect it to a standard outlet. 
+- Set up the crank housing on the floor where users can reach it. 
+    - Connect the Micro USB to USB-A Cable to the Arduino within the crank housing and string the cable through the whole in the bottom of the crank housing. 
+    - Connect that cable to power 
+    - (**Note:** best option is to use a USB-A to wall socket brick and connect the Arduino directly to power)
+- Plug in a USB Keyboard & Mouse into the Mini PC. 
+- Connect the Mini PC to an external monitor (4K Projector). 
+- Power on the PC. 
+
+
+### Starting The Program
+
+Once you have a physical components of the system set up, you will want to power on the Mini PC. There will be two sign-in options. As a user, you will want to click on the UHDRTZ profile. Once logged in you will want to start the UHDRTZ application. You can do this by either pressing the Windows key on your keyboard or by moving the cursor to the upper left hand corner of the screen. Once you have done this, the UHDRTZ application should appear on the left side of the screen. Double click the application to start it. Once you have opened the application, you will see the following startup screen. 
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Startup_screen.png?raw=true)
+
+There are six sections total to the startup screen.
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/startup_options.png?raw=true)
+
+1. Camera
+    - This drop-down menu allows users to select from the available connected cameras.
+2. Quality
+    - This drop-down menu allows users to select their desired screen resolution and frame rate.
+    - i.e. 1080p at 60 FPS
+3. Crank
+    - This section shows whether the crank box Arduino is connected to the Mini PC through Bluetooth or not.
+    - When it is not connected there will be a spinning loading symbol
+    - If the Arduino fails to connect automatically check that the Arduino if powered on. If it is powered on and not connecting, press the small button on the Arduino once to reset it.
+3. Audio
+    - This drop-down allows you to select from all loaded audio files. The UHDRTZ comes with one pre-loaded audio file.
+    - If users wish to add a different audio file, press the **Open Audio Location** button to the right of the audio section.
+4. Slices
+    - This text box allows users to input the number of *slices* the displayed piece of art has. This will help determine the rotation speed and frame-rate of the program.
+5. Continue
+    - Once all settings are set to the users satisfaction, press the continue button to launch the full application
+    - **Note:** The Continue button will not be press-able until the crank Arduino is connected through Bluetooth.
+
+## Using the Program
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Application%20screen.png?raw=true)
+
+At this point, the screen will be displaying a circular view of the camera's input. To open up the settings, press **SPACE**. This will open up the user interface as well as show the crosshairs. The user can utilize the crosshairs to line up the camera perfectly with the art so that the center of rotation of the art is the same as the cameras. Upon opening the settings, the user will also have access to several sub menus. 
+
+1. Effects
+    - The effects menu will allow the user to change the in camera settings. The settings are as follows:
+        - Brightness
+        - Contrast
+        - Saturation
+        - Gamma
+        - White Balance
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Effects.png?raw=true)
+
+2. Volume
+    - This will allow the user to adjust the volume of the audio withing the program.
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/volume.png?raw=true)
+
+3. Presets
+    - This menu allows the user to select from several preset location options
+        - Re-Center
+            - This will place the image back into its default configuration
+        - Semi-Circle
+            - This will place the image so that only the top half is visible
+        - Right
+            - This will place the image on the right half of the screen and only display one quarter of the image
+        - Left
+            - This will place the image on the left half of the screen and only display one quarter of the image
+    - **Note:** The user can change the location and size of the image at any time by using the arrow keys (for position) and using PageUp/PageDown (for size)
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/presets.png?raw=true)
 
 ## Inputs
 Test
