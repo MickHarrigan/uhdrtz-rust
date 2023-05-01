@@ -58,9 +58,12 @@ Test
 Test
 
 ## Outputs
-## Hardware Used
+Test
 
-## Hardware Used
+# Detailed Design
+Test
+
+## Hardware Detailed Design
 
 This file will cover all hardware components included in the UHDRTZ kit. It will also cover basic setup and descriptions of the components for a more in depth explanation of how to use them. The components covered are as followed.
 
@@ -177,16 +180,6 @@ The crank housing will hold the Arduino and rotary encoder. A wheel will be atta
 In the case that the Arduino becomes detached from the Rotary encoder, please refer to the following diagram for re-connection. 
 
 ![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/rotaryencoder_arduino.png?raw=true)
-
-
-
-
-
-# Detailed Design
-Test
-
-## Hardware Detailed Design
-Test
 
 ## Software Detailed Desgin
 Test
