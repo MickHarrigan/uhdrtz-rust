@@ -60,12 +60,14 @@ Test
 ## Outputs
 ## Hardware Used
 
-This section will cover all hardware components included in the UHDRTZ kit. It will also cover basic setup and descriptions of the comonents for a more in depth explination of how to use them. The components covered are as followed.
+## Hardware Used
+
+This file will cover all hardware components included in the UHDRTZ kit. It will also cover basic setup and descriptions of the components for a more in depth explanation of how to use them. The components covered are as followed.
 
 - 4K USB-C Camera
 - Mini PC
 - Crank Housing
-  - Aduino
+  - Arduino
   - Rotary Encoder
 
 ### 4K USB-C Camera
@@ -103,9 +105,9 @@ The Camera used for this project will be the Econ Systems See3CAM_CU135. This ca
     - FOV: 67&deg;(D), 56&deg;(H), 43&deg;(V) (with the lens provided by e-con)
   - **Electrical and mechanical:**
     - Operating Voltage: 5 v +/- 5%
-    - Operating Temerature Range: Without Enclosure: -30&deg;C to 70&deg;C
+    - Operating Temperature Range: Without Enclosure: -30&deg;C to 70&deg;C
     - Power Requirements: Max: 1.99W, Min: 1.04W
-    - SIze in mm (l x b h):
+    - Size in mm (l x b h):
       - Without Lens: 35.3 x 35.3 x 29 mm
     - Board Weight:
       - Without Lens: 55.5 Grams
@@ -113,9 +115,9 @@ The Camera used for this project will be the Econ Systems See3CAM_CU135. This ca
   - Miscellaneous:
     - Compliance: FCC, RoHS
 
-*- Not supported by default. Requires firmware customization for higher framerates with Custom ROI resolutions.
+*- Not supported by default. Requires firmware customization for higher frame rates with Custom ROI resolutions.
 
-**- Customers interesed to work on Android would require e-con SDK
+**- Customers interested to work on Android would require e-con SDK
 
 ***- For MAC OS support please contact camerasolutions@e-consystems.com
 
@@ -138,11 +140,11 @@ The Mini PC used in this project is the GMKtec Intel 11th i5 1135G7 Mini PC--Nuc
   - 1x RJ45 Ethernet Port
 
 ### Crank Housing
-The crank houseing will hold the arduino and rotary encoder. A wheel will be attached to the rotary encoder to allow for the user to turn the crank. The arduino will be used to read the encoder and send the data to the mini pc.
+The crank housing will hold the Arduino and rotary encoder. A wheel will be attached to the rotary encoder to allow for the user to turn the crank. The Arduino will be used to read the encoder and send the data to the mini pc.
 
 - Arduino
   - Arduino Nano 33 BLE
-  - Microcontroller: nRF52840
+  - Micro-controller: nRF52840
   - Operating Voltage: 3.3V
   - Input Voltage (recommended): 7-12V
   - Input Voltage (limit): 6-20V
@@ -172,9 +174,11 @@ The crank houseing will hold the arduino and rotary encoder. A wheel will be att
   - Material: PCB + Brass
   Dimensions: 32 x 19 x 30 mm
 
-In the case that the Arduino becomes detatched from the Rotary encoder, please refer to the following diagram for reconnection. 
+In the case that the Arduino becomes detached from the Rotary encoder, please refer to the following diagram for re-connection. 
 
 ![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/rotaryencoder_arduino.png?raw=true)
+
+
 
 
 
