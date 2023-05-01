@@ -170,3 +170,12 @@ pub fn gui_camera_control(
         transform.scale += movement_speed / 500.0;
     }
 }
+
+pub fn cursor_visibility(mut windows: Query<&mut Window>, ui_state: Res<UiState>) {
+    let mut window = windows.get_single_mut().unwrap();
+    if ui_state.is_window_open {
+        window.cursor.visible = true;
+    } else {
+        window.cursor.visible = false;
+    }
+}
