@@ -31,7 +31,17 @@ Test
 Test
 
 ## System Hardware Architecture
-Test
+This section will cover all of the hardware used in the UHDRTZ system. It will also describe connectios between hardware components.
+
+### 4K USB-C Camera
+The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to the Mini PC via a USB-C (male) to USB-A (male) cable. The camera is powered by the Mini PC and does not require any additional power.
+### Mini PC
+The mini PC is 
+### Crank Housing
+
+#### Arduino
+
+#### Rotary Encoder
 
 ## System Software Architecture
 Test
