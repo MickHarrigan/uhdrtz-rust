@@ -18,11 +18,11 @@ $if(description-meta)$
 $endif$
     <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
     <style>
-        $styles.html()$
+        $sdd-style.html()$
     </style>
-$for(css)$
-    <link rel="stylesheet" href="$css$" />
-$endfor$
+$-- $for(css)$
+$--     <link rel="stylesheet" href="$css$" />
+$-- $endfor$
 $for(header-includes)$
   $header-includes$
 $endfor$

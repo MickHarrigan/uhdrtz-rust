@@ -1,4 +1,4 @@
-$if(document-css)$
+$-- $if(document-css)$
 html {
 $if(mainfont)$
   font-family: $mainfont$;
@@ -65,6 +65,7 @@ img {
 h1, h2, h3, h4, h5, h6 {
   margin-top: 1.4em;
 }
+
 h5, h6 {
   font-size: 1em;
   font-style: italic;
@@ -155,8 +156,8 @@ td {
   padding: 0.125em 0.5em 0.25em 0.5em;
 }
 header {
-  margin-bottom: 4em;
-  text-align: center;
+  margin-bottom: 0em;
+  text-align: left;
 }
 #TOC li {
   list-style: none;
@@ -170,7 +171,13 @@ header {
 #TOC a:not(:hover) {
   text-decoration: none;
 }
-$endif$
+
+figure {
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+$-- $endif$
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -192,6 +199,6 @@ $if(highlighting-css)$
 /* CSS for syntax highlighting */
 $highlighting-css$
 $endif$
-$if(csl-css)$
-$styles.citations.html()$
-$endif$
+$-- $if(csl-css)$
+$-- $styles.citations.html()$
+$-- $endif$
