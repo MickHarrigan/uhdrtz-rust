@@ -1,4 +1,4 @@
-$if(document-css)$
+$-- $if(document-css)$
 html {
 $if(mainfont)$
   font-family: $mainfont$;
@@ -177,7 +177,7 @@ figure {
   page-break-inside: avoid;
 }
 
-$endif$
+$-- $endif$
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -199,6 +199,6 @@ $if(highlighting-css)$
 /* CSS for syntax highlighting */
 $highlighting-css$
 $endif$
-$if(csl-css)$
-$styles.citations.html()$
-$endif$
+$-- $if(csl-css)$
+$-- $styles.citations.html()$
+$-- $endif$
