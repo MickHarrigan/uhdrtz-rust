@@ -1,12 +1,13 @@
 use crate::{
     audio::Volume,
-    camera::{CameraSetting, ColorSettings, VideoStream},
+    camera::{
+        reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
+    },
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
-use egui::color_picker::color_picker_color32;
 use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
 
 #[derive(Resource, Default)]
@@ -31,10 +32,9 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
+    cam_query: Query<&VideoStream>,
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut event_writer: EventWriter<CameraControlEvent>,
-    cam_query: Query<&VideoStream>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
@@ -43,15 +43,6 @@ pub fn gui_full(
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            fn send_camera_setting(cam: &VideoStream, id: KnownCameraControl, value: i64) {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: id,
-                    control: ControlValueSetter::Integer(value),
-                }) {
-                    eprintln!("{}", why);
-                }
-            }
-
             // Brightness
             if ui
                 .add(
@@ -157,38 +148,7 @@ pub fn gui_full(
             }
 
             if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
-                const BRIGHTNESS_DEFAULT: i8 = 0;
-                const CONTRAST_DEFAULT: u8 = 15;
-                const SATURATION_DEFAULT: u8 = 32;
-                const GAMMA_DEFAULT: u16 = 220;
-                const SHARPNESS_DEFAULT: u8 = 16;
-
-                color_settings.brightness = BRIGHTNESS_DEFAULT;
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Brightness,
-                    BRIGHTNESS_DEFAULT.into(),
-                );
-
-                color_settings.contrast = CONTRAST_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Contrast, CONTRAST_DEFAULT.into());
-
-                color_settings.saturation = SATURATION_DEFAULT;
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Saturation,
-                    SATURATION_DEFAULT.into(),
-                );
-
-                color_settings.gamma = GAMMA_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Gamma, GAMMA_DEFAULT.into());
-
-                // send_camera_setting(cam, KnownCameraControl::Gain, 0);
-
-                // send_camera_setting(cam, KnownCameraControl::WhiteBalance, 5000);
-
-                color_settings.sharpness = SHARPNESS_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Sharpness, SHARPNESS_DEFAULT.into());
+                reset_camera_controls(color_settings, cam);
             }
         });
 
@@ -290,5 +250,14 @@ pub fn gui_camera_control(
         transform.scale -= movement_speed / 500.0;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
         transform.scale += movement_speed / 500.0;
+    }
+}
+
+pub fn cursor_visibility(mut windows: Query<&mut Window>, ui_state: Res<UiState>) {
+    let mut window = windows.get_single_mut().unwrap();
+    if ui_state.is_window_open {
+        window.cursor.visible = true;
+    } else {
+        window.cursor.visible = false;
     }
 }
