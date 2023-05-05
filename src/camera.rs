@@ -1,15 +1,17 @@
+use std::collections::BTreeMap;
+
 // This is for the handling of the physical camera and its implementation of the overall controlling within the other modules.
 use anyhow::Result;
-use bevy::asset::Handle;
-use bevy::ecs::{component::Component, system::Resource};
+use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
-use bevy::render::texture::Image;
 use bevy::utils::HashMap;
-use flume::bounded;
+use flume::{bounded, unbounded};
 use image::{ImageBuffer, Rgba};
 use nokhwa::pixel_format::RgbAFormat;
 use nokhwa::query;
-use nokhwa::utils::{ApiBackend, CameraIndex, RequestedFormat};
+use nokhwa::utils::{
+    ApiBackend, CameraControl, CameraIndex, ControlValueSetter, KnownCameraControl, RequestedFormat,
+};
 use nokhwa::Camera;
 
 #[derive(Resource, Clone)]
@@ -18,20 +20,68 @@ pub struct VideoFrame(pub Handle<Image>);
 #[derive(Component)]
 pub struct VideoStream {
     pub image_rx: flume::Receiver<Image>,
+    pub op_tx: flume::Sender<CameraSetting>,
+    pub known_controls: BTreeMap<KnownCameraControl, CameraControl>,
+    pub controls: BTreeMap<KnownCameraControl, ControlValueSetter>,
+}
+
+#[derive(Resource)]
+pub struct ColorSettings {
+    pub brightness: i8,
+    pub contrast: u8,
+    pub saturation: u8,
+    pub gamma: u16,
+    pub gain: u8,
+    pub white_balance: u32,
+    pub sharpness: u8,
+    pub auto_exposure: bool,
+    pub zoom: u16,
+}
+
+impl Default for ColorSettings {
+    fn default() -> Self {
+        Self {
+            brightness: 0,
+            contrast: 15,
+            saturation: 32,
+            gamma: 220,
+            gain: 0,
+            white_balance: 5000,
+            sharpness: 16,
+            auto_exposure: true,
+            zoom: 100,
+        }
+    }
+}
+
+pub struct CameraSetting {
+    pub id: KnownCameraControl,
+    pub control: ControlValueSetter,
 }
 
 impl VideoStream {
     pub fn new(index: CameraIndex, format: RequestedFormat) -> Result<Self> {
         // lots of this is *heavily* taken from https://github.com/foxzool/bevy_nokhwa/blob/main/src/camera.rs
         let (sender, receiver) = bounded(1);
+        let (op_tx, op_rx) = unbounded::<CameraSetting>();
 
         let mut cam = Camera::new(index, format).unwrap();
 
         cam.open_stream().expect("Could not open the camera stream");
+        let known_controls = cam.camera_controls_known_camera_controls().unwrap();
 
         std::thread::spawn(move || {
             #[allow(clippy::empty_loop)]
             loop {
+                match op_rx.try_recv() {
+                    Ok(op) => {
+                        if let Err(why) = cam.set_camera_control(op.id, op.control) {
+                            eprintln!("Couldn't set the control: {}", why);
+                        }
+                    }
+                    // Err(why) => eprintln!("couldn't receive: {}", why),
+                    Err(_why) => (),
+                }
                 let buffer = cam.frame().expect("Couldn't receive the camera frame");
                 let mut buf = buffer.decode_image::<RgbAFormat>().unwrap();
                 let wh = (2160, 2160);
@@ -40,7 +90,24 @@ impl VideoStream {
             }
         });
 
-        Ok(Self { image_rx: receiver })
+        let known_controls: BTreeMap<KnownCameraControl, CameraControl> = known_controls
+            .into_iter()
+            .map(|(k, cont)| (k, cont))
+            .collect();
+
+        let controls = known_controls
+            .iter()
+            .map(|(k, cont)| {
+                let value = cont.value();
+                (*k, value)
+            })
+            .collect();
+        Ok(Self {
+            image_rx: receiver,
+            op_tx,
+            known_controls,
+            controls,
+        })
     }
 
     #[inline]

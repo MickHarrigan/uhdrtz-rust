@@ -15,7 +15,7 @@ pub mod prelude {
         camera::{hash_available_cameras, VideoFrame, VideoStream},
         gui::{
             gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-            CameraCrosshairTag, ColorSettings, UiState,
+            CameraCrosshairTag, UiState,
         },
         plugin::{
             AnimationPlugin, AudioPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins,
