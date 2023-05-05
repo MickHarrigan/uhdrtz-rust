@@ -3,13 +3,9 @@ use crate::{
     camera::{CameraSetting, ColorSettings, VideoStream},
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
-use bevy::{
-    sprite::Mesh2dHandle,
-    {prelude::*, render::color},
-};
+use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
-use egui::color_picker::color_picker_color32;
 use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
 
 #[derive(Resource, Default)]
@@ -23,8 +19,6 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
-pub struct CameraControlEvent;
-
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
@@ -34,7 +28,6 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
-    mut event_writer: EventWriter<CameraControlEvent>,
     cam_query: Query<&VideoStream>,
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -46,9 +39,10 @@ pub fn gui_full(
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
+            // local function, not sure how this compiles
             fn send_camera_setting(cam: &VideoStream, id: KnownCameraControl, value: i64) {
                 if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id: id,
+                    id,
                     control: ControlValueSetter::Integer(value),
                 }) {
                     eprintln!("{}", why);
