@@ -3,7 +3,10 @@ use crate::{
     camera::{CameraSetting, ColorSettings, VideoStream},
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
-use bevy::{{prelude::*, render::color}, sprite::Mesh2dHandle};
+use bevy::{
+    sprite::Mesh2dHandle,
+    {prelude::*, render::color},
+};
 use bevy_egui::{egui, EguiContexts};
 
 use egui::color_picker::color_picker_color32;
@@ -157,38 +160,35 @@ pub fn gui_full(
             }
 
             if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
-                const BRIGHTNESS_DEFAULT: i8 = 0;
-                const CONTRAST_DEFAULT: u8 = 15;
-                const SATURATION_DEFAULT: u8 = 32;
-                const GAMMA_DEFAULT: u16 = 220;
-                const SHARPNESS_DEFAULT: u8 = 16;
+                *color_settings = ColorSettings::default();
 
-                color_settings.brightness = BRIGHTNESS_DEFAULT;
                 send_camera_setting(
                     cam,
                     KnownCameraControl::Brightness,
-                    BRIGHTNESS_DEFAULT.into(),
+                    color_settings.brightness.into(),
                 );
 
-                color_settings.contrast = CONTRAST_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Contrast, CONTRAST_DEFAULT.into());
-
-                color_settings.saturation = SATURATION_DEFAULT;
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Contrast,
+                    color_settings.contrast.into(),
+                );
                 send_camera_setting(
                     cam,
                     KnownCameraControl::Saturation,
-                    SATURATION_DEFAULT.into(),
+                    color_settings.saturation.into(),
                 );
-
-                color_settings.gamma = GAMMA_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Gamma, GAMMA_DEFAULT.into());
-
-                // send_camera_setting(cam, KnownCameraControl::Gain, 0);
-
-                // send_camera_setting(cam, KnownCameraControl::WhiteBalance, 5000);
-
-                color_settings.sharpness = SHARPNESS_DEFAULT;
-                send_camera_setting(cam, KnownCameraControl::Sharpness, SHARPNESS_DEFAULT.into());
+                send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Sharpness,
+                    color_settings.sharpness.into(),
+                );
+                // send_camera_setting(
+                //     cam,
+                //     KnownCameraControl::Brightness,
+                //     color_settings.brightness.into(),
+                // );
             }
         });
 
