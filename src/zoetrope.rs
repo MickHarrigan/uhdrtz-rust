@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::bluetooth::RotationInterval;
-use crate::camera::VideoStream;
+use crate::camera::{reset_camera_controls, ColorSettings, VideoStream};
 use crate::prelude::CameraCrosshairTag;
 use crate::setup::Settings;
 use bevy::prelude::*;
@@ -30,6 +30,7 @@ pub fn zoetrope_setup(
     settings: Res<Settings>,
     server: Res<AssetServer>,
     windows: Query<&Window>,
+    mut color_settings: ResMut<ColorSettings>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
@@ -45,6 +46,8 @@ pub fn zoetrope_setup(
         ))),
     )
     .unwrap();
+
+    reset_camera_controls(color_settings, &cam);
 
     let size = (windows.single().height() / 2.).ceil() + TOP_BAR_SIZE as f32;
 

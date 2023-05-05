@@ -1,6 +1,8 @@
 use crate::{
     audio::Volume,
-    camera::{CameraSetting, ColorSettings, VideoStream},
+    camera::{
+        reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
+    },
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
@@ -39,16 +41,6 @@ pub fn gui_full(
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            // local function, not sure how this compiles
-            fn send_camera_setting(cam: &VideoStream, id: KnownCameraControl, value: i64) {
-                if let Err(why) = cam.op_tx.send(CameraSetting {
-                    id,
-                    control: ControlValueSetter::Integer(value),
-                }) {
-                    eprintln!("{}", why);
-                }
-            }
-
             // Brightness
             if ui
                 .add(
@@ -154,35 +146,7 @@ pub fn gui_full(
             }
 
             if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
-                *color_settings = ColorSettings::default();
-
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Brightness,
-                    color_settings.brightness.into(),
-                );
-
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Contrast,
-                    color_settings.contrast.into(),
-                );
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Saturation,
-                    color_settings.saturation.into(),
-                );
-                send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
-                send_camera_setting(
-                    cam,
-                    KnownCameraControl::Sharpness,
-                    color_settings.sharpness.into(),
-                );
-                // send_camera_setting(
-                //     cam,
-                //     KnownCameraControl::Brightness,
-                //     color_settings.brightness.into(),
-                // );
+                reset_camera_controls(color_settings, cam);
             }
         });
 

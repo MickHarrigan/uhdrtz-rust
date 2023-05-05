@@ -157,3 +157,40 @@ pub fn hash_available_cameras(// mut cams: ResMut<CaptureDevices>,
     // cams.0 = hash;
     (selected, hash)
 }
+
+// helper function that sets a setting and prints the errors
+pub fn send_camera_setting(cam: &VideoStream, id: KnownCameraControl, value: i64) {
+    if let Err(why) = cam.op_tx.send(CameraSetting {
+        id,
+        control: ControlValueSetter::Integer(value),
+    }) {
+        eprintln!("{}", why);
+    }
+}
+
+pub fn reset_camera_controls(mut color_settings: ResMut<ColorSettings>, cam: &VideoStream) {
+    *color_settings = ColorSettings::default();
+
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Brightness,
+        color_settings.brightness.into(),
+    );
+
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Contrast,
+        color_settings.contrast.into(),
+    );
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Saturation,
+        color_settings.saturation.into(),
+    );
+    send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Sharpness,
+        color_settings.sharpness.into(),
+    );
+}
