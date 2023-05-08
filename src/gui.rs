@@ -1,18 +1,14 @@
 use crate::{
     audio::Volume,
+    camera::{
+        reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
+    },
     zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
-#[derive(Resource, Default)]
-pub struct ColorSettings {
-    pub brightness: f32,
-    pub contrast: f32,
-    pub saturation: f32,
-    pub gamma: f32,
-    pub white_balance: f32,
-}
+use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
 
 #[derive(Resource, Default)]
 pub struct CameraCrosshair(pub bool);
@@ -34,40 +30,124 @@ pub fn gui_full(
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
+    cam_query: Query<&VideoStream>,
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
+    let cam = cam_query.single();
     egui::Window::new("Effects")
         .vscroll(true)
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            ui.add(
-                egui::Slider::new(&mut color_settings.brightness, 0.0..=100.0)
-                    .text("Brightness")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.contrast, 0.0..=100.0)
-                    .text("Contrast")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.saturation, 0.0..=100.0)
-                    .text("Saturation")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.gamma, 0.0..=100.0)
-                    .text("Gamma")
-                    .show_value(true),
-            );
-            ui.add(
-                egui::Slider::new(&mut color_settings.white_balance, 0.0..=100.0)
-                    .text("White Balance")
-                    .show_value(true),
-            );
+            // Brightness
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.brightness, -15..=15)
+                        .text("Brightness")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Brightness,
+                    color_settings.brightness.into(),
+                );
+            }
+
+            // Contrast
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.contrast, 0..=30)
+                        .text("Contrast")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Contrast,
+                    color_settings.contrast.into(),
+                );
+            }
+
+            // Saturation
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.saturation, 0..=60)
+                        .text("Saturation")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Saturation,
+                    color_settings.saturation.into(),
+                );
+            }
+
+            // Gamma
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.gamma, 40..=500)
+                        .text("Gamma")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
+            }
+
+            // Gain
+            // if ui
+            //     .add(
+            //         egui::Slider::new(&mut color_settings.gain, 0..=100)
+            //             .text("Gain")
+            //             .show_value(true),
+            //     )
+            //     .changed()
+            // {
+            //     send_camera_setting(cam, KnownCameraControl::Gain, color_settings.gain.into());
+            // }
+
+            // White Balance
+            // if ui
+            //     .add(
+            //         egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
+            //             .text("White Balance")
+            //             .show_value(true),
+            //     )
+            //     .changed()
+            // {
+            //     send_camera_setting(
+            //         cam,
+            //         KnownCameraControl::WhiteBalance,
+            //         color_settings.white_balance.into(),
+            //     );
+            // }
+
+            // Sharpness
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.sharpness, 0..=127)
+                        .text("Sharpness")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Sharpness,
+                    color_settings.sharpness.into(),
+                );
+            }
+
+            if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
+                reset_camera_controls(color_settings, cam);
+            }
         });
 
     egui::Window::new("Volume")
@@ -168,5 +248,14 @@ pub fn gui_camera_control(
         transform.scale -= movement_speed / 500.0;
     } else if keyboard_input.pressed(KeyCode::PageDown) {
         transform.scale += movement_speed / 500.0;
+    }
+}
+
+pub fn cursor_visibility(mut windows: Query<&mut Window>, ui_state: Res<UiState>) {
+    let mut window = windows.get_single_mut().unwrap();
+    if ui_state.is_window_open {
+        window.cursor.visible = true;
+    } else {
+        window.cursor.visible = false;
     }
 }

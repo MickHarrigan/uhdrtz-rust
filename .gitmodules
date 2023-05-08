@@ -1,3 +1,6 @@
 [submodule "uhdrtz-crank"]
 	path = uhdrtz-crank
 	url = https://github.com/dancleaver/uhdrtz-crank.git
+[submodule "uhdrtz-rust.wiki"]
+	path = uhdrtz-rust.wiki
+	url = git@github.com:MickHarrigan/uhdrtz-rust.wiki.git
