@@ -21,11 +21,18 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
+#[derive(Resource, Default)]
 pub struct CameraControlEvent;
+
+#[derive(Resource, Default)]
+pub struct ButtonDragCounter {
+    pub value: u32,
+}
 
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
+    mut button_drag_counter: ResMut<ButtonDragCounter>,
     mut color_settings: ResMut<ColorSettings>,
     mut volume: ResMut<Volume>,
     slices: Res<Slices>,
@@ -36,6 +43,9 @@ pub fn gui_full(
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
+    const BUTTON_DRAG_INTERVAL: u32 = 30;
+    const ZOOM_MIN: u16 = 100;
+    const ZOOM_MAX: u16 = 800;
     let window = window_query.single();
     let mut transform = query.single_mut();
     let cam = cam_query.single();
@@ -150,7 +160,7 @@ pub fn gui_full(
             // Zoom
             if ui
                 .add(
-                    egui::Slider::new(&mut color_settings.zoom, 100..=800)
+                    egui::Slider::new(&mut color_settings.zoom, ZOOM_MIN..=ZOOM_MAX)
                         .text("Zoom")
                         .show_value(true),
                 )
@@ -161,6 +171,48 @@ pub fn gui_full(
                     KnownCameraControl::Other(10094861),
                     color_settings.zoom.into(),
                 );
+            }
+
+            // Buttons
+            let zoom_button_dec = ui.add(egui::Button::new("Zoom -").sense(egui::Sense::drag()));
+            let zoom_button_inc = ui.add(egui::Button::new("Zoom +").sense(egui::Sense::drag()));
+
+            if zoom_button_dec.dragged() {
+                if button_drag_counter.value % BUTTON_DRAG_INTERVAL == 0 {
+                    button_drag_counter.value = 0;
+
+                    if color_settings.zoom - 1 >= ZOOM_MIN {
+                        color_settings.zoom -= 1;
+                        send_camera_setting(
+                            cam,
+                            KnownCameraControl::Other(10094861),
+                            color_settings.zoom.into(),
+                        );
+                    }
+                }
+
+                button_drag_counter.value += 1;
+            }
+
+            if zoom_button_inc.dragged() {
+                if button_drag_counter.value % BUTTON_DRAG_INTERVAL == 0 {
+                    button_drag_counter.value = 0;
+
+                    if color_settings.zoom + 1 <= ZOOM_MAX {
+                        color_settings.zoom += 1;
+                        send_camera_setting(
+                            cam,
+                            KnownCameraControl::Other(10094861),
+                            color_settings.zoom.into(),
+                        );
+                    }
+                }
+
+                button_drag_counter.value += 1;
+            }
+
+            if zoom_button_inc.drag_released() || zoom_button_dec.drag_released() {
+                button_drag_counter.value = 0;
             }
 
             // Tilt
