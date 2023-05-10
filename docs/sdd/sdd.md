@@ -1,53 +1,70 @@
 # Introduction
 
 ## Purpose and Scope
+
 This section provides a brief description of the Systems Design Document’s purpose and scope.
 
 ## Project Executive Summary
+
 This section provides a description of the project from a management perspective and an overview of the framework within which the conceptual system design was prepared.  If appropriate, include the information discussed in the subsequent sections in the summary.
 
 ### System Overview
+
 This section describes the system in narrative form using non-technical terms.  It should provide a high-level system architecture diagram showing a subsystem breakout of the system, if applicable.  The high-level system architecture or subsystem diagrams should, if applicable, show interfaces to external systems.  Supply a high-level context diagram for the system and subsystems, if applicable.
 
 ### Design Constraints
+
 This section describes any constraints in the system design (reference any trade-off analyses conducted such, as resource use versus productivity, or conflicts with other systems) and includes any assumptions made by the project team in developing the system design.
 
 ### Future Contingencies
+
 Test
 
 ## Document Organization
+
 Test
 
 ## Points of Contact
 
-**Micheal (Mick) Harrigan**
-- **Personal Email:** mharrigan328@gmail.com
-- **School Email:** mharrig1@umbc.edu
+Michael (Mick) Harrigan
 
-**Daniel (Dan) Cleaver**
-- **Personal Email:**
-- **School Email:**
+- Personal Email: mharrigan328@gmail.com
 
-**Christian Lostoski**
-- **Personal Email:** christian.lostoski@gmail.com
-- **School Email:** christl1@umbc.edu
+- School Email: mharrig1@umbc.edu
 
-**Nomso Ashiogwu**
-- **Personal Email:**
-- **School Email:** cashiog1@umbc.edu
+Daniel Cleaver
+
+- Personal Email: daniel.cleaver1@gmail.com
+
+- School Email: d163@umbc.edu
+
+Christian Lostoski
+
+- Personal Email: christian.lostoski@gmail.com
+
+- School Email: christl1@umbc.edu
+
+Nomso Ashiogwu
+
+- Personal Email:
+
+- School Email: cashiog1@umbc.edu
 
 ## Project References
+
 Test
 
 ## Glossary
+
 Test
 
 # System Architecture
+
 Test
 
 ## System Hardware Architecture
 
-This section will cover all of the hardware used in the UHDRTZ system. It will also describe connectios between hardware components.
+This section will cover all of the hardware used in the UHDRTZ system. It will also describe connections between hardware components.
 
 ### 4K USB-C Camera
 
@@ -55,32 +72,39 @@ The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to
 
 ### Mini PC
 
-The Mini PC is a small form factor personal computer with a capable gpu and cpu. It will be powered by a AC adapter and will be connected to a 4K projector via HDMI. The Mini PC will be running a Linux operating system and will be running the UHDRTZ application. The PC will be connected to the USB Camera via a USB-C to USB-A cable. It will also be connected to whatever monitor is chosen via a HDMI cable.
+The Mini PC is a small form factor personal computer with a capable GPU and CPU. It will be powered by a AC adapter and will be connected to a 4K projector via HDMI. The Mini PC will be running a Linux operating system and will be running the UHDRTZ application. The PC will be connected to the USB Camera via a USB-C to USB-A cable. It will also be connected to whatever monitor is chosen via a HDMI cable.
+
 ### Crank Housing
 
-The crank housing is an aluminum box that will hold the Arduino and Rotary Encoder. A small wheel is attatched to the outside of the housing via the rotary encoder. There are holes in the base plate and the bottom of the box to allow a Micro-USB cable to be threaded through.
+The crank housing is an aluminum box that will hold the Arduino and Rotary Encoder. A small wheel is attached to the outside of the housing via the rotary encoder. There are holes in the base plate and the bottom of the box to allow a Micro-USB cable to be threaded through.
+
 #### Arduino
 
 The Arduino is a standard Arduino NANO BLE (Bluetooth). It will send signal via Bluetooth to the Mini PC. It will be connected to the Rotary Encoder via a 4 1-pin cables. Refer to the Hardware Description section to see the connections. It will be powered by a Micro-USB cable.
 
 #### Rotary Encoder
 
-The Rotary Endocer will be a standar Arduino Kit rotary encoder. It will be connected and powered by the Arduino via 4 1 pin cables. Refer to the Hardware Description section to see the connections.
+The Rotary Endocer will be a standard Arduino Kit rotary encoder. It will be connected and powered by the Arduino via 4 1 pin cables. Refer to the Hardware Description section to see the connections.
 
 
 ## System Software Architecture
+
 Test
 
 ## Internal Communications Architecture
+
 Test
 
 # File and Database Design
+
 Test
 
 ## Database Management System Files
+
 Test
 
 ## Non-Database Management System Files
+
 Test
 
 # Human-Machine Interface
@@ -88,40 +112,53 @@ Test
 This section will cover all of the user interactions with the UHDRTZ system. It will also cover the user interface and how to use it.
 
 ## Operational Scenario(s)
-This will be an in-depth instructional manual for getting the High- Definition Real Time Zoetrope system up and running.
+
+This will be an in-depth instructional manual for getting the system up and running.
 
 ### Whats Included & Whats Needed
+
 The following list are all item that will be included in the UHDRTZ kit. This section will also cover what will be needed during the installation process.
-- INCLUDED
-    - Mini PC
-    - AC Power Cable
-    - 4K USB-C Camera
-    - USB-A to USB-C Cable
-    - Micro USB to USB-A Cable
-    - Crank Housing
-        - Arduino
-        - Rotary Encoder
-- Suggested items for setup
-    - Level
-    - Tape
-    - USB Keyboard & Mouse
+
+Included
+
+- Mini PC
+
+- AC Power Cable
+
+- 4K USB-C Camera
+
+- USB-A to USB-C Cable
+
+- Micro USB to USB-A Cable
+
+- Crank Housing
+
+- Arduino
+
+- Rotary Encoder
+
+Suggested items for setup
+
+- Level
+
+- Tape
+
+- USB Keyboard & Mouse
 
 ### Where to Start
+
 This section will cover the setup of the physical system. The installation of the artwork is assumed.
 
-- Place the camera so that is points towards the center of the artwork and is directly in line with the center of the artwork.
-    - If you are pointing the camera down to look at the artwork on the floor, a level would be useful. 
+- Place the camera so that it points towards the center of the artwork and is directly in line with the center of the artwork. If you are pointing the camera down to look at the artwork on the floor, a level would be useful. 
 - Mount the Mini PC close to the camera. 
     - Attach the camera to the Mini PC using the USB-C to USB-A cable. 
     - Plug the AC Power Cable into the mini and connect it to a standard outlet. 
 - Set up the crank housing on the floor where users can reach it. 
-    - Connect the Micro USB to USB-A Cable to the Arduino within the crank housing and string the cable through the whole in the bottom of the crank housing. 
-    - Connect that cable to power 
-    - (**Note:** best option is to use a USB-A to wall socket brick and connect the Arduino directly to power)
+- Connect the Micro USB to USB-A Cable to the Arduino within the crank housing and string the cable through the whole in the bottom of the crank housing. 
+- Connect that cable to power. Note: the best option is to use a USB-A to wall socket brick and connect the Arduino directly to power
 - Plug in a USB Keyboard & Mouse into the Mini PC. 
 - Connect the Mini PC to an external monitor (4K Projector). 
 - Power on the PC. 
-
 
 ### Starting The Program
 
