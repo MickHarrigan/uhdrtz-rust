@@ -84,7 +84,8 @@ Test
 Test
 
 # Human-Machine Interface
-Test
+
+This section will cover all of the user interactions with the UHDRTZ system. It will also cover the user interface and how to use it.
 
 ## Operational Scenario(s)
 This will be an in-depth instructional manual for getting the High- Definition Real Time Zoetrope system up and running.
