@@ -145,6 +145,56 @@ pub fn gui_full(
                 );
             }
 
+            // Zoom
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.zoom, 100..=800)
+                        .text("Zoom")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Other(10094861),
+                    color_settings.zoom.into(),
+                );
+            }
+
+            // Tilt
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.tilt, -648000..=648000)
+                        .step_by(3600.0)
+                        .text("Tilt")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Other(10094857),
+                    color_settings.tilt.into(),
+                );
+            }
+
+            // Pan
+            if ui
+                .add(
+                    egui::Slider::new(&mut color_settings.pan, -648000..=648000)
+                        .step_by(3600.0)
+                        .text("Pan")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                send_camera_setting(
+                    cam,
+                    KnownCameraControl::Other(10094856),
+                    color_settings.pan.into(),
+                );
+            }
+
             if ui.add(egui::Button::new("Reset to Defaults")).clicked() {
                 reset_camera_controls(color_settings, cam);
             }

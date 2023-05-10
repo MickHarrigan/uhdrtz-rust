@@ -36,6 +36,8 @@ pub struct ColorSettings {
     pub sharpness: u8,
     pub auto_exposure: bool,
     pub zoom: u16,
+    pub tilt: i32,
+    pub pan: i32,
 }
 
 impl Default for ColorSettings {
@@ -50,6 +52,8 @@ impl Default for ColorSettings {
             sharpness: 16,
             auto_exposure: true,
             zoom: 100,
+            tilt: 0,
+            pan: 0,
         }
     }
 }
@@ -192,5 +196,20 @@ pub fn reset_camera_controls(mut color_settings: ResMut<ColorSettings>, cam: &Vi
         cam,
         KnownCameraControl::Sharpness,
         color_settings.sharpness.into(),
+    );
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Other(10094861),
+        color_settings.zoom.into(),
+    );
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Other(10094857),
+        color_settings.tilt.into(),
+    );
+    send_camera_setting(
+        cam,
+        KnownCameraControl::Other(10094856),
+        color_settings.pan.into(),
     );
 }
