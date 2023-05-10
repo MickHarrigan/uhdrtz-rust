@@ -125,7 +125,11 @@ This section will cover the setup of the physical system. The installation of th
 
 ### Starting The Program
 
-Once you have a physical components of the system set up, you will want to power on the Mini PC. There will be two sign-in options. As a user, you will want to click on the UHDRTZ profile. Once logged in you will want to start the UHDRTZ application. You can do this by either pressing the Windows key on your keyboard or by moving the cursor to the upper left hand corner of the screen. Once you have done this, the UHDRTZ application should appear on the left side of the screen. Double click the application to start it. Once you have opened the application, you will see the following startup screen. 
+- Power on the Mini PC.
+- There will be two sign-in options. As a user, you will want to click on the UHDRTZ profile.
+- Once logged in you will want to start the UHDRTZ application. You can do this by either pressing the Windows key on your keyboard or by moving the cursor to the upper left hand corner of the screen.
+- Once you have done this, the UHDRTZ application should appear on the left side of the screen.
+- Double click the application to start it. Once you have opened the application, you will see the following startup screen. 
 
 ![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Startup_screen.png?raw=true)
 
@@ -150,6 +154,8 @@ There are six sections total to the startup screen.
 5. Continue
     - Once all settings are set to the users satisfaction, press the continue button to launch the full application
     - **Note:** The Continue button will not be press-able until the crank Arduino is connected through Bluetooth.
+
+**Note:** The camera's focus must be adjusted manually. If the image appears blurry and out of focus, adjust the lense on the camera by twisting the lense itself until the image comes into focus.
 
 ## Using the Program
 
