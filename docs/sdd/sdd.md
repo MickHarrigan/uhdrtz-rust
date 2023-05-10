@@ -31,17 +31,27 @@ Test
 Test
 
 ## System Hardware Architecture
+
 This section will cover all of the hardware used in the UHDRTZ system. It will also describe connectios between hardware components.
 
 ### 4K USB-C Camera
-The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to the Mini PC via a USB-C (male) to USB-A (male) cable. The camera is powered by the Mini PC and does not require any additional power.
+
+The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to the Mini PC via a USB-C (male) to USB-A (male) cable. The camera is powered by the Mini PC and does not require any additional power. 
+
 ### Mini PC
-The mini PC is 
+
+The Mini PC is a small form factor personal computer with a capable gpu and cpu. It will be powered by a AC adapter and will be connected to a 4K projector via HDMI. The Mini PC will be running a Linux operating system and will be running the UHDRTZ application. The PC will be connected to the USB Camera via a USB-C to USB-A cable. It will also be connected to whatever monitor is chosen via a HDMI cable.
 ### Crank Housing
 
+The crank housing is an aluminum box that will hold the Arduino and Rotary Encoder. A small wheel is attatched to the outside of the housing via the rotary encoder. There are holes in the base plate and the bottom of the box to allow a Micro-USB cable to be threaded through.
 #### Arduino
 
+The Arduino is a standard Arduino NANO BLE (Bluetooth). It will send signal via Bluetooth to the Mini PC. It will be connected to the Rotary Encoder via a 4 1-pin cables. Refer to the Hardware Description section to see the connections. It will be powered by a Micro-USB cable.
+
 #### Rotary Encoder
+
+The Rotary Endocer will be a standar Arduino Kit rotary encoder. It will be connected and powered by the Arduino via 4 1 pin cables. Refer to the Hardware Description section to see the connections.
+
 
 ## System Software Architecture
 Test
