@@ -19,7 +19,22 @@ Test
 Test
 
 ## Points of Contact
-Test
+
+**Micheal (Mick) Harrigan**
+- **Personal Email:** mharrigan328@gmail.com
+- **School Email:** mharrig1@umbc.edu
+
+**Daniel (Dan) Cleaver**
+- **Personal Email:**
+- **School Email:**
+
+**Christian Lostoski**
+- **Personal Email:** christian.lostoski@gmail.com
+- **School Email:** christl1@umbc.edu
+
+**Nomso Ashiogwu**
+- **Personal Email:**
+- **School Email:** cashiog1@umbc.edu
 
 ## Project References
 Test
