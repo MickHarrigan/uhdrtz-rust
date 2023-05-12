@@ -1,6 +1,6 @@
 use crate::bluetooth::RotationInterval;
 use crate::setup::Settings;
-use crate::zoetrope::ZoetropeAnimationThresholdSpeed;
+use crate::zoetrope::{RotationDirection, ZoetropeAnimationThresholdSpeed};
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -16,7 +16,7 @@ pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>, settings: Res<Se
             audio
                 .play(server.load(format!("audio/{}", music)))
                 .looped()
-                .with_volume(0.6);
+                .with_volume(0.5);
         }
         None => {}
     }
@@ -41,12 +41,13 @@ pub fn audio_modulation_rotation(
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeAnimationThresholdSpeed>,
     audio: Res<Audio>,
+    dir: Res<RotationDirection>,
 ) {
     let val: f64;
     if rotation.0 >= max.0 {
-        val = 1.0;
+        val = (!dir.audio * 1.0) as f64;
     } else if rotation.0 <= -max.0 {
-        val = -1.0;
+        val = (dir.audio * 1.0) as f64;
     } else {
         val = rotation.0 as f64 / max.0 as f64;
     }

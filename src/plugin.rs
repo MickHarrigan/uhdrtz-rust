@@ -20,7 +20,7 @@ use crate::gui::{
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
-    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, Slices,
+    zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, RotationDirection, Slices,
     ZoetropeAnimationThresholdSpeed,
 };
 
@@ -105,6 +105,10 @@ impl Plugin for CameraPlugin {
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ZoetropeAnimationThresholdSpeed(10))
+            .insert_resource(RotationDirection {
+                audio: crate::zoetrope::Direction::CW,
+                animation: crate::zoetrope::Direction::CW,
+            })
             .add_system(zoetrope_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(zoetrope_next_camera_frame.in_set(OnUpdate(RunningStates::Running)))
             // the line below is for a debug system in which a static image is displayed instead of the
