@@ -8,7 +8,9 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
 
-use crate::audio::{audio_modulation_rotation, audio_setup, change_audio_volume, Song, Volume};
+use crate::audio::{
+    audio_modulation_rotation, audio_setup, change_audio_volume, Song, VolumeEvent,
+};
 use crate::bluetooth::{
     async_converter_arduino_finder, async_converter_arduino_reader, ArduinoConnected,
     RotationInterval,
@@ -16,7 +18,7 @@ use crate::bluetooth::{
 use crate::camera::{ColorSettings, VideoFrame};
 use crate::gui::{
     cursor_visibility, gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-    UiState,
+    UiState, Volume,
 };
 use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
 use crate::zoetrope::{
@@ -129,6 +131,7 @@ impl Plugin for GuiPlugin {
         })
         .insert_resource(ColorSettings::default())
         .insert_resource(CameraCrosshair(false))
+        .insert_resource(Volume::default())
         .add_system(gui_full.in_set(OnUpdate(RunningStates::Running)))
         .add_system(cursor_visibility.in_set(OnUpdate(RunningStates::Running)))
         .add_system(gui_open.in_set(OnUpdate(RunningStates::Running)))
@@ -139,9 +142,9 @@ impl Plugin for GuiPlugin {
 
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(KiraAudioPlugin)
+        app.add_event::<VolumeEvent>()
+            .add_plugin(KiraAudioPlugin)
             .insert_resource(Song("None".to_string()))
-            .insert_resource(Volume(0.5))
             .add_system(audio_setup.in_schedule(OnEnter(RunningStates::Running)))
             .add_system(audio_modulation_rotation.in_set(OnUpdate(RunningStates::Running)))
             .add_system(change_audio_volume.in_set(OnUpdate(RunningStates::Running)));

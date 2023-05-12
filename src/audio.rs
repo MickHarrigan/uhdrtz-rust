@@ -7,8 +7,7 @@ use bevy_kira_audio::prelude::*;
 #[derive(Resource)]
 pub struct Song(pub String);
 
-#[derive(Resource)]
-pub struct Volume(pub f64);
+pub struct VolumeEvent(pub f64);
 
 pub fn audio_setup(server: Res<AssetServer>, audio: Res<Audio>, settings: Res<Settings>) {
     match &settings.song {
@@ -56,6 +55,10 @@ pub fn audio_modulation_rotation(
         .linear_fade_in(std::time::Duration::from_secs_f64(1.0 / max.0 as f64));
 }
 
-pub fn change_audio_volume(audio: Res<Audio>, volume: Res<Volume>) {
-    audio.set_volume(volume.0);
+pub fn change_audio_volume(audio: Res<Audio>, mut vol_change: EventReader<VolumeEvent>) {
+    for ev in vol_change.iter() {
+        audio.set_volume(ev.0);
+    }
+
+    vol_change.clear();
 }

@@ -1,5 +1,5 @@
 use crate::{
-    audio::Volume,
+    audio::VolumeEvent,
     camera::{
         reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
     },
@@ -24,11 +24,15 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
+#[derive(Resource, Default)]
+pub struct Volume(f64);
+
 pub fn gui_full(
     mut ctx: EguiContexts,
     mut ui_state: ResMut<UiState>,
     mut color_settings: ResMut<ColorSettings>,
-    mut volume: ResMut<Volume>,
+    mut vol_event: EventWriter<VolumeEvent>,
+    mut vol: ResMut<Volume>,
     slices: Res<Slices>,
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
@@ -207,11 +211,18 @@ pub fn gui_full(
     egui::Window::new("Volume")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            ui.add(
-                egui::Slider::new(&mut volume.0, 0.0..=1.0)
-                    .text("Volume")
-                    .show_value(true),
-            );
+            let mut thing: f64 = vol.0;
+            if ui
+                .add(
+                    egui::Slider::new(&mut thing, 0.0..=1.0)
+                        .text("Volume")
+                        .show_value(true),
+                )
+                .changed()
+            {
+                vol.0 = thing;
+                vol_event.send(VolumeEvent(thing));
+            }
         });
 
     egui::Window::new("Rotation and Audio Direction")

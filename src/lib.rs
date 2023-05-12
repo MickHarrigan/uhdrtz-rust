@@ -9,7 +9,7 @@ mod zoetrope;
 
 pub mod prelude {
     pub use crate::{
-        audio::{Song, Volume},
+        audio::Song,
         // temporary
         bluetooth::{async_converter_arduino_finder, async_converter_arduino_reader},
         camera::{hash_available_cameras, VideoFrame, VideoStream},
