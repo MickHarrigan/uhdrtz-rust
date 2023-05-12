@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use std::ops::{Mul, Not};
 
 use crate::bluetooth::RotationInterval;
 use crate::camera::{reset_camera_controls, ColorSettings, VideoStream};
@@ -21,6 +22,41 @@ pub struct Counter(pub u8);
 
 #[derive(Resource)]
 pub struct Slices(pub u8);
+
+#[derive(Resource)]
+pub struct RotationDirection {
+    pub audio: Direction,
+    pub animation: Direction,
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum Direction {
+    CW,
+    CCW,
+}
+
+impl Not for Direction {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        if self == Self::CW {
+            Self::CCW
+        } else {
+            Self::CW
+        }
+    }
+}
+
+impl Mul<f32> for Direction {
+    type Output = f32;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        if self == Self::CW {
+            rhs
+        } else {
+            -rhs
+        }
+    }
+}
 
 pub fn zoetrope_setup(
     mut commands: Commands,
@@ -82,17 +118,18 @@ pub fn zoetrope_animation(
     rotation: Res<RotationInterval>,
     max: Res<ZoetropeAnimationThresholdSpeed>,
     slices: Res<Slices>,
+    dir: Res<RotationDirection>,
 ) {
     for mut transform in query.iter_mut() {
         let val: f32;
         // rotation is an i8
         // need to get it to an f32
         if rotation.0 >= max.0 {
-            val = 1.0;
+            val = dir.animation * 1.0;
         } else if rotation.0 <= -max.0 {
-            val = -1.0;
+            val = !dir.animation * 1.0;
         } else {
-            val = (rotation.0 as f32 / max.0 as f32).into();
+            val = (dir.animation * (rotation.0 as f32) / max.0 as f32).into();
         }
         // PI / 12.0 should be tied to the framerate (slices) of the art in question
         transform.rotate_z((2. * PI / slices.0 as f32) * val);

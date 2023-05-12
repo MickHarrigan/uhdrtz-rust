@@ -3,7 +3,10 @@ use crate::{
     camera::{
         reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
     },
-    zoetrope::{Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE},
+    zoetrope::{
+        Direction, RotationDirection, Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage,
+        TOP_BAR_SIZE,
+    },
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
@@ -33,6 +36,7 @@ pub fn gui_full(
     cam_query: Query<&VideoStream>,
     mut circle: Query<&mut Mesh2dHandle, With<ZoetropeImage>>,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut directions: ResMut<RotationDirection>,
 ) {
     let window = window_query.single();
     let mut transform = query.single_mut();
@@ -209,6 +213,26 @@ pub fn gui_full(
                     .show_value(true),
             );
         });
+
+    egui::Window::new("Rotation and Audio Direction")
+        .open(&mut ui_state.is_window_open)
+        .show(ctx.ctx_mut(), |ui| {
+            ui.horizontal(|ui| {
+                ui.radio_value(&mut directions.audio, Direction::CW, "Clockwise");
+                ui.radio_value(&mut directions.audio, Direction::CCW, "Counter Clockwise");
+                ui.add(egui::Label::new("Audio Direction"));
+            });
+            ui.horizontal(|ui| {
+                ui.radio_value(&mut directions.animation, Direction::CW, "Clockwise");
+                ui.radio_value(
+                    &mut directions.animation,
+                    Direction::CCW,
+                    "Counter Clockwise",
+                );
+                ui.add(egui::Label::new("Crank/Animation Direction"));
+            });
+        });
+
     egui::Window::new("Debug value inspector")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
