@@ -248,7 +248,7 @@ pub fn gui_full(
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
             }
             if ui.add(egui::Button::new("Semi-Circle")).clicked() {
-                let size = ((window.width() / 2.0) * 0.9).ceil();
+                let size = ((window.width() / 2.0) * 0.99).ceil();
                 *circle.single_mut() = meshes.add(shape::Circle::new(size).into()).into();
                 *transform = Transform::from_xyz(0., 0., 100.0).looking_at(Vec3::ZERO, Vec3::Y);
                 transform.translation.y = window.resolution.height() / 2.0;
