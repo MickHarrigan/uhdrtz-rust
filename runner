@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+sudo usbreset See3CAM_CU135
+cd /home/dev/Code/uhdrtz-rust
+target/release/uhdrtz
