@@ -168,67 +168,6 @@ This section will cover the setup of the physical system. The installation of th
 - Once you have done this, the UHDRTZ application should appear on the left side of the screen.
 - Double click the application to start it. Once you have opened the application, you will see the following startup screen. 
 
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Startup_screen.png?raw=true)
-
-There are six sections total to the startup screen.
-
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/startup_options.png?raw=true)
-
-1. Camera
-    - This drop-down menu allows users to select from the available connected cameras.
-2. Quality
-    - This drop-down menu allows users to select their desired screen resolution and frame rate.
-    - i.e. 1080p at 60 FPS
-3. Crank
-    - This section shows whether the crank box Arduino is connected to the Mini PC through Bluetooth or not.
-    - When it is not connected there will be a spinning loading symbol
-    - If the Arduino fails to connect automatically check that the Arduino if powered on. If it is powered on and not connecting, press the small button on the Arduino once to reset it.
-3. Audio
-    - This drop-down allows you to select from all loaded audio files. The UHDRTZ comes with one pre-loaded audio file.
-    - If users wish to add a different audio file, press the **Open Audio Location** button to the right of the audio section.
-4. Slices
-    - This text box allows users to input the number of *slices* the displayed piece of art has. This will help determine the rotation speed and frame-rate of the program.
-5. Continue
-    - Once all settings are set to the users satisfaction, press the continue button to launch the full application
-    - **Note:** The Continue button will not be press-able until the crank Arduino is connected through Bluetooth.
-
-**Note:** The camera's focus must be adjusted manually. If the image appears blurry and out of focus, adjust the lense on the camera by twisting the lense itself until the image comes into focus.
-
-## Using the Program
-
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Application%20screen.png?raw=true)
-
-At this point, the screen will be displaying a circular view of the camera's input. To open up the settings, press **SPACE**. This will open up the user interface as well as show the crosshairs. The user can utilize the crosshairs to line up the camera perfectly with the art so that the center of rotation of the art is the same as the cameras. Upon opening the settings, the user will also have access to several sub menus. 
-
-1. Effects
-    - The effects menu will allow the user to change the in camera settings. The settings are as follows:
-        - Brightness
-        - Contrast
-        - Saturation
-        - Gamma
-        - White Balance
-
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Effects.png?raw=true)
-
-2. Volume
-    - This will allow the user to adjust the volume of the audio withing the program.
-
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/volume.png?raw=true)
-
-3. Presets
-    - This menu allows the user to select from several preset location options
-        - Re-Center
-            - This will place the image back into its default configuration
-        - Semi-Circle
-            - This will place the image so that only the top half is visible
-        - Right
-            - This will place the image on the right half of the screen and only display one quarter of the image
-        - Left
-            - This will place the image on the left half of the screen and only display one quarter of the image
-    - **Note:** The user can change the location and size of the image at any time by using the arrow keys (for position) and using PageUp/PageDown (for size)
-
-![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/presets.png?raw=true)
-
 ## Inputs
 Test
 
@@ -369,7 +308,67 @@ Test
 Test
 
 ## Interface Detailed Design
-Test
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Startup_screen.png?raw=true)
+
+There are six sections total to the startup screen.
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/startup_options.png?raw=true)
+
+1. Camera
+    - This drop-down menu allows users to select from the available connected cameras.
+2. Quality
+    - This drop-down menu allows users to select their desired screen resolution and frame rate.
+    - i.e. 1080p at 60 FPS
+3. Crank
+    - This section shows whether the crank box Arduino is connected to the Mini PC through Bluetooth or not.
+    - When it is not connected there will be a spinning loading symbol
+    - If the Arduino fails to connect automatically check that the Arduino if powered on. If it is powered on and not connecting, press the small button on the Arduino once to reset it.
+4. Audio
+    - This drop-down allows you to select from all loaded audio files. The UHDRTZ comes with one pre-loaded audio file.
+    - If users wish to add a different audio file, press the **Open Audio Location** button to the right of the audio section.
+5. Slices
+    - This text box allows users to input the number of *slices* the displayed piece of art has. This will help determine the rotation speed and frame-rate of the program.
+6. Continue
+    - Once all settings are set to the users satisfaction, press the continue button to launch the full application
+    - **Note:** The Continue button will not be press-able until the crank Arduino is connected through Bluetooth.
+
+**Note:** The camera's focus must be adjusted manually. If the image appears blurry and out of focus, adjust the lense on the camera by twisting the lense itself until the image comes into focus.
+
+### Using the Program
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Application%20screen.png?raw=true)
+
+At this point, the screen will be displaying a circular view of the camera's input. To open up the settings, press **SPACE**. This will open up the user interface as well as show the crosshairs. The user can utilize the crosshairs to line up the camera perfectly with the art so that the center of rotation of the art is the same as the cameras. Upon opening the settings, the user will also have access to several sub menus. 
+
+1. Effects
+    - The effects menu will allow the user to change the in camera settings. The settings are as follows:
+        - Brightness
+        - Contrast
+        - Saturation
+        - Gamma
+        - White Balance
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Effects.png?raw=true)
+
+2. Volume
+    - This will allow the user to adjust the volume of the audio withing the program.
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/volume.png?raw=true)
+
+3. Presets
+    - This menu allows the user to select from several preset location options
+        - Re-Center
+            - This will place the image back into its default configuration
+        - Semi-Circle
+            - This will place the image so that only the top half is visible
+        - Right
+            - This will place the image on the right half of the screen and only display one quarter of the image
+        - Left
+            - This will place the image on the left half of the screen and only display one quarter of the image
+    - **Note:** The user can change the location and size of the image at any time by using the arrow keys (for position) and using PageUp/PageDown (for size)
+
+![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/presets.png?raw=true)
 
 # System Integrity Controls
 The system does not use any information that could affect the conduct of state programs or the privacy to which individuals are entitled. Thus, this section is not applicable.
