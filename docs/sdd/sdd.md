@@ -68,7 +68,7 @@ This section will cover all of the hardware used in the UHDRTZ system. It will a
 
 ### 4K USB-C Camera
 
-The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to the Mini PC via a USB-C (male) to USB-A (male) cable. The camera is powered by the Mini PC and does not require any additional power. 
+The 4K USB-C Camera is a small, roughly 1.5" x 1.5" x 1" camera that connects to the Mini PC via a USB-C (male) to USB-A (male) cable. The camera is powered by the Mini PC and does not require any additional power.
 
 ### Mini PC
 
@@ -85,7 +85,6 @@ The Arduino is a standard Arduino NANO BLE (Bluetooth). It will send signal via 
 #### Rotary Encoder
 
 The Rotary Endocer will be a standard Arduino Kit rotary encoder. It will be connected and powered by the Arduino via 4 1 pin cables. Refer to the Hardware Description section to see the connections.
-
 
 ## System Software Architecture
 
@@ -149,16 +148,16 @@ Suggested items for setup
 
 This section will cover the setup of the physical system. The installation of the artwork is assumed.
 
-- Place the camera so that it points towards the center of the artwork and is directly in line with the center of the artwork. If you are pointing the camera down to look at the artwork on the floor, a level would be useful. 
-- Mount the Mini PC close to the camera. 
-    - Attach the camera to the Mini PC using the USB-C to USB-A cable. 
-    - Plug the AC Power Cable into the mini and connect it to a standard outlet. 
-- Set up the crank housing on the floor where users can reach it. 
-- Connect the Micro USB to USB-A Cable to the Arduino within the crank housing and string the cable through the whole in the bottom of the crank housing. 
+- Place the camera so that it points towards the center of the artwork and is directly in line with the center of the artwork. If you are pointing the camera down to look at the artwork on the floor, a level would be useful.
+- Mount the Mini PC close to the camera.
+    - Attach the camera to the Mini PC using the USB-C to USB-A cable.
+    - Plug the AC Power Cable into the mini and connect it to a standard outlet.
+- Set up the crank housing on the floor where users can reach it.
+- Connect the Micro USB to USB-A Cable to the Arduino within the crank housing and string the cable through the whole in the bottom of the crank housing.
 - Connect that cable to power. Note: the best option is to use a USB-A to wall socket brick and connect the Arduino directly to power
-- Plug in a USB Keyboard & Mouse into the Mini PC. 
-- Connect the Mini PC to an external monitor (4K Projector). 
-- Power on the PC. 
+- Plug in a USB Keyboard & Mouse into the Mini PC.
+- Connect the Mini PC to an external monitor (4K Projector).
+- Power on the PC.
 
 ### Starting The Program
 
@@ -166,7 +165,7 @@ This section will cover the setup of the physical system. The installation of th
 - There will be two sign-in options. As a user, you will want to click on the UHDRTZ profile.
 - Once logged in you will want to start the UHDRTZ application. You can do this by either pressing the Windows key on your keyboard or by moving the cursor to the upper left hand corner of the screen.
 - Once you have done this, the UHDRTZ application should appear on the left side of the screen.
-- Double click the application to start it. Once you have opened the application, you will see the following startup screen. 
+- Double click the application to start it. Once you have opened the application, you will see the following startup screen.
 
 ## Inputs
 Test
@@ -339,7 +338,7 @@ There are six sections total to the startup screen.
 
 ![alt text](https://github.com/clostoski/uhdrtz-images/blob/main/Application%20screen.png?raw=true)
 
-At this point, the screen will be displaying a circular view of the camera's input. To open up the settings, press **SPACE**. This will open up the user interface as well as show the crosshairs. The user can utilize the crosshairs to line up the camera perfectly with the art so that the center of rotation of the art is the same as the cameras. Upon opening the settings, the user will also have access to several sub menus. 
+At this point, the screen will be displaying a circular view of the camera's input. To open up the settings, press **SPACE**. This will open up the user interface as well as show the crosshairs. The user can utilize the crosshairs to line up the camera perfectly with the art so that the center of rotation of the art is the same as the cameras. Upon opening the settings, the user will also have access to several sub menus.
 
 1. Effects
     - The effects menu will allow the user to change the in camera settings. The settings are as follows:
