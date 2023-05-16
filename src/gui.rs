@@ -1,17 +1,14 @@
 use crate::{
     audio::VolumeEvent,
-    camera::{
-        reset_camera_controls, send_camera_setting, CameraSetting, ColorSettings, VideoStream,
-    },
+    camera::{reset_camera_controls, send_camera_setting, ColorSettings, VideoStream},
     zoetrope::{
-        Direction, RotationDirection, Slices, ZoetropeAnimationThresholdSpeed, ZoetropeImage,
-        TOP_BAR_SIZE,
+        Direction, RotationDirection, ZoetropeAnimationThresholdSpeed, ZoetropeImage, TOP_BAR_SIZE,
     },
 };
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_egui::{egui, EguiContexts};
 
-use nokhwa::utils::{ControlValueSetter, KnownCameraControl};
+use nokhwa::utils::KnownCameraControl;
 
 #[derive(Resource, Default)]
 pub struct CameraCrosshair(pub bool);
@@ -33,7 +30,6 @@ pub fn gui_full(
     mut color_settings: ResMut<ColorSettings>,
     mut vol_event: EventWriter<VolumeEvent>,
     mut vol: ResMut<Volume>,
-    slices: Res<Slices>,
     mut query: Query<&mut Transform, With<Camera>>,
     window_query: Query<&Window>,
     mut threshold: ResMut<ZoetropeAnimationThresholdSpeed>,
@@ -108,34 +104,6 @@ pub fn gui_full(
             {
                 send_camera_setting(cam, KnownCameraControl::Gamma, color_settings.gamma.into());
             }
-
-            // Gain
-            // if ui
-            //     .add(
-            //         egui::Slider::new(&mut color_settings.gain, 0..=100)
-            //             .text("Gain")
-            //             .show_value(true),
-            //     )
-            //     .changed()
-            // {
-            //     send_camera_setting(cam, KnownCameraControl::Gain, color_settings.gain.into());
-            // }
-
-            // White Balance
-            // if ui
-            //     .add(
-            //         egui::Slider::new(&mut color_settings.white_balance, 1000..=10000)
-            //             .text("White Balance")
-            //             .show_value(true),
-            //     )
-            //     .changed()
-            // {
-            //     send_camera_setting(
-            //         cam,
-            //         KnownCameraControl::WhiteBalance,
-            //         color_settings.white_balance.into(),
-            //     );
-            // }
 
             // Sharpness
             if ui
@@ -242,12 +210,6 @@ pub fn gui_full(
                 );
                 ui.add(egui::Label::new("Crank/Animation Direction"));
             });
-        });
-
-    egui::Window::new("Debug value inspector")
-        .open(&mut ui_state.is_window_open)
-        .show(ctx.ctx_mut(), |ui| {
-            ui.add(egui::Label::new(format!("{}", slices.0)));
         });
 
     egui::Window::new("Presets")

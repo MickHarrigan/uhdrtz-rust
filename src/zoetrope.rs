@@ -66,7 +66,7 @@ pub fn zoetrope_setup(
     settings: Res<Settings>,
     server: Res<AssetServer>,
     windows: Query<&Window>,
-    mut color_settings: ResMut<ColorSettings>,
+    color_settings: ResMut<ColorSettings>,
 ) {
     // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
     // then open a stream from the camera with the right settings
@@ -175,6 +175,7 @@ pub fn zoetrope_next_camera_frame(
     }
 }
 
+#[allow(dead_code)]
 pub fn zoetrope_next_frame_static(
     mat_query: Query<&Handle<ColorMaterial>, With<ZoetropeImage>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
