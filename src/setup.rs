@@ -4,8 +4,8 @@ use crate::audio::Song;
 use crate::camera::hash_available_cameras;
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowMode};
-use bevy_egui::{egui, EguiContexts};
-use egui::{FontId, RichText};
+use bevy_egui::{egui, EguiContexts, EguiSettings};
+use egui::{FontId, RichText, FontDefinitions, FontFamily, TextStyle};
 
 #[allow(unused_imports)]
 use btleplug::api::{Central, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
@@ -72,10 +72,11 @@ pub fn setup_menu(
     mut str_buffer: ResMut<StringBuffer>,
 ) {
     let mut window = windows.single_mut();
-    window.set_maximized(true);
     window.decorations = false;
     let (mut selected, cameras) = hash_available_cameras();
     egui::CentralPanel::default().show(ctx.ctx_mut(), |ui| {
+        // ctx.set_pixels_per_point(5.0);
+        // ui.style_mut().override_text_style = Some(egui::TextStyle::Body);
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
             ui.label(RichText::new("UHDRTZ Setup System").font(FontId::proportional(40.0)));
             ui.label(RichText::new("This is where you can choose the different settings of the camera, arduino, resolution, etc.").font(FontId::proportional(20.0)));
@@ -84,10 +85,14 @@ pub fn setup_menu(
         egui::Ui::add_space(ui, 20.0);
 
         egui::Grid::new("my_grid")
+            .min_row_height(32.0)
             .num_columns(3)
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
+                ui.style_mut().override_font_id = Some(FontId { size: 30.0, family: FontFamily::Proportional });
+                // ui.style_mut()
+                    // .override_text_style = Some(TextStyle::Small);
                 // this is where the different items are defined
                 ui.add(egui::Label::new("Camera"));
                 egui::ComboBox::from_label(
@@ -144,19 +149,19 @@ pub fn setup_menu(
                     ui.selectable_value(&mut song.0,"None".into(), "None");
                 });
                 // make a button to open the audio location
-                if ui.add(egui::Button::new("Open Audio Location")).clicked() {
+                if ui.add_sized([120., 40.], egui::Button::new("Open Audio Location")).clicked() {
                     // open the location for audio in the default file browser
                     std::process::Command::new("xdg-open").arg("./assets/audio").spawn().unwrap();
                 }
                 ui.end_row();
 
                 ui.add(egui::Label::new("Slices"));
-                ui.add(egui::TextEdit::singleline(&mut str_buffer.0).hint_text("Defaults to 24. Example: \"28\""));
+                ui.add_sized([480.0, 40.0], egui::TextEdit::singleline(&mut str_buffer.0).hint_text("Defaults to 24. Example: \"28\""));
                 
             });
 
         // this is where the settings are converted to nokhwa settings
-        if ui.add_enabled(arduino.0 && selected.is_some(),egui::Button::new("Continue")).clicked() {
+        if ui.add_enabled(arduino.0 && selected.is_some(),egui::Button::new("Continue").min_size([120., 40.].into())).clicked() {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             match str_buffer.0.parse::<u8>() {
                 Ok(x) => slices.0 = x,
@@ -180,4 +185,10 @@ pub fn setup_menu(
             next_state.set(RunningStates::Running);
         }
     });
+}
+
+pub fn update_scale_factor(mut egui_settings: ResMut<EguiSettings>, windows: Query<&mut Window>) {
+    if let Ok(win) = windows.get_single() {
+        egui_settings.scale_factor = 2.0 / win.scale_factor();
+    }
 }

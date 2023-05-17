@@ -3,6 +3,7 @@ use std::time::Duration;
 use bevy::app::PluginGroupBuilder;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy::window::WindowLevel;
 use bevy_egui::EguiPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_kira_audio::prelude::AudioPlugin as KiraAudioPlugin;
@@ -20,7 +21,10 @@ use crate::gui::{
     cursor_visibility, gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
     UiState, Volume,
 };
-use crate::setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings, StringBuffer};
+use crate::setup::{
+    cleanup_menu, setup_menu, update_scale_factor, Resolutions, RunningStates, Settings,
+    StringBuffer,
+};
 use crate::zoetrope::{
     zoetrope_animation, zoetrope_next_camera_frame, zoetrope_setup, RotationDirection, Slices,
     ZoetropeAnimationThresholdSpeed,
@@ -45,9 +49,9 @@ impl Plugin for SetupPlugin {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "UHDRTZ Setup".to_string(),
-                        position: WindowPosition::Centered {
-                            0: MonitorSelection::Primary,
-                        },
+                        mode: bevy::window::WindowMode::BorderlessFullscreen,
+                        position: WindowPosition::Automatic,
+                        window_level: WindowLevel::AlwaysOnBottom,
                         ..default()
                     }),
                     ..default()
@@ -70,6 +74,7 @@ impl Plugin for SetupPlugin {
         .add_state::<RunningStates>()
         .add_system(setup_menu.in_set(OnUpdate(RunningStates::Setup)))
         .add_system(async_converter_arduino_finder.in_schedule(OnEnter(RunningStates::Setup)))
+        .add_system(update_scale_factor.in_schedule(OnEnter(RunningStates::Setup)))
         .add_system(cleanup_menu.in_schedule(OnExit(RunningStates::Setup)));
 
         if cfg!(debug_assertions) {
@@ -106,7 +111,7 @@ impl Plugin for CameraPlugin {
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ZoetropeAnimationThresholdSpeed(10))
+        app.insert_resource(ZoetropeAnimationThresholdSpeed(5))
             .insert_resource(RotationDirection {
                 audio: crate::zoetrope::Direction::CW,
                 animation: crate::zoetrope::Direction::CW,

@@ -21,8 +21,14 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
-#[derive(Resource, Default)]
-pub struct Volume(f64);
+#[derive(Resource)]
+pub struct Volume(u8);
+
+impl Default for Volume {
+    fn default() -> Self {
+        Self(100)
+    }
+}
 
 pub fn gui_full(
     mut ctx: EguiContexts,
@@ -179,10 +185,10 @@ pub fn gui_full(
     egui::Window::new("Volume")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            let mut thing: f64 = vol.0;
+            let mut thing: u8 = vol.0;
             if ui
                 .add(
-                    egui::Slider::new(&mut thing, 0.0..=1.0)
+                    egui::Slider::new(&mut thing, 0..=100)
                         .text("Volume")
                         .show_value(true),
                 )
