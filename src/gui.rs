@@ -131,6 +131,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.zoom, 100..=800)
+                        .drag_value_speed(0.4)
                         .text("Zoom")
                         .show_value(true),
                 )
@@ -147,7 +148,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.tilt, -648000..=648000)
-                        .step_by(3600.0)
+                        .drag_value_speed(400.0)
                         .text("Tilt")
                         .show_value(true),
                 )
@@ -164,7 +165,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.pan, -648000..=648000)
-                        .step_by(3600.0)
+                        .drag_value_speed(400.0)
                         .text("Pan")
                         .show_value(true),
                 )
