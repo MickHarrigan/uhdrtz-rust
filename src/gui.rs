@@ -21,8 +21,14 @@ pub struct UiState {
     pub is_window_open: bool,
 }
 
-#[derive(Resource, Default)]
-pub struct Volume(f64);
+#[derive(Resource)]
+pub struct Volume(u8);
+
+impl Default for Volume {
+    fn default() -> Self {
+        Self(100)
+    }
+}
 
 pub fn gui_full(
     mut ctx: EguiContexts,
@@ -125,6 +131,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.zoom, 100..=800)
+                        .drag_value_speed(0.4)
                         .text("Zoom")
                         .show_value(true),
                 )
@@ -141,7 +148,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.tilt, -648000..=648000)
-                        .step_by(3600.0)
+                        .drag_value_speed(400.0)
                         .text("Tilt")
                         .show_value(true),
                 )
@@ -158,7 +165,7 @@ pub fn gui_full(
             if ui
                 .add(
                     egui::Slider::new(&mut color_settings.pan, -648000..=648000)
-                        .step_by(3600.0)
+                        .drag_value_speed(400.0)
                         .text("Pan")
                         .show_value(true),
                 )
@@ -179,10 +186,10 @@ pub fn gui_full(
     egui::Window::new("Volume")
         .open(&mut ui_state.is_window_open)
         .show(ctx.ctx_mut(), |ui| {
-            let mut thing: f64 = vol.0;
+            let mut thing: u8 = vol.0;
             if ui
                 .add(
-                    egui::Slider::new(&mut thing, 0.0..=1.0)
+                    egui::Slider::new(&mut thing, 0..=100)
                         .text("Volume")
                         .show_value(true),
                 )
