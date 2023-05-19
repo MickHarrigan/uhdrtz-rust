@@ -46,7 +46,7 @@ Christian Lostoski
 
 Nomso Ashiogwu
 
-- Personal Email:
+- Personal Email: nashiogwu@gmail.com
 
 - School Email: cashiog1@umbc.edu
 
