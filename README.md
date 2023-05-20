@@ -3,10 +3,10 @@
 Ultra High Definition Real Time Zoetrope
 
 ## Team Members
-Mick Harrigan
-Christian Lostoski
-Daniel Cleaver
-Nomso Ashiogwu
+- Mick Harrigan
+- Christian Lostoski
+- Daniel Cleaver
+- Nomso Ashiogwu
 
 
 ## Running and Installation
