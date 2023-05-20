@@ -18,7 +18,7 @@ To compile and run this system first clone the repo wherever with
 git clone git@github.com:MickHarrigan/uhdrtz-rust.git
 ```
 
-then install Rust and the toolchain needed from [rustup.rs](rustup.rs).
+then install Rust and the toolchain needed from [rustup.rs](https://rustup.rs/).
 
 Install the dependencies (Debian)
 ```
