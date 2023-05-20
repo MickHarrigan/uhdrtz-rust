@@ -1,5 +1,6 @@
 # uhdrtz-rust
 2023 Capstone Project at UMBC
+
 Ultra High Definition Real Time Zoetrope
 
 ## Team Members
