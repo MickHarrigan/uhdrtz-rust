@@ -16,7 +16,7 @@ use crate::bluetooth::{
     async_converter_arduino_finder, async_converter_arduino_reader, ArduinoConnected,
     RotationInterval,
 };
-use crate::camera::{ColorSettings, VideoFrame};
+use crate::camera::ColorSettings;
 use crate::gui::{
     cursor_visibility, gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
     UiState, Volume,
@@ -32,7 +32,6 @@ use crate::zoetrope::{
 
 pub struct ZoetropePlugins; // High level Grouped Plugins for end use
 pub struct BluetoothPlugin; // Bluetooth only section
-pub struct CameraPlugin; // Physical Camera setup plugin
 pub struct GuiPlugin; // Gui controls and setup
 pub struct AnimationPlugin; // Plugin for the animation and its controls
 pub struct AudioPlugin; // Plugin for playing the music
@@ -103,11 +102,6 @@ impl Plugin for BluetoothPlugin {
         );
     }
 }
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(VideoFrame(Handle::default()));
-    }
-}
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
@@ -163,7 +157,6 @@ impl PluginGroup for ZoetropePlugins {
             .add(BasePlugin)
             .add(AudioPlugin)
             .add(AnimationPlugin)
-            .add(CameraPlugin)
             .add(GuiPlugin)
             .add(BluetoothPlugin)
     }

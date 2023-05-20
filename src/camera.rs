@@ -14,9 +14,6 @@ use nokhwa::utils::{
 };
 use nokhwa::Camera;
 
-#[derive(Resource, Clone)]
-pub struct VideoFrame(pub Handle<Image>);
-
 #[derive(Component)]
 pub struct VideoStream {
     pub image_rx: flume::Receiver<Image>,

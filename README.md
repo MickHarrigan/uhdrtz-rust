@@ -1,45 +1,34 @@
 # uhdrtz-rust
-Rust implementation of the UHDRTZ
+2023 Capstone Project at UMBC
+Ultra High Definition Real Time Zoetrope
 
-## Tooling used
-The primary method for recreating and porting the UHDRTZ and its functionality are through the [bevy](https://github.com/bevyengine/bevy) ecosystem for the viewing and manipulation of the images.
-In addition to this the use of the [nokhwa](https://github.com/l1npengtul/nokhwa) library for capture of the images shall be used.
+## Team Members
+Mick Harrigan
+Christian Lostoski
+Daniel Cleaver
+Nomso Ashiogwu
 
 
-## Things to do
-- Camera control GUI
-- Update the max interval resource to be setup in the gui
-- Use bevy_audio to play music at the same time
-- Break up the Zoetrope plugin into smaller subplugins
-- QOL updates (select camera/Arduino?/ Other hardware) on startup
-- Fix camera dropping issues
-- slow down camera capture rate
-- stability and speed updates
+## Running and Installation
+Information on the hardware used and how to set up the full system are [here](https://github.com/MickHarrigan/uhdrtz-rust/wiki).
 
-## Things Completed
-- Get video from the nokhwa package
-- Convert said video frames to bevy texture
-- Create a function to rotate the camera (or the plane that the texture is located)
-  - Rotate automatically
-- Rotate camera based on keyboard input
-- Read bluetooth data from Arduino and rotate based on that input
-- Display images (masks) over the actual rotating image
-- Add max interval and number of slices to gui
-- GUI for controlling the location of the different images
+To compile and run this system first clone the repo wherever with
+```
+git clone git@github.com:MickHarrigan/uhdrtz-rust.git
+```
 
-### Nokhwa camera controls:
-- brightness
-- contrast
-- saturation
-- sharpness
-- gamma
-- white balance
-- gain
+then install Rust and the toolchain needed from [rustup.rs](rustup.rs).
 
-6 others:
-- exposure time
-- zoom
-- pan
-- tilt
-- auto exposure
-- white balance, automatic (boolean)
+Install the dependencies (Debian)
+```
+sudo apt install -y libasound2-dev pkg-config clang libudev-dev libdbus-1-dev
+```
+
+From here navigate to the root of the repo and run
+```
+cargo run --release
+```
+to build and run the system.
+
+## Major Libraries used
+The UHDRTZ is built with [Bevy](https://bevyengine.org/) as the foundation of the system. The camera uses [Nokhwa](https://github.com/l1npengtul/nokhwa) to take images and output them into a raw buffer.

@@ -9,17 +9,7 @@ mod zoetrope;
 
 pub mod prelude {
     pub use crate::{
-        audio::Song,
-        // temporary
-        bluetooth::{async_converter_arduino_finder, async_converter_arduino_reader},
-        camera::{hash_available_cameras, VideoFrame, VideoStream},
-        gui::{
-            gui_camera_control, gui_full, gui_open, gui_set_crosshair, CameraCrosshair,
-            CameraCrosshairTag, UiState,
-        },
-        plugin::{
-            AnimationPlugin, AudioPlugin, BluetoothPlugin, CameraPlugin, GuiPlugin, ZoetropePlugins,
-        },
+        plugin::{AnimationPlugin, AudioPlugin, BluetoothPlugin, GuiPlugin, ZoetropePlugins},
         setup::{cleanup_menu, setup_menu, Resolutions, RunningStates, Settings},
     };
 }

@@ -1,11 +1,11 @@
-use crate::bluetooth::ArduinoConnected;
-use crate::zoetrope::Slices;
 use crate::audio::Song;
+use crate::bluetooth::ArduinoConnected;
 use crate::camera::hash_available_cameras;
+use crate::zoetrope::Slices;
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowMode};
 use bevy_egui::{egui, EguiContexts, EguiSettings};
-use egui::{FontId, RichText, FontDefinitions, FontFamily, TextStyle};
+use egui::{FontFamily, FontId, RichText};
 
 #[allow(unused_imports)]
 use btleplug::api::{Central, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
@@ -29,7 +29,6 @@ impl Resolutions {
         }
     }
 }
-
 
 #[derive(Resource)]
 pub struct StringBuffer(pub String);
@@ -79,7 +78,6 @@ pub fn setup_menu(
         // ui.style_mut().override_text_style = Some(egui::TextStyle::Body);
         ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
             ui.label(RichText::new("UHDRTZ Setup System").font(FontId::proportional(40.0)));
-            ui.label(RichText::new("This is where you can choose the different settings of the camera, arduino, resolution, etc.").font(FontId::proportional(20.0)));
         });
 
         egui::Ui::add_space(ui, 20.0);
@@ -90,15 +88,24 @@ pub fn setup_menu(
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
-                ui.style_mut().override_font_id = Some(FontId { size: 30.0, family: FontFamily::Proportional });
+                ui.style_mut().override_font_id = Some(FontId {
+                    size: 30.0,
+                    family: FontFamily::Proportional,
+                });
                 // ui.style_mut()
-                    // .override_text_style = Some(TextStyle::Small);
+                // .override_text_style = Some(TextStyle::Small);
                 // this is where the different items are defined
                 ui.add(egui::Label::new("Camera"));
                 egui::ComboBox::from_label(
                     "Select the camera that will be used to capture the video feed",
                 )
-                .selected_text(format!("{}", selected.clone().unwrap_or(("No Camera".to_string(), u32::MAX)).0))
+                .selected_text(format!(
+                    "{}",
+                    selected
+                        .clone()
+                        .unwrap_or(("No Camera".to_string(), u32::MAX))
+                        .0
+                ))
                 .show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
@@ -112,14 +119,28 @@ pub fn setup_menu(
                 // this is for setting the resolutions
                 ui.add(egui::Label::new("Quality"));
                 egui::ComboBox::from_label(
-                    "Select the Quality of the video feed, in combined Resolution and Frame Rate"
-                ).selected_text(quality.as_str()).show_ui(ui, |ui| {
+                    "Select the Quality of the video feed, in combined Resolution and Frame Rate",
+                )
+                .selected_text(quality.as_str())
+                .show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
                     // this is all settings for resolutions
-                    ui.selectable_value(&mut *quality, Resolutions::Fourk, Resolutions::Fourk.as_str());
-                    ui.selectable_value(&mut *quality, Resolutions::TenEighty, Resolutions::TenEighty.as_str());
-                    ui.selectable_value(&mut *quality, Resolutions::FourteenFourty, Resolutions::FourteenFourty.as_str());
+                    ui.selectable_value(
+                        &mut *quality,
+                        Resolutions::Fourk,
+                        Resolutions::Fourk.as_str(),
+                    );
+                    ui.selectable_value(
+                        &mut *quality,
+                        Resolutions::TenEighty,
+                        Resolutions::TenEighty.as_str(),
+                    );
+                    ui.selectable_value(
+                        &mut *quality,
+                        Resolutions::FourteenFourty,
+                        Resolutions::FourteenFourty.as_str(),
+                    );
                 });
                 ui.end_row();
 
@@ -135,7 +156,11 @@ pub fn setup_menu(
 
                 // music changer
                 ui.add(egui::Label::new("Audio"));
-                egui::ComboBox::from_label("Select the song to play during the animation. Must be an mp3.").selected_text(format!("{}", song.0)).show_ui(ui, |ui| {
+                egui::ComboBox::from_label(
+                    "Select the song to play during the animation. Must be an mp3.",
+                )
+                .selected_text(format!("{}", song.0))
+                .show_ui(ui, |ui| {
                     ui.style_mut().wrap = Some(false);
                     ui.set_min_width(50.0);
 
@@ -146,22 +171,37 @@ pub fn setup_menu(
                         ui.selectable_value(&mut song.0, file.clone(), file);
                     }
                     // extra listing for no music
-                    ui.selectable_value(&mut song.0,"None".into(), "None");
+                    ui.selectable_value(&mut song.0, "None".into(), "None");
                 });
                 // make a button to open the audio location
-                if ui.add_sized([120., 40.], egui::Button::new("Open Audio Location")).clicked() {
+                if ui
+                    .add_sized([120., 40.], egui::Button::new("Open Audio Location"))
+                    .clicked()
+                {
                     // open the location for audio in the default file browser
-                    std::process::Command::new("xdg-open").arg("./assets/audio").spawn().unwrap();
+                    std::process::Command::new("xdg-open")
+                        .arg("./assets/audio")
+                        .spawn()
+                        .unwrap();
                 }
                 ui.end_row();
 
                 ui.add(egui::Label::new("Slices"));
-                ui.add_sized([480.0, 40.0], egui::TextEdit::singleline(&mut str_buffer.0).hint_text("Defaults to 24. Example: \"28\""));
-                
+                ui.add_sized(
+                    [480.0, 40.0],
+                    egui::TextEdit::singleline(&mut str_buffer.0)
+                        .hint_text("Defaults to 24. Example: \"28\""),
+                );
             });
 
         // this is where the settings are converted to nokhwa settings
-        if ui.add_enabled(arduino.0 && selected.is_some(),egui::Button::new("Continue").min_size([120., 40.].into())).clicked() {
+        if ui
+            .add_enabled(
+                arduino.0 && selected.is_some(),
+                egui::Button::new("Continue").min_size([120., 40.].into()),
+            )
+            .clicked()
+        {
             settings.camera = nokhwa::utils::CameraIndex::Index(selected.clone().unwrap().1);
             match str_buffer.0.parse::<u8>() {
                 Ok(x) => slices.0 = x,

@@ -3,7 +3,7 @@ use std::ops::{Mul, Not};
 
 use crate::bluetooth::RotationInterval;
 use crate::camera::{reset_camera_controls, ColorSettings, VideoStream};
-use crate::prelude::CameraCrosshairTag;
+use crate::gui::CameraCrosshairTag;
 use crate::setup::Settings;
 use bevy::prelude::*;
 use nokhwa::pixel_format::RgbAFormat;
@@ -16,9 +16,6 @@ pub struct ZoetropeImage;
 
 #[derive(Resource)]
 pub struct ZoetropeAnimationThresholdSpeed(pub i8);
-
-#[derive(Resource)]
-pub struct Counter(pub u8);
 
 #[derive(Resource)]
 pub struct Slices(pub u8);
@@ -68,11 +65,6 @@ pub fn zoetrope_setup(
     windows: Query<&Window>,
     color_settings: ResMut<ColorSettings>,
 ) {
-    // next up is to open a camera (both physical camera for taking an image as well as the logical bevy one that looks at a plane)
-    // then open a stream from the camera with the right settings
-    // then constantly (read: every frame of the "game") get and image from the camera
-    // and to display that image to a plane that a 2d camera is looking at
-
     let cam = VideoStream::new(
         settings.camera.clone(),
         RequestedFormat::new::<RgbAFormat>(RequestedFormatType::Closest(CameraFormat::new(
@@ -131,7 +123,6 @@ pub fn zoetrope_animation(
         } else {
             val = (dir.animation * (rotation.0 as f32) / max.0 as f32).into();
         }
-        // PI / 12.0 should be tied to the framerate (slices) of the art in question
         transform.rotate_z((2. * PI / slices.0 as f32) * val);
     }
 }
