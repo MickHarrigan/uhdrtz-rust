@@ -3,6 +3,8 @@
 
 Ultra High Definition Real Time Zoetrope
 
+[Here](https://github.com/MickHarrigan/uhdrtz-rust) is a link to the repo itself.
+
 ## Team Members
 - Mick Harrigan
 - Christian Lostoski
